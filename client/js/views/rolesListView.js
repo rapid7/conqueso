@@ -4,9 +4,9 @@
  * work including confidential and proprietary information of Rapid7.
  **************************************************************************/
 
-define(["jquery", "underscore", "backbone", "handlebars", "../collections/roles",
+define(["jquery", "underscore", "backbone", "../collections/roles",
         "hbars!templates/roles/list.template"],
-function($, _, Backbone, Handlebars, RolesCollection, listTemplate) {
+function($, _, Backbone, RolesCollection, listTemplate) {
     
     return Backbone.View.extend({
         el : "#role-list",
@@ -17,7 +17,7 @@ function($, _, Backbone, Handlebars, RolesCollection, listTemplate) {
         },
         
         fetchCallback: function(collection) {
-            console.log("Collection loaded:")
+            console.log("Collection loaded:");
             console.log(collection.toJSON());
         },
 
