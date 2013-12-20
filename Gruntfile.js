@@ -1,10 +1,11 @@
-(function(){
+(function() {
     /*global __dirname*/
     module.exports = function(grunt) {
         "use strict";
 
         var jsFiles   = ["*.js", "client/js/**/*.js", "*.json"],
-            htmlFiles = ["client/**/*.template", "client/*.html"];
+            htmlFiles = ["client/**/*.template", "client/*.html"],
+            cssFiles  = ["client/css/*.css"];
 
         grunt.initConfig({
 
@@ -58,7 +59,7 @@
                         "unqualified-attributes": false,
                         "font-sizes": false
                     },
-                    src: ["**/*.css"]
+                    src: cssFiles
                 }
             },
 
@@ -80,60 +81,12 @@
                     tasks : ["jshint"]
                 },
                 css : {
-                    files : [],
-                    tasks : ["csslint", "cssmin"]
+                    files : cssFiles,
+                    tasks : ["csslint"]
                 },
                 html : {
                     files : htmlFiles,
                     tasks : ["htmlhint"]
-                }
-            },
-
-            /*"bower-install": {
-
-                target: {
-                    // Point to the html file that should be updated
-                    // when you run `grunt bower-install`
-                    html: "client/index.html",
-
-                    // ---------
-                    // Optional:
-                    // ---------
-
-                    // If your file paths shouldn't contain a certain
-                    // portion of a url, it can be excluded
-                    //
-                    //   default: ''
-                    //ignorePath: 'app/',
-
-                    // Customize how your stylesheets are included on
-                    // your page.
-                    //
-                    //   default: '<link rel="stylesheet" href="{{filePath}}" />'
-                    cssPattern: "<link href='{{filePath}}' rel='stylesheet'>",
-
-                    // Customize how your <script>s are included into
-                    // your HTML file.
-                    //
-                    //   default: '<script src="{{filePath}}"></script>'
-                    jsPattern: "<script type='text/javascript' src='{{filePath}}'></script>",
-
-                    directory : "client"
-                }
-            },*/
-
-            bower: {
-                /*install: {
-                    //just run 'grunt bower:install' and you'll see files from your Bower packages in lib directory
-                    options : {
-                        install : true
-                    }
-                },*/
-                target: {
-                    rjsConfig: "client/js/config.js",
-                    options: {
-                        install : true
-                    }
                 }
             },
 
@@ -146,22 +99,13 @@
         });
 
         /* Depedencies */
-        //grunt.loadNpmTasks("grunt-bower-task");
         grunt.loadNpmTasks("grunt-exec");
-        //grunt.loadNpmTasks("grunt-bower-install");
-        grunt.loadNpmTasks("grunt-bower-requirejs");
-        grunt.loadNpmTasks("grunt-contrib-clean");
         grunt.loadNpmTasks("grunt-contrib-jshint");
         grunt.loadNpmTasks("grunt-contrib-csslint");
         grunt.loadNpmTasks("grunt-contrib-watch");
         grunt.loadNpmTasks("grunt-htmlhint");
 
-        grunt.registerTask("default", ["exec:bower", "jshint", "htmlhint"]);
-
         /* Tasks */
-        /*grunt.registerTask("test",     ["jshint", "csslint", "htmlhint"]);
-        grunt.registerTask("compile",  ["requirejs:compile"]);
-        grunt.registerTask("notest",   ["clean", "compile"]);
-        grunt.registerTask("default",  ["clean", "test", "compile"]);*/
+        grunt.registerTask("default", ["exec:bower", "jshint", "csslint", "htmlhint"]);
     };
 })();

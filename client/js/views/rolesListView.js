@@ -13,8 +13,14 @@ function($, _, Backbone, Handlebars, RolesCollection, listTemplate) {
 
         initialize: function() {
             this.roles = new RolesCollection();
+            this.roles.fetch({sucess: _.bind(this.fetchCallback, this)});
         },
         
+        fetchCallback: function(collection) {
+            console.log("Collection loaded:")
+            console.log(collection.toJSON());
+        },
+
         render: function() {
             console.log("loading roles...");
             this.$el.html(listTemplate());
