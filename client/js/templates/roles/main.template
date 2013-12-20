@@ -1,0 +1,29 @@
+<div class="container-full">
+	<ul class="list-group">
+	 	<li class="list-group-item" style="background-color:#ccc; height:40px">
+	 		{{id.id}}
+	 	</li>
+
+	 	<li class="list-group-item">
+			<div class="row">
+			   	<span class="col-med-4 col-xs-4 property-name">
+					property.role.name
+				</span>
+				<span class="col-med-8 col-xs-8">
+					<input class="form-control" type="text"/>
+				</span>
+			</div>
+	 	</li>
+
+	 	<li class="list-group-item">
+			<div class="row">
+			   	<span class="col-med-4 col-xs-4 property-name">
+					property.role.name
+				</span>
+				<span class="col-med-8 col-xs-8">
+					<input class="form-control" type="text"/>
+				</span>
+			</div>
+	 	</li>
+	</ul>
+</div>
