@@ -9,24 +9,27 @@ module.exports = function(express, app) {
     // API
     app.get("/api/roles", function(req, res) {
         res.json([{
-            "name": "attribution-service",
+            "name": "cronjob-service",
             "instances": [{
                 "id": "i49217",
                 "ip-internal": "10.10.1.100"
             }]
         },
         {
-            "name": "behavior-generation-service",
+            "name": "foo-service",
+            "instances": []
+        },
+        {
+            "name": "interface-service",
             "instances": [{
                 "id": "i38304",
                 "ip-internal": "10.10.1.222"
             }]
-        }]);
+        }
+        ]);
     });
 
     app.get("/api/roles/:id/properties", function(req, res) {
-        console.log("getting properties for role: " + req.params.id);
-
         res.json({
             "id" : req.params.id,
             "properties" : [{

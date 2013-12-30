@@ -10,17 +10,21 @@ define(["backbone", "../views/propertiesView"], function(Backbone, PropertiesVie
     return Backbone.Router.extend({
 
         routes:{
-            "roles/:name" : "onRole"
+            "roles/:name"           : "roleRoute",
+            "properties/:property"  : "propertyRoute"
         },
 
         initialize: function() {
             Backbone.history.start({root: window.location.pathname});
         },
 
-        onRole: function(name) {
-            console.log("routing to name: " + name);
+        roleRoute: function(name) {
             this.propertiesView = new PropertiesView();
             this.propertiesView.render(name);
+        },
+
+        propertyRoute: function(property) {
+            console.log("property: " + property);
         }
     });
 });

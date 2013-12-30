@@ -8,6 +8,14 @@ body {
     font-family: "Roboto", "Helvetica", "sans serif";
 }
 
+a {
+    color: #222;
+}
+
+a:hover {
+    color: #1fa67a;
+}
+
 .container-full {
     margin: 0 auto;
     width: 100%;
@@ -21,13 +29,53 @@ body {
     border-radius: 0;
 }
 
-.navbar-brand {
+.navbar-inverse {
+    background-color: #1fa67a;
+    border-color: #1b926c;
+}
+
+.navbar-inverse .navbar-nav>li>a {
+    color: #b0ddce;
+}
+
+.navbar-inverse .navbar-brand {
+    color: #D7F7EC;
     font-size: 32px;
     font-weight: 300;
+}
+
+.property {
+    line-height: 35px;
 }
 
 .property-name {
     font-weight: 300;
     font-size: 13px;
-    line-height: 35px;
+}
+
+.icon-hidden {
+    display: none;
+}
+
+.icon {
+    opacity: 0.75
+}
+
+.icon:hover {
+    cursor: pointer;
+    opacity: 1;
+    color: #1fa67a;
+}
+
+.role-header {
+    background-color: #ccc;
+    height: 40px
+}
+
+.list-group-item.active {
+    background-color: #D7F7EC;
+}
+
+.add-property {
+    line-height: 20px;
 }

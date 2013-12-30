@@ -31,8 +31,8 @@
                     unused:    true,
                     trailing:  true,
                     quotmark:  "double",
-                    maxcomplexity: 8,
-                    maxstatements: 29,
+                    maxcomplexity: 5,
+                    maxstatements: 20,
                     maxlen:        135,
                     globals : {
                         "define"  : false,

@@ -1,18 +1,26 @@
 <div class="container-full">
 	<ul class="list-group">
 
-	 	<li class="list-group-item" style="background-color:#ccc; height:40px">
+	 	<li class="list-group-item role-header">
 	 		{{id}}
+
+	 		<a class="btn pull-right icon add-property">
+  				<i class="fa fa-plus-circle fa-lg"></i> Add property
+  			</a>
 	 	</li>
 
 	 	{{#each properties}}
 		 	<li class="list-group-item">
 				<div class="row">
-				   	<span class="col-med-4 col-xs-4 property-name">
-						{{name}}
+				   	<span class="col-med-4 col-xs-4 property property-name">
+						<a href="#properties/{{name}}">{{name}}</a>
 					</span>
-					<span class="col-med-8 col-xs-8">
+					<span class="col-med-7 col-xs-7">
 						<input class="form-control" type="text" value="{{value}}" />
+					</span>
+
+					<span class="col-med-1 col-xs-1">
+						<i class="fa fa-times-circle fa-lg property icon icon-hidden remove"></i>
 					</span>
 				</div>
 		 	</li>
