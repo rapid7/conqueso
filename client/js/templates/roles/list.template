@@ -1,6 +1,8 @@
 <ul class="list-group">
- 	<li class="list-group-item"><span class="pull-right label label-primary">14</span><a href="#roles/attribution-service">attribution-service</a></li>
- 	<li class="list-group-item"><span class="pull-right label label-danger">1</span><a href="#roles/behavior-generation-service">behavior-generation-service</a></li>
- 	<li class="list-group-item"><span class="pull-right label label-warning">3</span><a href="#roles/attribution-service">attribution-service</a></li>
- 	<li class="list-group-item"><span class="pull-right label label-info">7</span><a href="#roles/behavior-generation-service">behavior-generation-service</a></li>
+ 	{{#each this}}
+ 		<li class="list-group-item">
+ 			<span class="pull-right label label-primary">{{instances.length}}</span>
+ 			<a href="#roles/{{name}}">{{name}}</a>
+ 		</li>
+ 	{{/each}}
 </ul>

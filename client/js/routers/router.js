@@ -5,7 +5,7 @@
  **************************************************************************/
 
 /*global window */
-define(["backbone", "../views/roleView"], function(Backbone, RoleView){
+define(["backbone", "../views/propertiesView"], function(Backbone, PropertiesView){
 
     return Backbone.Router.extend({
 
@@ -18,8 +18,9 @@ define(["backbone", "../views/roleView"], function(Backbone, RoleView){
         },
 
         onRole: function(name) {
-            this.roleView = new RoleView({id: name});
-            this.roleView.render();
+            console.log("routing to name: " + name);
+            this.propertiesView = new PropertiesView();
+            this.propertiesView.render(name);
         }
     });
 });

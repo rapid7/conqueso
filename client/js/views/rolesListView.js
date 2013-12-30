@@ -11,18 +11,13 @@ function($, _, Backbone, RolesCollection, listTemplate) {
     return Backbone.View.extend({
         el : "#role-list",
 
-        initialize: function() {
-            this.roles = new RolesCollection();
-            this.roles.fetch({sucess: _.bind(this.fetchCallback, this)});
-        },
-        
         fetchCallback: function(collection) {
-            console.log("Collection loaded:");
-            console.log(collection.toJSON());
+            this.$el.html(listTemplate(collection.toJSON()));
         },
 
         render: function() {
-            console.log("loading roles...");
+            this.roles = new RolesCollection();
+            this.roles.fetch({success: _.bind(this.fetchCallback, this)});
             this.$el.html(listTemplate());
         }
     });

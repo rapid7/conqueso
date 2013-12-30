@@ -4,7 +4,7 @@
  * proprietary information of Rapid7.
  ******************************************************************************/
 
-define(["jquery", "underscore", "backbone", "../models/role"], function($, _, Backbone, RoleModel) {
+define(["jquery", "backbone", "../models/role"], function($, Backbone, RoleModel) {
     return Backbone.Collection.extend({
         model: RoleModel,
         url:   "api/roles/"

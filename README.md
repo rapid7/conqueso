@@ -13,10 +13,14 @@ sudo apt-get update
 sudo apt-get install nodejs
 
 
-
-Install bower
+Install Grunt and Bower
 ------
-sudo npm install -g bower
+npm install -g grunt-cli bower
+
+
+Install NPM dependencies (run this in the root directory)
+------
+npm install
 
 
 Build, pull down Bower dependencies and more (run this in the root directory)

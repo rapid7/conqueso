@@ -4,8 +4,16 @@
  * proprietary information of Rapid7.
  ******************************************************************************/
 
-define(["backbone"], function(Backbone){
+define(["backbone", "underscore"], function(Backbone){
     return Backbone.Model.extend({
-        urlRoot: "api/roles/"
+        urlRoot: "api/roles/",
+
+        getProperties : function(callback) {
+            this.fetch({
+                url : this.urlRoot + this.id + "/properties",
+                success : callback
+            });
+        }
+
     });
 });

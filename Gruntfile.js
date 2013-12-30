@@ -1,19 +1,19 @@
+/***************************************************************************
+ * COPYRIGHT (C) 2013, Rapid7 LLC, Boston, MA, USA.
+ * All rights reserved. This material contains unpublished, copyrighted
+ * work including confidential and proprietary information of Rapid7.
+ **************************************************************************/
+
 (function() {
-    /*global __dirname*/
+
     module.exports = function(grunt) {
         "use strict";
 
-        var jsFiles   = ["*.js", "client/js/**/*.js", "*.json"],
+        var jsFiles   = ["*.js", "client/js/**/*.js", "*.json", "server/**.js"],
             htmlFiles = ["client/**/*.template", "client/*.html"],
             cssFiles  = ["client/css/*.css"];
 
         grunt.initConfig({
-
-            PATHS: {
-                CLIENT: __dirname + "/client/",
-            },
-
-            pkg: grunt.file.readJSON("package.json"),
 
             jshint: {
                 options: {
