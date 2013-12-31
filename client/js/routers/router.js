@@ -4,49 +4,58 @@
  * work including confidential and proprietary information of Rapid7.
  **************************************************************************/
 
-define(["backbone", "underscore", "Broadcast",
-        "../views/propertiesView", "../views/editPropertyView"],
-        function(Backbone, _, Broadcast, PropertiesView, EditPropertyView){
+define(["backbone", "underscore", "../broadcast",
+        "../views/propertiesView", "../views/editPropertyView",
+        "../views/settingsView"],
+        function(Backbone, _, Broadcast, PropertiesView, EditPropertyView, SettingsView) {
 
     return Backbone.Router.extend({
-        history : [],
+        totalRoutes : 0,
 
         routes : {
             "roles/:name"                       : "roleRoute",
-            "roles/:name/properties/:property"  : "propertyRoute"
+            "roles/:name/properties/:property"  : "propertyRoute",
+            "settings"                          : "settingsRoute"
         },
 
         initialize: function() {
-            //Broadcast.on("route:previous", this.bind(this.previous, this));
-            this.bind("all", _.bind(this.storeRoute, this));
-
+            Broadcast.on("route:previous", _.bind(this.previous, this));
+            this.bind("all", _.bind(this.incRoute, this));
             Backbone.history.start();
         },
 
-        storeRoute: function() {
-            console.log("store route..");
-            this.history.push(Backbone.history.fragment);
+        incRoute: function() {
+            this.totalRoutes++;
         },
 
         previous: function() {
-            console.log("in previous");
-            if (this.history.length > 1) {
-                console.log("going back...");
-                this.navigate(this.history[this.history.length - 2], {silent: true});
+            if (this.totalRoutes > 1) {
+                window.history.back();
             } else {
                 this.navigate("");
             }
         },
 
         roleRoute: function(name) {
-            this.propertiesView = new PropertiesView();
+            if (!this.propertiesView) {
+                this.propertiesView = new PropertiesView();
+            }
             this.propertiesView.render(name);
         },
 
         propertyRoute: function(role, property) {
             console.log("Render property:" + property + ", for role:" + role);
-            this.propertyView = new EditPropertyView();
+            if (!this.propertyView) {
+                this.propertyView = new EditPropertyView();
+            }
             this.propertyView.render(property);
+        },
+
+        settingsRoute: function() {
+            if (!this.settingsView) {
+                this.settingsView = new SettingsView();
+            }
+            this.settingsView.render();
         }
     });
 });

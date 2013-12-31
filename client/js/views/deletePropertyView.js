@@ -13,16 +13,11 @@ function($, _, Backbone, Bootstrap, Broadcast, deleteTemplate) {
         el : "#modal",
 
         events : {
-            "click .yes-delete" : "confirmDelete",
-            "click .option" : "optionSelected"
+            "click .yes-delete" : "confirmDelete"
         },
 
         render: function() {
             this.$el.html(deleteTemplate()).modal("show");
-        },
-
-        optionSelected: function() {
-            Broadcast.trigger("reoute:previous");
         },
 
         confirmDelete: function() {

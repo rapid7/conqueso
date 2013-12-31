@@ -12,7 +12,8 @@ function($, _, Backbone, Bootstrap, Broadcast, editTemplate) {
         el : "#modal",
 
         events : {
-            "click .option" : "optionSelected"
+            "click .option" : "optionSelected",
+            "click .save" : "save"
         },
 
         optionSelected: function() {
@@ -21,6 +22,10 @@ function($, _, Backbone, Bootstrap, Broadcast, editTemplate) {
 
         render: function() {
             this.$el.html(editTemplate()).modal("show");
+        },
+
+        save: function() {
+            this.$el.modal("hide");
         }
     });
 });

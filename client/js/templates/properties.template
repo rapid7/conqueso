@@ -15,11 +15,11 @@
 				   	<span class="col-med-4 col-xs-4 property property-name">
 						<a href="#roles/{{../id}}/properties/{{name}}">{{name}}</a>
 					</span>
-					<span class="col-med-7 col-xs-7">
+					<span class="col-med-6 col-xs-6">
 						<input class="form-control" type="text" value="{{value}}" />
 					</span>
 
-					<span class="col-med-1 col-xs-1 icon-hidden controls">
+					<span class="col-med-2 col-xs-2 icon-hidden controls">
 					<a href="#roles/{{../id}}/properties/{{name}}" class="fa fa-pencil fa-lg property icon edit"></a>
 						<i class="fa fa-times-circle fa-lg property icon remove"></i>
 					</span>

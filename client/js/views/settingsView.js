@@ -4,22 +4,27 @@
  * work including confidential and proprietary information of Rapid7.
  **************************************************************************/
 
-define(["jquery", "underscore", "backbone", "bootstrap",
-        "hbars!templates/add.template"],
-function($, _, Backbone, Bootstrap, addTemplate) {
+define(["jquery", "underscore", "backbone", "bootstrap", "../broadcast",
+        "hbars!templates/settings.template"],
+function($, _, Backbone, Bootstrap, Broadcast, settingsTemplate) {
     
     return Backbone.View.extend({
         el : "#modal",
 
         events : {
-            "click .add-property-confirm" : "addProperty"
+            "click .save" : "save",
+            "click .option" : "optionSelected"
         },
 
         render: function() {
-            this.$el.html(addTemplate()).modal("show");
+            this.$el.html(settingsTemplate()).modal("show");
         },
 
-        addProperty: function() {
+        optionSelected: function() {
+            Broadcast.trigger("route:previous");
+        },
+
+        save: function() {
             this.$el.modal("hide");
         }
     });

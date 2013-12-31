@@ -1,11 +1,11 @@
 <div class="modal-dialog">
     <div class="modal-content">
         <div class="modal-header">
-            <h4 class="modal-title">Edit property</h4>
+            <h4 class="modal-title">Settings</h4>
         </div>
       
         <div class="modal-body">
-            <p>Edit your property here!</p>
+            <p>Modify your settings!</p>
         </div>
 
         <div class="modal-footer">

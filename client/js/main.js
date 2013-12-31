@@ -18,11 +18,6 @@
             "underscore"   : VENDOR_LIB + "lodash/dist/lodash.underscore.min"
         },
 
-        hbars: {
-            extension: ".template",
-            compileOptions: {}
-        },
-
         shim: {
             bootstrap: ["jquery"]
         }
@@ -37,7 +32,6 @@ require(["jquery", "backbone", "routers/router", "views/rolesListView",],
         this.rolesListView = new RolesListView();
         this.rolesListView.render();
 
-        // Start rooooting!
         this.router = new Router();
     });
 });

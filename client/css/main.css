@@ -16,15 +16,6 @@ a:hover {
     color: #1fa67a;
 }
 
-.container-full {
-    margin: 0 auto;
-    width: 100%;
-}
-
-.container-full.main {
-    padding: 0 30px;
-}
-
 .navbar {
     border-radius: 0;
 }
@@ -36,6 +27,14 @@ a:hover {
 
 .navbar-inverse .navbar-nav>li>a {
     color: #b0ddce;
+}
+
+.navbar-inverse .navbar-link {
+    color: #b0ddce;
+}
+
+.navbar-inverse .navbar-link:hover {
+    text-decoration: none;
 }
 
 .navbar-inverse .navbar-brand {
@@ -58,12 +57,12 @@ a:hover {
 }
 
 .icon {
-    text-decoration: none;
     opacity: 0.75
 }
 
 .icon:hover {
     cursor: pointer;
+    text-decoration: none;
     opacity: 1;
     color: #1fa67a;
 }
