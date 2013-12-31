@@ -4,22 +4,29 @@
  * work including confidential and proprietary information of Rapid7.
  **************************************************************************/
 
-define(["jquery", "backbone", "underscore", "../models/role",
-        "./deletePropertyView",
-        "hbars!templates/roles/properties.template"],
-function($, Backbone, _, RoleModel, DeletePropertyView, mainTemplate) {
+define(["jquery", "backbone", "underscore", "../broadcast", "../models/role",
+        "./deletePropertyView", "./addPropertyView",
+        "hbars!templates/properties.template"],
+function($, Backbone, _, Broadcast, RoleModel, DeletePropertyView, AddPropertyView, mainTemplate) {
     
     return Backbone.View.extend({
         el : "#main-content",
 
+        initialize: function() {
+            this.removeView = new DeletePropertyView();
+            this.addView = new AddPropertyView();
+        },
+
         events : {
             "mouseover .list-group-item" : "mouseOverPropertyRow",
             "mouseout  .list-group-item" : "mouseOutPropertyRow",
-            "click .remove"              : "removeProperty"
+            "click .remove"              : "removeProperty",
+            "click .add-property"        : "addProperty"
         },
 
         fetchCallback: function(model) {
             this.$el.html(mainTemplate(model.toJSON()));
+            Broadcast.trigger("role:change", {name : model.get("role")});
         },
 
         render: function(role) {
@@ -28,7 +35,7 @@ function($, Backbone, _, RoleModel, DeletePropertyView, mainTemplate) {
         },
 
         toggleRemove: function(event, showHide) {
-            $(event.currentTarget).find(".remove").toggle(showHide);
+            $(event.currentTarget).find(".controls").toggle(showHide);
         },
 
         mouseOutPropertyRow: function(event) {
@@ -40,8 +47,11 @@ function($, Backbone, _, RoleModel, DeletePropertyView, mainTemplate) {
         },
 
         removeProperty: function() {
-            this.removeView = new DeletePropertyView();
             this.removeView.render();
+        },
+
+        addProperty: function() {
+            this.addView.render();
         }
     });
 

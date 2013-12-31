@@ -4,15 +4,19 @@
  * work including confidential and proprietary information of Rapid7.
  **************************************************************************/
 
-define(["jquery", "underscore", "backbone", "../collections/roles",
-        "hbars!templates/roles/list.template"],
-function($, _, Backbone, RolesCollection, listTemplate) {
+define(["jquery", "underscore", "backbone", "../broadcast", "../collections/roles",
+        "hbars!templates/roleList.template"],
+function($, _, Backbone, Broadcast, RolesCollection, listTemplate) {
     
     return Backbone.View.extend({
         el : "#role-list",
 
+        initialize : function() {
+            Broadcast.on("role:change", _.bind(this.roleChange, this));
+        },
+
         events : {
-            "click .list-group-item > a" : "roleClick"
+            "click .role-item" : "roleClick"
         },
 
         fetchCallback: function(collection) {
@@ -22,12 +26,24 @@ function($, _, Backbone, RolesCollection, listTemplate) {
         render: function() {
             this.roles = new RolesCollection();
             this.roles.fetch({success: _.bind(this.fetchCallback, this)});
-            this.$el.html(listTemplate());
+        },
+
+        roleChange : function(event) {
+            this.roleChangeByElement(this.$(".role-item[data-name='"+event.name+"']"));
+        },
+
+        roleChangeByElement : function(element) {
+            if (!element || element && element.length === 0) {
+                return;
+            }
+
+            this.$(".role-item").removeClass("active");
+            element.addClass("active");
+            window.location.href = element.find("a").attr("href");
         },
 
         roleClick: function(event) {
-            this.$(".list-group-item").removeClass("active");
-            $(event.currentTarget).parent(".list-group-item").addClass("active");
+            this.roleChangeByElement($(event.currentTarget));
         }
     });
 

@@ -4,31 +4,23 @@
  * work including confidential and proprietary information of Rapid7.
  **************************************************************************/
 
-define(["jquery", "underscore", "backbone", "bootstrap",
-        "../broadcast",
-        "hbars!templates/delete.template"],
-function($, _, Backbone, Bootstrap, Broadcast, deleteTemplate) {
+define(["jquery", "underscore", "backbone", "bootstrap", "../broadcast",
+        "hbars!templates/edit.template"],
+function($, _, Backbone, Bootstrap, Broadcast, editTemplate) {
     
     return Backbone.View.extend({
         el : "#modal",
 
         events : {
-            "click .yes-delete" : "confirmDelete",
             "click .option" : "optionSelected"
         },
 
-        render: function() {
-            this.$el.html(deleteTemplate()).modal("show");
-        },
-
         optionSelected: function() {
-            Broadcast.trigger("reoute:previous");
+            Broadcast.trigger("route:previous");
         },
 
-        confirmDelete: function() {
-            console.log("Remove property here");
-            this.$el.modal("hide");
+        render: function() {
+            this.$el.html(editTemplate()).modal("show");
         }
     });
-
 });

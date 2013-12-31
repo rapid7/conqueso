@@ -29,9 +29,10 @@ module.exports = function(express, app) {
         ]);
     });
 
-    app.get("/api/roles/:id/properties", function(req, res) {
+    app.get("/api/roles/:role/properties", function(req, res) {
         res.json({
-            "id" : req.params.id,
+            "id" : req.params.role,
+            "role" : req.params.role,
             "properties" : [{
                 "name" : "config-property-1",
                 "type" : "STRING",
@@ -42,6 +43,14 @@ module.exports = function(express, app) {
                 "value" : "858.23"
             }]
         });
+    });
+
+    app.post("/api/roles/:role/properties/:property", function(req, res) {
+        res.json({});
+    });
+
+    app.delete("/api/roles/:role/properties/:property", function(req, res) {
+        res.json({});
     });
 
     // Application

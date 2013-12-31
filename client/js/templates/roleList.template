@@ -1,10 +1,10 @@
 <ul class="list-group">
-	<li class="list-group-item">
+	<li class="list-group-item role-item" data-name="global">
 		<a href="#roles/global">GLOBAL PROPERTIES</a>
 	</li>
 
  	{{#each this}}
- 		<li class="list-group-item">
+ 		<li class="list-group-item role-item" data-name="{{name}}">
  			<span class="pull-right label {{#if instances.length}}label-primary{{else}}label-default{{/if}}">{{instances.length}}</span>
  			<a href="#roles/{{name}}">{{name}}</a>
  		</li>

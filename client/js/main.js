@@ -31,13 +31,13 @@
 
 require(["jquery", "backbone", "routers/router", "views/rolesListView",],
          function($, Backbone, Router, RolesListView) {
+    
     $(document).ready(function(){
-
-        // Start rooooting!
-        this.router = new Router();
-
         // Load roles
         this.rolesListView = new RolesListView();
         this.rolesListView.render();
+
+        // Start rooooting!
+        this.router = new Router();
     });
 });

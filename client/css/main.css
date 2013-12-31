@@ -58,6 +58,7 @@ a:hover {
 }
 
 .icon {
+    text-decoration: none;
     opacity: 0.75
 }
 
@@ -67,15 +68,26 @@ a:hover {
     color: #1fa67a;
 }
 
+.icon.edit {
+    margin-left: -10px;
+    padding-right: 10px;
+}
+
 .role-header {
     background-color: #ccc;
     height: 40px
 }
 
-.list-group-item.active {
+.role-item.active {
     background-color: #D7F7EC;
 }
 
 .add-property {
-    line-height: 20px;
+    position: relative;
+    top: -6px;
+}
+
+.role-item:hover {
+    cursor: pointer;
+    background-color :#D7F7EC;
 }
