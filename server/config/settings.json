@@ -1,0 +1,15 @@
+{
+    "http": {
+        "port": 8080
+    },
+    "persist" : {
+        "type" : "MYSQL",
+        "config" : {
+            "host" : "localhost",
+            "port" : "8889",
+            "databaseName" : "configly",
+            "username" : "root",
+            "password" : "root"
+        }
+    }
+}

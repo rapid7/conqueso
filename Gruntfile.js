@@ -9,7 +9,7 @@
     module.exports = function(grunt) {
         "use strict";
 
-        var jsFiles   = ["*.js", "client/js/**/*.js", "*.json", "server/**.js"],
+        var jsFiles   = ["*.js", "client/js/**/*.js", "*.json", "server/**/*.js"],
             htmlFiles = ["client/**/*.template", "client/*.html"],
             cssFiles  = ["client/css/*.css"];
 

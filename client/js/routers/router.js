@@ -29,7 +29,7 @@ define(["backbone", "underscore", "../broadcast",
         },
 
         previous: function() {
-            if (this.totalRoutes > 1) {
+            if (this.totalRoutes > 2) {
                 window.history.back();
             } else {
                 this.navigate("");

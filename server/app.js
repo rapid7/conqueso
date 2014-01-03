@@ -5,10 +5,16 @@
  **************************************************************************/
 
 var express = require("express"),
+    settings = require("./config/settings"),
     app = express(),
-    port = 8080;
+    // remove
+    //mysql = require("./persistMysql"),
+    port = settings.getHttpPort();
 
 require("./routes")(express, app);
+
+// todo: remove -- just here for testing
+//mysql();
 
 app.listen(port);
 console.log("Listening on port: " + port);

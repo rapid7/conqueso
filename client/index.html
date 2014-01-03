@@ -11,26 +11,28 @@
 	</head>
 
 	<body>
-		<div id="modal" class="modal fade" data-backdrop="static" tabindex="-1"></div>
+		<div id="modal" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1"></div>
 
-		<header class="navbar navbar-inverse" role="banner">
+		<nav class="navbar navbar-inverse" role="navigation">
 		 	<div class="container">
 		    	<div class="navbar-header">
 		      		<a href="/" class="navbar-brand">configly</a>
 		   		</div>
 
-				<p class="navbar-text navbar-right navbar-item">
-					<a href="#settings" class="fa fa-gears fa-lg navbar-link"></a>
-				</p>
+		   		<div class="collapse navbar-collapse">
+					<p class="navbar-text navbar-right navbar-item">
+						<a href="#settings" class="fa fa-gears fa-lg navbar-link"></a>
+					</p>
+				</div>
 		 	</div>
-		</header>
+		</nav>
 
         <div class="container">
             <div class="row">
-        		<span class="col-med-3 col-xs-3">
+        		<span class="col-xs-3">
         			<div id="role-list"></div>
         		</span>
-        		<span class="col-med-9 col-xs-9">
+        		<span class="col-xs-9">
         			<div id="main-content"></div>
         		</span>
         	</div>
