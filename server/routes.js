@@ -45,10 +45,17 @@ module.exports = function(express, app) {
         });
     });
 
+    // Used for receiving list of properties from client
+    app.post("/api/roles/:role/properties", function(req, res) {
+        res.json({});
+    });
+
+    // Creating a single property
     app.post("/api/roles/:role/properties/:property", function(req, res) {
         res.json({});
     });
 
+    // Delete a property
     app.delete("/api/roles/:role/properties/:property", function(req, res) {
         res.json({});
     });

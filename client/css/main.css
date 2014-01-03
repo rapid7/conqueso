@@ -16,6 +16,10 @@ a:hover {
     color: #1fa67a;
 }
 
+.container {
+    width: 90%;
+}
+
 .navbar {
     border-radius: 0;
 }
@@ -49,7 +53,7 @@ a:hover {
 
 .property-name {
     font-weight: 300;
-    font-size: 13px;
+    font-size: 12px;
 }
 
 .icon-hidden {
