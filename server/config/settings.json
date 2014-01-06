@@ -5,11 +5,11 @@
     "persist" : {
         "type" : "MYSQL",
         "config" : {
-            "host" : "localhost",
-            "port" : "8889",
-            "databaseName" : "configly",
-            "username" : "root",
-            "password" : "root"
+            "host"          : "localhost",
+            "port"          : "8889",
+            "databaseName"  : "configly",
+            "user"          : "root",
+            "password"      : "root"
         }
     }
 }

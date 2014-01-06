@@ -30,6 +30,7 @@
                     noempty:   true,
                     unused:    true,
                     trailing:  true,
+                    multistr:  true,
                     quotmark:  "double",
                     maxcomplexity: 5,
                     maxstatements: 20,
