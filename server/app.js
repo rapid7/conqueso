@@ -7,14 +7,14 @@
 var express = require("express"),
     settings = require("./config/settings"),
     app = express(),
-    // remove
-    mysql = require("./persistMysql"),
+    
+    // todo: remove
+    PersistMysql = require("./persistMysql"),
+    persist = new PersistMysql(),
+    
     port = settings.getHttpPort();
 
-require("./routes")(express, app);
-
-// todo: remove -- just here for testing
-mysql();
+require("./routes")(express, app, persist);
 
 app.listen(port);
 console.log("Listening on port: " + port);

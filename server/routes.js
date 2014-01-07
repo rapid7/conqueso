@@ -5,10 +5,12 @@
  **************************************************************************/
 
 /* global __dirname */
-module.exports = function(express, app) {
+module.exports = function(express, app, persist) {
+    app.use(express.bodyParser());
+
     // API
     app.get("/api/roles", function(req, res) {
-        res.json([{
+        /*res.json([{
             "name": "cronjob-service",
             "instances": [{
                 "id": "i49217",
@@ -26,38 +28,34 @@ module.exports = function(express, app) {
                 "ip-internal": "10.10.1.222"
             }]
         }
-        ]);
-    });
+        ]);*/
 
-    app.get("/api/roles/:role/properties", function(req, res) {
-        res.json({
-            "id" : req.params.role,
-            "role" : req.params.role,
-            "properties" : [{
-                "name" : "config-property-1",
-                "type" : "STRING",
-                "value" : "123456"
-            }, {
-                "name" : "someothervalue",
-                "type" : "float",
-                "value" : "858.23"
-            }]
+        persist.getRoles(function(roles) {
+            res.json(roles);
         });
     });
 
-    // Used for receiving list of properties from client
-    app.post("/api/roles/:role/properties", function(req, res) {
-        res.json({});
+    app.get("/api/roles/:role/properties", function(req, res) {
+        persist.getProperties(req.params.role, function(properties) {
+            res.json({
+                name : req.params.role,
+                properties : properties
+            });
+        });
     });
 
     // Creating a single property
-    app.post("/api/roles/:role/properties/:property", function(req, res) {
-        res.json({});
+    app.post("/api/roles/:role/properties", function(req, res) {
+        persist.createProperty(req.params.role, req.body.key, req.body.type, req.body.value, function(property) {
+            res.json(property);
+        });
     });
 
     // Delete a property
     app.delete("/api/roles/:role/properties/:property", function(req, res) {
-        res.json({});
+        persist.deleteProperty(req.params.role, req.params.property, function(property) {
+            res.json(property);
+        });
     });
 
     // Application

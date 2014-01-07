@@ -46,13 +46,21 @@ function($, Backbone, _, Broadcast, RoleModel, DeletePropertyView, AddPropertyVi
             this.toggleRemove(event, true);
         },
 
-        removeProperty: function() {
-            this.removeView.render();
+        getRole: function(event) {
+            return $(event.currentTarget).data("role");
         },
 
-        addProperty: function() {
-            this.addView.render();
-        }
+        getPropertyName: function(event) {
+            return $(event.currentTarget).data("name");
+        },
+
+        addProperty: function(event) {
+            this.addView.render(this.getRole(event));
+        },
+
+        removeProperty: function(event) {
+            this.removeView.render(this.getRole(event), this.getPropertyName(event));
+        },
     });
 
 });

@@ -2,9 +2,9 @@
 	<ul class="list-group">
 
 	 	<li class="list-group-item role-header">
-	 		{{id}}
+	 		{{name}}
 
-	 		<a class="btn btn-default btn-sm pull-right icon add-property">
+	 		<a class="btn btn-default btn-sm pull-right icon add-property" data-role="{{name}}">
   				<i class="fa fa-plus-circle fa-lg"></i> Add property
   			</a>
 	 	</li>
@@ -13,15 +13,15 @@
 		 	<li class="list-group-item">
 				<div class="row">
 				   	<span class="col-xs-4 property property-name">
-						<a href="#roles/{{../id}}/properties/{{name}}">{{name}}</a>
+						<a href="#roles/{{../id}}/properties/{{key}}">{{key}}</a>
 					</span>
 					<span class="col-xs-6">
 						<input class="form-control" type="text" value="{{value}}" />
 					</span>
 
 					<span class="col-xs-2 icon-hidden controls">
-					<a href="#roles/{{../id}}/properties/{{name}}" class="fa fa-pencil fa-lg property icon edit"></a>
-						<i class="fa fa-times-circle fa-lg property icon remove"></i>
+						<a href="#roles/{{../id}}/properties/{{key}}" class="fa fa-pencil fa-lg property icon edit"></a>
+						<i class="fa fa-times-circle fa-lg property icon remove" data-role="{{../id}}" data-name="{{key}}"></i>
 					</span>
 				</div>
 		 	</li>

@@ -10,11 +10,9 @@ module.exports = {
 
     /* Create a new property
      * role     string
-     * name     string  name of property
-     * type     string  STRING,LIST,MAP
-     * value    string
+     * property object      {name, value, type}
      */
-    createProperty : function(role, name, type, value) {
+    createProperty : function(role, property, callback) {
 
     },
 
@@ -39,14 +37,14 @@ module.exports = {
      * role     string
      * name     string
      */
-    deleteProperty : function(role, name) {
+    deleteProperty : function(role, name, callback) {
 
     },
 
     /* Get all properties for a role
      * role     string
      */
-    getProperties : function(role) {
+    getProperties : function(role, callback) {
 
     },
 
@@ -54,7 +52,13 @@ module.exports = {
      * role     string
      * name     string
      */
-    getProperty : function(role, name) {
+    getProperty : function(role, name, callback) {
+
+    },
+
+    /* Return a list of roles
+     */
+    getRoles : function(callback) {
 
     }
 

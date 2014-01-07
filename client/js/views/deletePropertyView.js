@@ -5,9 +5,9 @@
  **************************************************************************/
 
 define(["jquery", "underscore", "backbone", "bootstrap",
-        "../broadcast",
+        "../models/property", 
         "hbars!templates/delete.template"],
-function($, _, Backbone, Bootstrap, Broadcast, deleteTemplate) {
+function($, _, Backbone, Bootstrap, Property, deleteTemplate) {
     
     return Backbone.View.extend({
         el : "#modal",
@@ -16,13 +16,26 @@ function($, _, Backbone, Bootstrap, Broadcast, deleteTemplate) {
             "click .yes-delete" : "confirmDelete"
         },
 
-        render: function() {
+        render: function(role, propertyName) {
             this.$el.html(deleteTemplate()).modal("show");
+            this.property = new Property({
+                id : propertyName,
+                key : propertyName,
+                role : role
+            });
+        },
+
+        deleteSuccess: function(model) {
+            console.log("delete successful");
+            this.$el.modal("hide");
+            console.log(model.toJSON());
         },
 
         confirmDelete: function() {
-            console.log("Remove property here");
-            this.$el.modal("hide");
+            console.log("here");
+            this.property.destroy({
+                success : _.bind(this.deleteSuccess, this)
+            })
         }
     });
 

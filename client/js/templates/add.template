@@ -5,7 +5,17 @@
         </div>
       
         <div class="modal-body">
-            <p>Add property content here</p>
+            <form role="form">
+                <div class="form-group">
+                    <input type="text" name="key" placeholder="Name" class="form-control" />
+                    <select name="type" class="form-control">
+                        <option value="" disabled="disabled">--Select one--</option>
+                        <option>STRING</option>
+                        <option>INTEGER</option>
+                    </select>
+                    <input type="text" name="value" placeholder="Value" class="form-control" />
+                </div>
+            </form>
         </div>
 
         <div class="modal-footer">

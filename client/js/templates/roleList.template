@@ -4,9 +4,9 @@
 	</li>
 
  	{{#each this}}
- 		<li class="list-group-item role-item" data-name="{{name}}">
- 			<span class="pull-right label {{#if instances.length}}label-primary{{else}}label-default{{/if}}">{{instances.length}}</span>
- 			<a href="#roles/{{name}}">{{name}}</a>
- 		</li>
+	<li class="list-group-item role-item" data-name="{{name}}">
+		<span class="pull-right label {{#if instances}}label-primary{{else}}label-default{{/if}}">{{instances.length}}</span>
+		<a href="#roles/{{name}}">{{name}}</a>
+	</li>
  	{{/each}}
 </ul>
