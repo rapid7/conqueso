@@ -19,6 +19,7 @@
         "nconf" : "~0.6.9",
         "mysql" : "~2.0.0-rc2",
         "lodash" : "~2.4.1",
-        "sequelize" : "~2.0.0-beta.7"
+        "sequelize" : "~2.0.0-beta.7",
+        "enum" : "~0.2.5"
     }
 }

@@ -7,6 +7,7 @@
 var config = require("./config/settings"),
     mysqlConfig = config.getPersistConfig(),
     Sequelize = require("sequelize"),
+    propertyType = require("./propertyType"),
     mysql = require("mysql"),
     _ = require("lodash");
 
@@ -24,84 +25,55 @@ module.exports = function() {
 
     var Property = sequelize.define("property", {
         key : Sequelize.TEXT,
-        value : Sequelize.TEXT
+        value : Sequelize.TEXT,
+        type : {
+            type : Sequelize.ENUM,
+            values : _.pluck(propertyType.enums, "key")
+        }
     });
 
     var Role = sequelize.define("role", {
         name : Sequelize.TEXT
     });
 
+    var Instance = sequelize.define("instance", {
+        ip : Sequelize.STRING,
+        metadata : Sequelize.TEXT
+    });
+
     Role.hasMany(Property, {as : "Properties"});
+    Role.hasMany(Instance, {as : "Instances"});
 
-    sequelize.sync().success(function() {
-         // Make some dummy data
-        /*var testProperty = Property.create({
-            key : "this is my key",
-            value : "this is my value"
-        }).success(function() {
-            var testRole = Role.create({
-                name : "hey it worked"
-            });
+    sequelize.sync();
 
-            testRole.setProperties([testProperty]).success(function() {
-                testRole.save();
-            });
-
-        });*/
-
-
-        var testRole = Role.build({
+    /*sequelize.sync().success(function() {
+        
+        // Make some dummy data
+        Role.create({
             name : "hey it worked"
+        }).success(function(role) {
+            Property.create({
+                key : "this is my key",
+                value : "this is my value",
+                type : propertyType.STRING.key
+            }).success(function(property) {
+                role.addProperty(property).success(function() {
+                    
+                    Role.find({ where : {name : "hey it worked"} }).success(function(role) {
+                        console.log("found the role!");
+
+                        role.getProperties().success(function(properties) {
+                            _.each(properties, function(prop) {
+                                console.log("Key: " + prop.dataValues.key + ", " + prop.dataValues.value);
+                            });
+                        });
+                    });
+
+                });
+            });
         });
+    });*/
 
-        var testProperty = Property.build({
-            key : "this is my key",
-            value : "this is my value"
-        });
+    
 
-        testRole.setProperties([testProperty]);
-
-        testProperty.save();
-        testRole.save();
-    });
-
-
-
-    //sequelize.sync();
-
-    /*connection.connect();
-
-    connection.query("CREATE DATABASE IF NOT EXISTS "+mysqlConfig.databaseName+";");
-
-    connection.changeUser({
-        database : "configly"
-    });
-
-    connection.query("CREATE TABLE IF NOT EXISTS `property` ( \
-      `id` INT(11) unsigned NOT NULL AUTO_INCREMENT, \
-      `timestamp` bigint(20) NOT NULL, \
-      `role` varchar(255) NOT NULL, \
-      `key` varchar(255) NOT NULL, \
-      `value` varchar(1024) NOT NULL, \
-      PRIMARY KEY (`id`) \
-    ) ENGINE=InnoDB DEFAULT CHARSET=latin1");
-
-    connection.end();*/
-
-    /*
-    CREATE TABLE IF NOT EXISTS `role` (
-      `id` varchar(255) unsigned NOT NULL AUTO_INCREMENT,
-      `name` varchar(1024) NOT NULL,
-      PRIMARY KEY (`id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=latin1
-
-
-    CREATE TABLE IF NOT EXISTS `service` (
-      `id` varchar(255) unsigned NOT NULL AUTO_INCREMENT,
-      `role_id` varchar(255) NOT NULL
-      PRIMARY KEY (`id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=latin1
-    */
-
-    //connection.end();
 };
