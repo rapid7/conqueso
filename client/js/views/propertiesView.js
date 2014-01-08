@@ -14,7 +14,10 @@ function($, Backbone, _, Broadcast, RoleModel, DeletePropertyView, AddPropertyVi
 
         initialize: function() {
             this.removeView = new DeletePropertyView();
+            this.removeView.on("property:delete", _.bind(this.render, this));
+
             this.addView = new AddPropertyView();
+            this.addView.on("property:add", _.bind(this.render, this));
         },
 
         events : {
@@ -26,11 +29,12 @@ function($, Backbone, _, Broadcast, RoleModel, DeletePropertyView, AddPropertyVi
 
         fetchCallback: function(model) {
             this.$el.html(mainTemplate(model.toJSON()));
-            Broadcast.trigger("role:change", {name : model.get("role")});
+            Broadcast.trigger("role:change", {name : model.get("name")});
         },
 
-        render: function(role) {
-            this.role = new RoleModel({id : role});
+        render: function(roleName) {
+            this.roleName = roleName;
+            this.role = new RoleModel({id : roleName});
             this.role.getProperties(_.bind(this.fetchCallback, this));
         },
 

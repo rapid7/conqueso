@@ -18,6 +18,7 @@ function($, _, Backbone, Bootstrap, Property, addTemplate) {
         },
 
         render: function(role) {
+            this.role = role;
             this.$el.html(addTemplate()).modal("show");
             this.property = new Property({role : role});
         },
@@ -27,13 +28,13 @@ function($, _, Backbone, Bootstrap, Property, addTemplate) {
             this.property.set(target.attr("name"), target.val());
         },
 
-        addCallback: function(model) {
-            console.log("here");
+        addCallback: function() {
             this.$el.modal("hide");
+            this.trigger("property:add", this.role);
         },
 
         addProperty: function() {
-            this.property.save({ success : _.bind(this.addCallback, this) });
+            this.property.save({}, { success : _.bind(this.addCallback, this) });
         }
     });
 

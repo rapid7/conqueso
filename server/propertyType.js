@@ -5,4 +5,4 @@
  **************************************************************************/
 
 var Enum = require("enum");
-module.exports = new Enum(["STRING", "BOOL", "DOUBLE", "FLOAT", "INT", "LONG", "LIST", "MAP"]);
+module.exports = new Enum(["STRING", "BOOLEAN", "DOUBLE", "FLOAT", "INTEGER", "LONG", "LIST", "MAP"]);

@@ -6,7 +6,8 @@
 
 /* global __dirname */
 module.exports = function(express, app, persist) {
-    app.use(express.bodyParser());
+    app.use(express.json());
+    app.use(express.urlencoded());
 
     // API
     app.get("/api/roles", function(req, res) {

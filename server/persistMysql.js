@@ -10,15 +10,15 @@ var config = require("./config/settings"),
     propertyType = require("./propertyType"),
     mysql = require("mysql"),
     _ = require("lodash"),
-    sequelize = null,
+    sequelize,
+    GLOBAL_ROLE = "global",
 
     // Tables
     Property,
     Role,
     Instance;
 
-// Constructor
-var PersistMysql = function() {
+function connect() {
     var connection = mysql.createConnection(mysqlConfig);
     connection.query("CREATE DATABASE IF NOT EXISTS "+mysqlConfig.databaseName+";");
     connection.end();
@@ -28,7 +28,9 @@ var PersistMysql = function() {
         port : mysqlConfig.port,
         dialect : "mysql"
     });
+}
 
+function createTables() {
     Property = sequelize.define("property", {
         key : Sequelize.TEXT,
         value : Sequelize.TEXT,
@@ -51,51 +53,79 @@ var PersistMysql = function() {
     Role.hasMany(Instance, {as : "Instances"});
 
     sequelize.sync();
+}
+
+// Constructor
+var PersistMysql = function() {
+    connect();
+    createTables();
 };
 
-function createRole(roleName) {
-    Role.find({ where : { name : roleName.toLowerCase() }}).success(function(role) {
+function findRoleByName(roleName, callback) {
+    Role.find({ where : { name : roleName }}).success(callback);
+}
+
+function createOrGetRole(roleName, callback) {
+    findRoleByName(roleName, function(role) {
         if (!role) {
-            console.log("role was not found");
+            Role.create({
+                name : roleName
+            }).success(function(role) {
+                callback(role);
+            });
         } else {
-            console.log("role was found");
+            callback(role);
         }
     });
 }
 
-function findRoleByName(roleName, callback) {
-    Role.find({ where : { name : roleName.toLowerCase() }}).success(callback);
+// Returns a callback with a list of property models
+function getGlobalProperties(callback) {
+    createOrGetRole(GLOBAL_ROLE, function(role) {
+        role.getProperties().success(function(properties) {
+            callback(properties);
+        });
+    });
 }
 
 function toJSON(rows) {
     return _.isArray(rows) ? _.pluck(rows, "dataValues") : rows.dataValues;
 }
 
+function mergeProperties(roleProperties, globalProperties) {
+    return _.union(roleProperties, globalProperties, "key");
+}
+
 PersistMysql.prototype.getRoles = function(callback) {
-    Role.findAll().success(function(roles) {
-        return callback(toJSON(roles));
+    Role.all({ where : ["name != ?", GLOBAL_ROLE] }).success(function(roles) {
+        callback(toJSON(roles));
     });
 };
 
 PersistMysql.prototype.getProperties = function(role, callback) {
-    findRoleByName(role, function(role) {
-        if (role) {
-            role.getProperties().success(function(properties) {
-                callback(toJSON(properties));
-            });
-        } else {
-            callback([]);
-        }
+    // Get global properties first
+    getGlobalProperties(function(globalProperties) {
+        // Get properties for this role
+        findRoleByName(role, function(role) {
+            if (role) {
+                role.getProperties().success(function(properties) {
+                    //callback(toJSON(globalProperties.concat(properties)));
+                    callback(toJSON(mergeProperties(properties, globalProperties)));
+                });
+            } else {
+                callback(toJSON(globalProperties || []));
+            }
+        });
     });
 };
 
-PersistMysql.prototype.deleteProperty = function(role, propertyName, callback) {
-    findRoleByName(role, function(role) {
-        role.getProperties({ where : { key : propertyName.toLowerCase() }, limit : 1 }).success(function(properties) {
+PersistMysql.prototype.deleteProperty = function(roleName, propertyName, callback) {
+    findRoleByName(roleName, function(role) {
+        role.getProperties({ where : { key : propertyName }}).success(function(properties) {
             if (properties && properties.length > 0) {
-                properties[0].destroy().success(function(property) {
-                    console.log(property);
-                    callback(toJSON(property));
+                var prop = properties[0];
+                prop.destroy().success(function() {
+                    callback(toJSON(prop));
                 });
             }
         });
@@ -103,18 +133,16 @@ PersistMysql.prototype.deleteProperty = function(role, propertyName, callback) {
 };
 
 PersistMysql.prototype.createProperty = function(roleName, name, type, value, callback) {
-    findRoleByName(roleName, function(role) {
-
+    createOrGetRole(roleName, function(role) {
         Property.create({
             key : name,
             type : propertyType.get(type).key,
             value : value
         }).success(function(property) {
             role.addProperty(property).success(function(property) {
-                callback(toJSON(property));         
+                callback(toJSON(property));
             });
         });
-
     });
 };
 
