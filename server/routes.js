@@ -4,44 +4,28 @@
  * work including confidential and proprietary information of Rapid7.
  **************************************************************************/
 
-/* global __dirname */
 module.exports = function(express, app, persist) {
     app.use(express.json());
     app.use(express.urlencoded());
 
     // API
     app.get("/api/roles", function(req, res) {
-        /*res.json([{
-            "name": "cronjob-service",
-            "instances": [{
-                "id": "i49217",
-                "ip-internal": "10.10.1.100"
-            }]
-        },
-        {
-            "name": "foo-service",
-            "instances": []
-        },
-        {
-            "name": "interface-service",
-            "instances": [{
-                "id": "i38304",
-                "ip-internal": "10.10.1.222"
-            }]
-        }
-        ]);*/
-
         persist.getRoles(function(roles) {
             res.json(roles);
         });
     });
 
+    // Get properties (for web interface)
+    app.get("/api/roles/:role/properties/web", function(req, res) {
+        persist.getProperties(req.params.role, function(properties) {
+            res.json(properties);
+        });
+    });
+
+    // Get properties (for client libraries)
     app.get("/api/roles/:role/properties", function(req, res) {
         persist.getProperties(req.params.role, function(properties) {
-            res.json({
-                name : req.params.role,
-                properties : properties
-            });
+            res.json(properties);
         });
     });
 

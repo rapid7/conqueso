@@ -51,6 +51,7 @@ function createTables() {
 
     Role.hasMany(Property, {as : "Properties"});
     Role.hasMany(Instance, {as : "Instances"});
+    Instance.belongsTo(Role);
 
     sequelize.sync();
 }
@@ -92,12 +93,19 @@ function toJSON(rows) {
     return _.isArray(rows) ? _.pluck(rows, "dataValues") : rows.dataValues;
 }
 
-function mergeProperties(roleProperties, globalProperties) {
+/*function mergeProperties(roleProperties, globalProperties) {
     return _.union(roleProperties, globalProperties, "key");
+}*/
+
+function getPropertiesDto(roleModel, properties) {
+    return {
+        name : roleModel.dataValues.name,
+        properties : properties
+    };
 }
 
 PersistMysql.prototype.getRoles = function(callback) {
-    Role.all({ where : ["name != ?", GLOBAL_ROLE] }).success(function(roles) {
+    Role.findAll({ where : ["name != ?", GLOBAL_ROLE], include : [{model : Instance, as : "Instances"}] }).success(function(roles) {
         callback(toJSON(roles));
     });
 };
@@ -109,8 +117,7 @@ PersistMysql.prototype.getProperties = function(role, callback) {
         findRoleByName(role, function(role) {
             if (role) {
                 role.getProperties().success(function(properties) {
-                    //callback(toJSON(globalProperties.concat(properties)));
-                    callback(toJSON(mergeProperties(properties, globalProperties)));
+                    callback(getPropertiesDto(role, toJSON(properties)));
                 });
             } else {
                 callback(toJSON(globalProperties || []));

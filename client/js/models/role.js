@@ -10,7 +10,7 @@ define(["backbone", "underscore"], function(Backbone){
 
         getProperties : function(callback) {
             this.fetch({
-                url : this.urlRoot + this.id + "/properties",
+                url : this.urlRoot + this.id + "/properties/web",
                 success : callback
             });
         }

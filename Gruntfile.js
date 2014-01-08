@@ -39,7 +39,8 @@
                         "define"  : false,
                         "require" : false,
                         "console" : false,
-                        "module"  : false
+                        "module"  : false,
+                        "__dirname" : false
                     }
                 },
                 files: jsFiles
