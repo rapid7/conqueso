@@ -16,15 +16,15 @@ module.exports = function(express, app, persist) {
     });
 
     // Get properties (for web interface)
-    app.get("/api/roles/:role/properties/web", function(req, res) {
-        persist.getProperties(req.params.role, function(properties) {
+    app.get("/api/roles/:role/properties-ui", function(req, res) {
+        persist.getProperties(req.params.role, true, function(properties) {
             res.json(properties);
         });
     });
 
     // Get properties (for client libraries)
     app.get("/api/roles/:role/properties", function(req, res) {
-        persist.getProperties(req.params.role, function(properties) {
+        persist.getProperties(req.params.role, true, function(properties) {
             res.json(properties);
         });
     });

@@ -4,10 +4,11 @@
  * work including confidential and proprietary information of Rapid7.
  **************************************************************************/
 
-define(["jquery", "backbone", "underscore", "../broadcast", "../models/role",
+define(["jquery", "backbone", "underscore", "../broadcast", "../models/role", "../collections/properties",
         "./deletePropertyView", "./addPropertyView",
         "hbars!templates/properties.template"],
-function($, Backbone, _, Broadcast, RoleModel, DeletePropertyView, AddPropertyView, mainTemplate) {
+function($, Backbone, _, Broadcast, RoleModel, PropertiesCollection,
+         DeletePropertyView, AddPropertyView, mainTemplate) {
     
     return Backbone.View.extend({
         el : "#main-content",
@@ -28,6 +29,7 @@ function($, Backbone, _, Broadcast, RoleModel, DeletePropertyView, AddPropertyVi
         },
 
         fetchCallback: function(model) {
+            this.properties = new PropertiesCollection(model.properties, {name : model.get("name")});
             this.$el.html(mainTemplate(model.toJSON()));
             Broadcast.trigger("role:change", {name : model.get("name")});
         },
