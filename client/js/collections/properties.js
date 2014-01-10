@@ -16,7 +16,7 @@ define(["jquery", "backbone", "../models/property"], function($, Backbone, Prope
         },
 
         url: function() {
-            return "api/roles/" + this.name + "/properties-ui";
+            return "api/roles/" + this.name + "/properties-web";
         }
     });
 });

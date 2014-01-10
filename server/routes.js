@@ -5,6 +5,8 @@
  **************************************************************************/
 
 module.exports = function(express, app, persist) {
+    var _ = require("lodash");
+
     app.use(express.json());
     app.use(express.urlencoded());
 
@@ -16,24 +18,34 @@ module.exports = function(express, app, persist) {
     });
 
     // Get properties (for web interface)
-    app.get("/api/roles/:role/properties-ui", function(req, res) {
-        persist.getProperties(req.params.role, true, function(properties) {
+    app.get("/api/roles/:role/properties-web", function(req, res) {
+        persist.getPropertiesForWeb(req.params.role, function(properties) {
             res.json(properties);
         });
     });
 
     // Get properties (for client libraries)
     app.get("/api/roles/:role/properties", function(req, res) {
-        persist.getProperties(req.params.role, true, function(properties) {
+        persist.getPropertiesForClient(req.params.role, function(properties) {
             res.json(properties);
         });
     });
 
-    // Creating a single property
+    // Create properties
     app.post("/api/roles/:role/properties", function(req, res) {
-        persist.createProperty(req.params.role, req.body.key, req.body.type, req.body.value, function(property) {
-            res.json(property);
-        });
+        // List from a client
+        if (_.isArray(req.body)) {
+            persist.createProperties(req.params.role, req.body, function(properties) {
+                res.json(properties);
+            });
+        // Single property -- usually from web client
+        } else if (_.isObject(req.body)) {
+            persist.createProperty(req.params.role, req.body.key, req.body.type, req.body.value, function(property) {
+                res.json(property);
+            });
+        } else {
+            res.send(500, "Invalid input");
+        }
     });
 
     // Delete a property

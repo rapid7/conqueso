@@ -93,10 +93,6 @@ function toJSON(rows) {
     return _.isArray(rows) ? _.pluck(rows, "dataValues") : rows.dataValues;
 }
 
-/*function mergeProperties(roleProperties, globalProperties) {
-    return _.union(roleProperties, globalProperties, "key");
-}*/
-
 // Get global properites overlayed with role properties
 function getCombinedProperties(globalProperties, roleProperties) {
     var properties = roleProperties;
@@ -122,27 +118,34 @@ function getPropertiesDto(roleModel, properties) {
     };
 }
 
+function getPropertiesForRole(role, callback) {
+    findRoleByName(role, function(role) {
+        if (role) {
+            role.getProperties().success(function(properties) {
+                callback(role, properties);
+            });
+        } else {
+            callback(null, []);
+        }
+    });
+}
+
 PersistMysql.prototype.getRoles = function(callback) {
     Role.findAll({ where : ["name != ?", GLOBAL_ROLE], include : [{model : Instance, as : "Instances"}] }).success(function(roles) {
         callback(toJSON(roles));
     });
 };
 
-PersistMysql.prototype.getProperties = function(role, overlayGlobal, callback) {
-    // Get global properties first
-    getGlobalProperties(function(globalProperties) {
-        console.log(globalProperties);
-        // Get properties for this role
-        findRoleByName(role, function(role) {
-            if (role) {
-                role.getProperties().success(function(properties) {
-                    //callback(getPropertiesDto(role, toJSON(properties)));
+PersistMysql.prototype.getPropertiesForWeb = function(roleName, callback) {
+    getPropertiesForRole(roleName, function(role, properties) {
+        callback(getPropertiesDto(role, toJSON(properties)));
+    });
+};
 
-                    callback(getPropertiesDto(role, toJSON(getCombinedProperties(globalProperties, properties))));
-                });
-            } else {
-                callback(toJSON(globalProperties || []));
-            }
+PersistMysql.prototype.getPropertiesForClient = function(roleName, callback) {
+    getGlobalProperties(function(globalProperties) {
+        getPropertiesForRole(roleName, function(role, properties) {
+            callback(getPropertiesDto(role, toJSON(getCombinedProperties(globalProperties, properties))));
         });
     });
 };
@@ -169,6 +172,17 @@ PersistMysql.prototype.createProperty = function(roleName, name, type, value, ca
         }).success(function(property) {
             role.addProperty(property).success(function(property) {
                 callback(toJSON(property));
+            });
+        });
+    });
+};
+
+PersistMysql.prototype.createProperties = function(roleName, properties, callback) {
+    createOrGetRole(roleName, function(role) {
+        Property.bulkCreate(properties).success(function(resultingProperties) {
+            console.log(resultingProperties);
+            role.addProperty(resultingProperties).success(function(resultingProperties) {
+                callback(toJSON(resultingProperties));
             });
         });
     });

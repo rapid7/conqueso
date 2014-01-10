@@ -12,16 +12,7 @@ module.exports = {
      * role     string
      * property object      {name, value, type}
      */
-    createProperty : function(role, property, callback) {
-
-    },
-
-    /* Update and existing property
-     * role     string
-     * name     string  name of property
-     * value    string
-     */
-    updateProperty : function(role, name, value) {
+    createProperty : function(role, name, value, type, callback) {
 
     },
 
@@ -29,7 +20,7 @@ module.exports = {
      * role         string
      * properties   list        list of property objects
      */
-    updateProperties : function(role, properties) {
+    createProperties : function(role, properties, callback) {
 
     },
 
@@ -42,9 +33,20 @@ module.exports = {
     },
 
     /* Get all properties for a role
+     * includeGlobal true/false
      * role     string
+     * returns json
      */
-    getProperties : function(role, callback) {
+    getPropertiesForWeb : function(role, callback) {
+
+    },
+
+    /* Get all properties for a role and overlay global properties
+     * includeGlobal true/false
+     * role     string
+     * returns text/plain
+     */
+    getPropertiesForClient : function(role, callback) {
 
     },
 
