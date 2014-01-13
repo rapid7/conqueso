@@ -26,7 +26,8 @@ function connect() {
     sequelize = new Sequelize(mysqlConfig.databaseName, mysqlConfig.user, mysqlConfig.password, {
         host : mysqlConfig.host,
         port : mysqlConfig.port,
-        dialect : "mysql"
+        dialect : "mysql",
+        omitNull: true
     });
 }
 
@@ -66,26 +67,14 @@ function findRoleByName(roleName, callback) {
     Role.find({ where : { name : roleName }}).success(callback);
 }
 
-function createOrGetRole(roleName, callback) {
-    findRoleByName(roleName, function(role) {
-        if (!role) {
-            Role.create({
-                name : roleName
-            }).success(function(role) {
-                callback(role);
-            });
-        } else {
-            callback(role);
-        }
-    });
+function findOrCreateRole(roleName, callback) {
+    Role.findOrCreate({ name : roleName }).success(callback);
 }
 
 // Returns a callback with a list of property models
 function getGlobalProperties(callback) {
-    createOrGetRole(GLOBAL_ROLE, function(role) {
-        role.getProperties().success(function(properties) {
-            callback(properties);
-        });
+    findOrCreateRole(GLOBAL_ROLE, function(role) {
+        role.getProperties().success(callback);
     });
 }
 
@@ -113,7 +102,7 @@ function getCombinedProperties(globalProperties, roleProperties) {
 
 function getPropertiesDto(roleModel, properties) {
     return {
-        name : roleModel.dataValues.name,
+        name : _.isString(roleModel) ? roleModel : roleModel.dataValues.name,
         properties : properties
     };
 }
@@ -138,7 +127,7 @@ PersistMysql.prototype.getRoles = function(callback) {
 
 PersistMysql.prototype.getPropertiesForWeb = function(roleName, callback) {
     getPropertiesForRole(roleName, function(role, properties) {
-        callback(getPropertiesDto(role, toJSON(properties)));
+        callback(getPropertiesDto(role || roleName, toJSON(properties)));
     });
 };
 
@@ -163,12 +152,12 @@ PersistMysql.prototype.deleteProperty = function(roleName, propertyName, callbac
     });
 };
 
-PersistMysql.prototype.createProperty = function(roleName, name, type, value, callback) {
-    createOrGetRole(roleName, function(role) {
+PersistMysql.prototype.createProperty = function(roleName, property, callback) {
+    findOrCreateRole(roleName, function(role) {
         Property.create({
-            key : name,
-            type : propertyType.get(type).key,
-            value : value
+            key : property.key,
+            type : propertyType.get(property.type).key,
+            value : property.value
         }).success(function(property) {
             role.addProperty(property).success(function(property) {
                 callback(toJSON(property));
@@ -178,13 +167,26 @@ PersistMysql.prototype.createProperty = function(roleName, name, type, value, ca
 };
 
 PersistMysql.prototype.createProperties = function(roleName, properties, callback) {
-    createOrGetRole(roleName, function(role) {
-        Property.bulkCreate(properties).success(function(resultingProperties) {
-            console.log(resultingProperties);
-            role.addProperty(resultingProperties).success(function(resultingProperties) {
-                callback(toJSON(resultingProperties));
+    findOrCreateRole(roleName, function() {
+        getPropertiesForRole(roleName, function(role, existingProps) {
+
+            // Filter props that already exist
+            existingProps = _.pluck(_.pluck(existingProps, "dataValues"), "key");
+            properties = _.filter(properties, function(prop) {
+                return !_.contains(existingProps, prop.key);
             });
+
+            // Add the role id to each property
+            _.each(properties, function(property) {
+                property.roleId = role.dataValues.id;
+            });
+
+            Property.bulkCreate(properties).success(function(props) {
+                callback(toJSON(props));
+            });
+
         });
+
     });
 };
 

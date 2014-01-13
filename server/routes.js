@@ -5,12 +5,13 @@
  **************************************************************************/
 
 module.exports = function(express, app, persist) {
-    var _ = require("lodash");
+    var _ = require("lodash"),
+        trycatch = require("trycatch");
 
     app.use(express.json());
     app.use(express.urlencoded());
 
-    // API
+    // Get roles
     app.get("/api/roles", function(req, res) {
         persist.getRoles(function(roles) {
             res.json(roles);
@@ -33,19 +34,24 @@ module.exports = function(express, app, persist) {
 
     // Create properties
     app.post("/api/roles/:role/properties", function(req, res) {
-        // List from a client
-        if (_.isArray(req.body)) {
-            persist.createProperties(req.params.role, req.body, function(properties) {
-                res.json(properties);
-            });
-        // Single property -- usually from web client
-        } else if (_.isObject(req.body)) {
-            persist.createProperty(req.params.role, req.body.key, req.body.type, req.body.value, function(property) {
-                res.json(property);
-            });
-        } else {
-            res.send(500, "Invalid input");
-        }
+        trycatch(function() {
+            // List from a client
+            if (_.isArray(req.body)) {
+                persist.createProperties(req.params.role, req.body, function(properties) {
+                    res.json(properties);
+                });
+            // Single property -- usually from web client
+            } else if (_.isObject(req.body)) {
+                persist.createProperty(req.params.role, req.body, function(property) {
+                    res.json(property);
+                });
+            } else {
+                res.send(500, "Invalid input");
+            }
+        }, function(err) {
+            res.send(500, "Sorry -- something went wrong");
+            console.log(err.stack);
+        });
     });
 
     // Delete a property

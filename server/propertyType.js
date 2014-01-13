@@ -5,6 +5,4 @@
  **************************************************************************/
 
 var Enum = require("enum");
-module.exports = new Enum(["STRING", "BOOLEAN", "DOUBLE", "FLOAT", "INTEGER", "LONG", "LIST", "MAP"]);
-
-// Todo, change to these: BOOLEAN, DOUBLE, FLOAT, INT, LONG, STRING, STRING_LIST, STRING_MAP, STRING_SET
+module.exports = new Enum(["STRING", "BOOLEAN", "DOUBLE", "FLOAT", "INT", "LONG", "STRING_LIST", "STRING_MAP", "STRING_SET"]);

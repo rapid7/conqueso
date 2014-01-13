@@ -17,10 +17,11 @@
                         <option>BOOLEAN</option>
                         <option>DOUBLE</option>
                         <option>FLOAT</option>
-                        <option>INTEGER</option>
+                        <option>INT</option>
                         <option>LONG</option>
-                        <option>LIST</option>
-                        <option>MAP</option>
+                        <option>STRING_LIST</option>
+                        <option>STRING_MAP</option>
+                        <option>STRING_SET</option>
                     </select>
                 </div> 
 
