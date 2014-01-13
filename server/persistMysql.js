@@ -10,6 +10,7 @@ var config = require("./config/settings"),
     propertyType = require("./propertyType"),
     mysql = require("mysql"),
     _ = require("lodash"),
+    trycatch = require("trycatch"),
     sequelize,
     GLOBAL_ROLE = "global",
 
@@ -19,15 +20,19 @@ var config = require("./config/settings"),
     Instance;
 
 function connect() {
-    var connection = mysql.createConnection(mysqlConfig);
-    connection.query("CREATE DATABASE IF NOT EXISTS "+mysqlConfig.databaseName+";");
-    connection.end();
+    trycatch(function() {
+        var connection = mysql.createConnection(mysqlConfig);
+        connection.query("CREATE DATABASE IF NOT EXISTS "+mysqlConfig.databaseName+";");
+        connection.end();
 
-    sequelize = new Sequelize(mysqlConfig.databaseName, mysqlConfig.user, mysqlConfig.password, {
-        host : mysqlConfig.host,
-        port : mysqlConfig.port,
-        dialect : "mysql",
-        omitNull: true
+        sequelize = new Sequelize(mysqlConfig.databaseName, mysqlConfig.user, mysqlConfig.password, {
+            host : mysqlConfig.host,
+            port : mysqlConfig.port,
+            dialect : "mysql",
+            omitNull: true
+        });
+    }, function() {
+        console.log("Failed to connect to database. Make sure SQL is running and you have the appropriate permissions.");
     });
 }
 
@@ -134,7 +139,11 @@ PersistMysql.prototype.getPropertiesForWeb = function(roleName, callback) {
 PersistMysql.prototype.getPropertiesForClient = function(roleName, callback) {
     getGlobalProperties(function(globalProperties) {
         getPropertiesForRole(roleName, function(role, properties) {
-            callback(getPropertiesDto(role, toJSON(getCombinedProperties(globalProperties, properties))));
+            if (role) {
+                callback(getPropertiesDto(role, toJSON(getCombinedProperties(globalProperties, properties))));
+            } else {
+                callback(getPropertiesDto(roleName, []));
+            }
         });
     });
 };

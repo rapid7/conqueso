@@ -6,7 +6,8 @@
 
 module.exports = function(express, app, persist) {
     var _ = require("lodash"),
-        trycatch = require("trycatch");
+        trycatch = require("trycatch"),
+        utils = require("./utils");
 
     app.use(express.json());
     app.use(express.urlencoded());
@@ -20,15 +21,16 @@ module.exports = function(express, app, persist) {
 
     // Get properties (for web interface)
     app.get("/api/roles/:role/properties-web", function(req, res) {
-        persist.getPropertiesForWeb(req.params.role, function(properties) {
-            res.json(properties);
+        persist.getPropertiesForWeb(req.params.role, function(propsDto) {
+            res.json(propsDto);
         });
     });
 
     // Get properties (for client libraries)
     app.get("/api/roles/:role/properties", function(req, res) {
-        persist.getPropertiesForClient(req.params.role, function(properties) {
-            res.json(properties);
+        persist.getPropertiesForClient(req.params.role, function(propsDto) {
+            res.header("Content-Type", "text/plain charset=UTF-8");
+            res.send(utils.propertiesToTextPlain(propsDto.properties));
         });
     });
 
