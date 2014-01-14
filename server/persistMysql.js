@@ -51,8 +51,7 @@ function createTables() {
     });
 
     Instance = sequelize.define("instance", {
-        ip : Sequelize.STRING,
-        metadata : Sequelize.TEXT
+        ip : Sequelize.STRING
     });
 
     Role.hasMany(Property, {as : "Properties"});
@@ -124,6 +123,22 @@ function getPropertiesForRole(role, callback) {
     });
 }
 
+function findOrCreateInstance(roleName, ipAddress, callback) {
+    findRoleByName(roleName, function(role) {
+        role.getInstances({ where : { ip : ipAddress } }).success(function(instances) {
+            if (_.isEmpty(instances)) {
+                Instance.create({
+                    ip : ipAddress
+                }).success(function(instance) {
+                    role.addInstance(instance).success(callback);
+                });
+            } else {
+                callback(instances[0]);
+            }
+        });
+    });
+}
+
 PersistMysql.prototype.getRoles = function(callback) {
     Role.findAll({ where : ["name != ?", GLOBAL_ROLE], include : [{model : Instance, as : "Instances"}] }).success(function(roles) {
         callback(toJSON(roles));
@@ -175,15 +190,18 @@ PersistMysql.prototype.createProperty = function(roleName, property, callback) {
     });
 };
 
+// Existing properties are models that already exist and properties are the new tuples to be created
+function getNewProperties(existingProperties, properties) {
+    existingProperties = _.pluck(_.pluck(existingProperties, "dataValues"), "key");
+    return _.filter(properties, function(prop) {
+        return !_.contains(existingProperties, prop.key);
+    });
+}
+
 PersistMysql.prototype.createProperties = function(roleName, properties, callback) {
     findOrCreateRole(roleName, function() {
         getPropertiesForRole(roleName, function(role, existingProps) {
-
-            // Filter props that already exist
-            existingProps = _.pluck(_.pluck(existingProps, "dataValues"), "key");
-            properties = _.filter(properties, function(prop) {
-                return !_.contains(existingProps, prop.key);
-            });
+            properties = getNewProperties(existingProps, properties);
 
             // Add the role id to each property
             _.each(properties, function(property) {
@@ -193,9 +211,18 @@ PersistMysql.prototype.createProperties = function(roleName, properties, callbac
             Property.bulkCreate(properties).success(function(props) {
                 callback(toJSON(props));
             });
-
         });
+    });
+};
 
+// Todo check if role exists
+PersistMysql.prototype.instanceCheckIn = function(roleName, ipAddress, callback) {
+    findOrCreateInstance(roleName, ipAddress, function(instance) {
+        instance.updateAttributes({
+            ip : ipAddress
+        }).success(function(instance) {
+            callback(instance);
+        });
     });
 };
 

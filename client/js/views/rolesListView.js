@@ -11,7 +11,10 @@ function($, _, Backbone, Broadcast, RolesCollection, listTemplate) {
     return Backbone.View.extend({
         el : "#role-list",
 
+        FETCH_INTERVAL : 5000,
+
         initialize : function() {
+            this.roles = new RolesCollection();
             Broadcast.on("role:change", _.bind(this.roleChange, this));
         },
 
@@ -20,12 +23,26 @@ function($, _, Backbone, Broadcast, RolesCollection, listTemplate) {
         },
 
         fetchCallback: function(collection) {
-            this.$el.html(listTemplate(collection.toJSON()));
+            collection.add({
+                name : "GLOBAL PROPERTIES",
+                url : "global",
+                id : "global",
+                instances : null
+            }, {at: 0});
+            this.renderTemplate();
+        },
+
+        renderTemplate: function() {
+            this.$el.html(listTemplate(this.roles.toJSON()));
+        },
+
+        fetchRolesPoller: function() {
+            this.roles.fetch({update: true, merge: true, success: _.bind(this.fetchCallback, this)});
         },
 
         render: function() {
-            this.roles = new RolesCollection();
-            this.roles.fetch({success: _.bind(this.fetchCallback, this)});
+            this.fetchRolesPoller();
+            this.interval = setInterval(_.bind(this.fetchRolesPoller, this), this.FETCH_INTERVAL);
         },
 
         roleChange : function(event) {
@@ -36,9 +53,13 @@ function($, _, Backbone, Broadcast, RolesCollection, listTemplate) {
             if (!element || element && element.length === 0) {
                 return;
             }
+            
+            _.each(this.roles.models, function(model) {
+                model.unset("active");
+            });
+            this.roles.get(element.data("id")).set("active", true);
+            this.renderTemplate();
 
-            this.$(".role-item").removeClass("active");
-            element.addClass("active");
             window.location.href = element.find("a").attr("href");
         },
 

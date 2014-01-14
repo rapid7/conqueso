@@ -11,5 +11,8 @@
             "user"          : "root",
             "password"      : "root"
         }
+    },
+    "properties" : {
+        "pollInteveral" : 30
     }
 }

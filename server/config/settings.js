@@ -4,7 +4,6 @@
  * work including confidential and proprietary information of Rapid7.
  **************************************************************************/
 
-/* global __dirname */
 var fs = require("fs"),
     nconf = require("nconf"),
     configFile = __dirname + "/settings.json";
@@ -22,6 +21,10 @@ module.exports = {
 
     getPersistConfig: function() {
         return nconf.get("persist:config");
+    },
+
+    getPropertiesPollInterval: function() {
+        return nconf.get("properties:pollInterval");
     },
 
     /*jshint unused:false */

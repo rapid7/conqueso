@@ -29,8 +29,12 @@ module.exports = function(express, app, persist) {
     // Get properties (for client libraries)
     app.get("/api/roles/:role/properties", function(req, res) {
         persist.getPropertiesForClient(req.params.role, function(propsDto) {
-            res.header("Content-Type", "text/plain charset=UTF-8");
-            res.send(utils.propertiesToTextPlain(propsDto.properties));
+            var ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+
+            persist.instanceCheckIn(req.params.role, ip, function() {
+                res.header("Content-Type", "text/plain charset=UTF-8");
+                res.send(utils.propertiesToTextPlain(propsDto.properties));
+            });
         });
     });
 

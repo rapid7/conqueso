@@ -62,6 +62,12 @@ module.exports = {
      */
     getRoles : function(callback) {
 
+    },
+
+    /* Checks in a instance of a role 
+     */
+    instanceCheckIn : function(role, ipAddress, callback) {
+
     }
 
 };
