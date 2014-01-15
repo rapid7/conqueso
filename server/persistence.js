@@ -68,6 +68,13 @@ module.exports = {
      */
     instanceCheckIn : function(role, ipAddress, callback) {
 
+    },
+
+    /* Checks every #{ageOutTime} seconds. If an instance has not checked in, mark
+     * it offline
+     */
+    markInstsancesOffline : function(ageOutTime) {
+
     }
 
 };

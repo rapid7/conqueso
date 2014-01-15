@@ -7,7 +7,8 @@
 var express = require("express"),
     settings = require("./config/settings"),
     app = express(),
-    
+    serviceTracker = require("./serviceTracker"),
+
     // todo: remove
     PersistMysql = require("./persistMysql"),
     persist = new PersistMysql(),
@@ -15,6 +16,8 @@ var express = require("express"),
     port = settings.getHttpPort();
 
 require("./routes")(express, app, persist);
+
+serviceTracker(persist);
 
 app.listen(port);
 console.log("Listening on port: " + port);

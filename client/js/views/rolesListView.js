@@ -11,7 +11,7 @@ function($, _, Backbone, Broadcast, Role, RolesCollection, listTemplate) {
     return Backbone.View.extend({
         el : "#role-list",
 
-        FETCH_INTERVAL : 5000,
+        FETCH_INTERVAL : 10000,
 
         globalRole : new Role({
             name : "GLOBAL PROPERTIES",

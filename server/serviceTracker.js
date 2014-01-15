@@ -4,10 +4,11 @@
  * work including confidential and proprietary information of Rapid7.
  **************************************************************************/
 
-define(["backbone"], function(Backbone){
-    return Backbone.Model.extend({
-        urlRoot: function() {
-            return "api/roles/" + this.get("role") + "/properties-web";
-        }
-    });
-});
+module.exports = function(persistence) {
+	var config = require("./config/settings"),
+		interval = config.getPropertiesPollInterval() * 1000;
+
+	setInterval(function() {
+		persistence.markInstancesOffline(interval);
+	}, interval);
+};

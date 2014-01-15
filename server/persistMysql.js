@@ -17,7 +17,8 @@ var config = require("./config/settings"),
     // Tables
     Property,
     Role,
-    Instance;
+    Instance,
+    InstanceMetadata;
 
 function connect() {
     trycatch(function() {
@@ -38,7 +39,7 @@ function connect() {
 
 function createTables() {
     Property = sequelize.define("property", {
-        name : Sequelize.TEXT,
+        name : Sequelize.STRING,
         value : Sequelize.TEXT,
         type : {
             type : Sequelize.ENUM,
@@ -47,16 +48,34 @@ function createTables() {
     });
 
     Role = sequelize.define("role", {
-        name : Sequelize.TEXT
+        name : Sequelize.STRING
     });
 
     Instance = sequelize.define("instance", {
-        ip : Sequelize.STRING
+        ip : Sequelize.STRING,
+        pollingInterval : {
+            type : Sequelize.INTEGER,
+            defaultValue : 60000
+        },
+        offline : {
+            type : Sequelize.BOOLEAN,
+            allowNull : false,
+            defaultValue : false
+        }
     });
+
+    InstanceMetadata = sequelize.define("instance_metadata", {
+        attributeKey : Sequelize.STRING,
+        attributeValue : Sequelize.STRING
+    });
+
+    Instance.hasMany(InstanceMetadata);
 
     Role.hasMany(Property, {as : "Properties"});
     Role.hasMany(Instance, {as : "Instances"});
-    Instance.belongsTo(Role);
+    //Instance.belongsTo(Role);
+
+    //InstanceMetadata.belongsTo(Instance);
 
     sequelize.sync();
 }
@@ -123,17 +142,49 @@ function getPropertiesForRole(role, callback) {
     });
 }
 
-function findOrCreateInstance(roleName, ipAddress, callback) {
+// Todo : make this not suck
+function findOrCreateInstance(roleName, ipAddress, metadata, callback) {
     findRoleByName(roleName, function(role) {
-        role.getInstances({ where : { ip : ipAddress } }).success(function(instances) {
+        role.getInstances({ where : { ip : ipAddress }}).success(function(instances) {
+            var instance;
+
             if (_.isEmpty(instances)) {
+                // Create a new instance
                 Instance.create({
                     ip : ipAddress
                 }).success(function(instance) {
                     role.addInstance(instance).success(callback);
                 });
             } else {
-                callback(instances[0]);
+                instance = instances[0];
+                // Check to see if metadata is the same, if it does, service is online
+                // and return that instance, otherwise, we need a new instance because
+                // it's metadata (version?) has changed
+                instance.getInstanceMetadata().success(function(metadatas) {
+                    var attrKeys = [],
+                        attrValues = [];
+
+                    _.each(metadatas, function(m) {
+                        attrKeys.push(m.dataValues.attributeKey);
+                        attrValues.push(m.dataValues.attributeValue);
+                    });
+
+                    // Same -- metadata null is a hack for polling GETs
+                    if ( _.isEmpty(_.difference(attrKeys, _.keys(metadata))) &&
+                         _.isEmpty(_.difference(attrValues, _.values(metadata))) || metadata === null) {
+
+                        instance.updateAttributes({ offline : false }).success(callback);
+                    
+                    // The instance should be offline, create a new one
+                    } else {
+                        // Create a new instance
+                        Instance.create({
+                            ip : ipAddress
+                        }).success(function(instance) {
+                            role.addInstance(instance).success(callback);
+                        });
+                    }
+                });
             }
         });
     });
@@ -141,6 +192,13 @@ function findOrCreateInstance(roleName, ipAddress, callback) {
 
 PersistMysql.prototype.getRoles = function(callback) {
     Role.findAll({ where : ["name != ?", GLOBAL_ROLE], include : [{model : Instance, as : "Instances"}] }).success(function(roles) {
+
+        // Only return instances that are online
+        _.map(roles, function(role) {
+            role.dataValues.instances = _.filter(role.dataValues.instances, function(instance) {
+                return instance.offline === false;
+            });
+        });
         callback(toJSON(roles));
     });
 };
@@ -216,12 +274,35 @@ PersistMysql.prototype.createProperties = function(roleName, properties, callbac
 };
 
 // Todo check if role exists
-PersistMysql.prototype.instanceCheckIn = function(roleName, ipAddress, callback) {
-    findOrCreateInstance(roleName, ipAddress, function(instance) {
+PersistMysql.prototype.instanceCheckIn = function(roleName, ipAddress, metadata, callback) {
+    findOrCreateInstance(roleName, ipAddress, metadata, function(instance) {
         instance.updateAttributes({
             ip : ipAddress
         }).success(function(instance) {
-            callback(instance);
+            InstanceMetadata.create({
+                attributeKey : "foo",
+                attributeValue : "bar"
+            }).success(function(metadata) {
+                instance.setInstanceMetadata([metadata]).success(function() {
+                    callback(instance);
+                });
+            });
+        });
+    });
+};
+
+PersistMysql.prototype.markInstancesOffline = function() {
+    Instance.findAll({ where : {offline : false} }).success(function(instances) {
+        instances = _.filter(instances, function(instance) {
+            var timeSinceUpdate = new Date() - instance.dataValues.updatedAt;
+            console.log(timeSinceUpdate);
+            return timeSinceUpdate > instance.dataValues.pollingInterval * 2;
+        });
+
+        _.each(instances, function(instance) {
+            instance.updateAttributes({
+                offline : true
+            });
         });
     });
 };

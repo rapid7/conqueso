@@ -5,12 +5,15 @@
  **************************************************************************/
 
 module.exports = function(express, app, persist) {
-    var _ = require("lodash"),
-        trycatch = require("trycatch"),
+    var trycatch = require("trycatch"),
         utils = require("./utils");
 
     app.use(express.json());
     app.use(express.urlencoded());
+
+    function getRemoteIp(req) {
+        return req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+    }
 
     // Get roles
     app.get("/api/roles", function(req, res) {
@@ -29,36 +32,41 @@ module.exports = function(express, app, persist) {
     // Get properties (for client libraries)
     app.get("/api/roles/:role/properties", function(req, res) {
         persist.getPropertiesForClient(req.params.role, function(propsDto) {
-            var ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
-
-            persist.instanceCheckIn(req.params.role, ip, function() {
+            persist.instanceCheckIn(req.params.role, getRemoteIp(req), null, function() {
                 res.header("Content-Type", "text/plain charset=UTF-8");
                 res.send(utils.propertiesToTextPlain(propsDto.properties));
             });
         });
     });
 
-    // Create properties
-    app.post("/api/roles/:role/properties", function(req, res) {
+    // Create a property (for web interface)
+    app.post("/api/roles/:role/properties-web", function(req, res) {
         trycatch(function() {
-            // List from a client
-            if (_.isArray(req.body)) {
-                persist.createProperties(req.params.role, req.body, function(properties) {
-                    res.json(properties);
-                });
-            // Single property -- usually from web client
-            } else if (_.isObject(req.body)) {
-                persist.createProperty(req.params.role, req.body, function(property) {
-                    res.json(property);
-                });
-            } else {
-                res.send(500, "Invalid input");
-            }
+            persist.createProperty(req.params.role, req.body, function(property) {
+                res.json(property);
+            });
         }, function(err) {
             res.send(500, "Sorry -- something went wrong");
             console.log(err.stack);
         });
     });
+
+    // Create properties (from a client library)
+    app.post("/api/roles/:role/properties", function(req, res) {
+        trycatch(function() {
+            var properties = req.body.properties || req.body,
+                metadata = req.body.instanceMetadata || {};
+
+            persist.instanceCheckIn(req.params.role, getRemoteIp(req), metadata, null);
+            persist.createProperties(req.params.role, properties, function(properties) {
+                res.json(properties);
+            });
+        }, function(err) {
+            res.send(500, "Sorry -- something went wrong");
+            console.log(err.stack);
+        });
+    });
+
 
     // Delete a property
     app.delete("/api/roles/:role/properties/:property", function(req, res) {

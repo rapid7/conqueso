@@ -24,7 +24,7 @@ module.exports = {
     },
 
     getPropertiesPollInterval: function() {
-        return nconf.get("properties:pollInterval");
+        return nconf.get("properties:pollInteveral");
     },
 
     /*jshint unused:false */
