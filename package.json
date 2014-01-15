@@ -21,6 +21,7 @@
         "lodash" : "~2.4.1",
         "sequelize" : "~2.0.0-dev1",
         "enum" : "~0.2.5",
-        "trycatch" : "~1.0.6"
+        "trycatch" : "~1.0.6",
+        "cron" : "~1.0.1"
     }
 }
