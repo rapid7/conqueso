@@ -38,7 +38,7 @@ function connect() {
 
 function createTables() {
     Property = sequelize.define("property", {
-        key : Sequelize.TEXT,
+        name : Sequelize.TEXT,
         value : Sequelize.TEXT,
         type : {
             type : Sequelize.ENUM,
@@ -92,7 +92,7 @@ function getCombinedProperties(globalProperties, roleProperties) {
 
     _.each(globalProperties, function(globalProp) {
         var result = _.filter(properties, function(property){
-            return property.dataValues.key === globalProp.dataValues.key;
+            return property.dataValues.name === globalProp.dataValues.name;
         });
 
         // Add the global global property
@@ -165,7 +165,7 @@ PersistMysql.prototype.getPropertiesForClient = function(roleName, callback) {
 
 PersistMysql.prototype.deleteProperty = function(roleName, propertyName, callback) {
     findRoleByName(roleName, function(role) {
-        role.getProperties({ where : { key : propertyName }}).success(function(properties) {
+        role.getProperties({ where : { name : propertyName }}).success(function(properties) {
             if (properties && properties.length > 0) {
                 var prop = properties[0];
                 prop.destroy().success(function() {
@@ -179,7 +179,7 @@ PersistMysql.prototype.deleteProperty = function(roleName, propertyName, callbac
 PersistMysql.prototype.createProperty = function(roleName, property, callback) {
     findOrCreateRole(roleName, function(role) {
         Property.create({
-            key : property.key,
+            name : property.name,
             type : propertyType.get(property.type).key,
             value : property.value
         }).success(function(property) {
@@ -192,9 +192,9 @@ PersistMysql.prototype.createProperty = function(roleName, property, callback) {
 
 // Existing properties are models that already exist and properties are the new tuples to be created
 function getNewProperties(existingProperties, properties) {
-    existingProperties = _.pluck(_.pluck(existingProperties, "dataValues"), "key");
+    existingProperties = _.pluck(_.pluck(existingProperties, "dataValues"), "name");
     return _.filter(properties, function(prop) {
-        return !_.contains(existingProperties, prop.key);
+        return !_.contains(existingProperties, prop.name);
     });
 }
 

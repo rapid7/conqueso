@@ -4,17 +4,25 @@
  * work including confidential and proprietary information of Rapid7.
  **************************************************************************/
 
-define(["jquery", "underscore", "backbone", "../broadcast", "../collections/roles",
+define(["jquery", "underscore", "backbone", "../broadcast", "../models/role", "../collections/roles",
         "hbars!templates/roleList.template"],
-function($, _, Backbone, Broadcast, RolesCollection, listTemplate) {
+function($, _, Backbone, Broadcast, Role, RolesCollection, listTemplate) {
     
     return Backbone.View.extend({
         el : "#role-list",
 
         FETCH_INTERVAL : 5000,
 
+        globalRole : new Role({
+            name : "GLOBAL PROPERTIES",
+            url : "global",
+            id : "global",
+            instances : null,
+            active : false
+        }),
+
         initialize : function() {
-            this.roles = new RolesCollection();
+            this.roles = new RolesCollection([this.globalRole]);
             Broadcast.on("role:change", _.bind(this.roleChange, this));
         },
 
@@ -22,13 +30,7 @@ function($, _, Backbone, Broadcast, RolesCollection, listTemplate) {
             "click .role-item" : "roleClick"
         },
 
-        fetchCallback: function(collection) {
-            collection.add({
-                name : "GLOBAL PROPERTIES",
-                url : "global",
-                id : "global",
-                instances : null
-            }, {at: 0});
+        fetchCallback: function() {
             this.renderTemplate();
         },
 
@@ -37,7 +39,7 @@ function($, _, Backbone, Broadcast, RolesCollection, listTemplate) {
         },
 
         fetchRolesPoller: function() {
-            this.roles.fetch({update: true, merge: true, success: _.bind(this.fetchCallback, this)});
+            this.roles.fetch({update: true, merge: true, remove: false, success: _.bind(this.fetchCallback, this)});
         },
 
         render: function() {
@@ -46,17 +48,16 @@ function($, _, Backbone, Broadcast, RolesCollection, listTemplate) {
         },
 
         roleChange : function(event) {
-            this.roleChangeByElement(this.$(".role-item[data-name='"+event.name+"']"));
+            this.roleChangeByElement(this.$(".role-item[data-name='"+event.name+"'],"+
+                                            ".role-item[data-id='"  +event.name+"']"));
         },
 
         roleChangeByElement : function(element) {
             if (!element || element && element.length === 0) {
                 return;
             }
-            
-            _.each(this.roles.models, function(model) {
-                model.unset("active");
-            });
+
+            this.roles.unsetActive();
             this.roles.get(element.data("id")).set("active", true);
             this.renderTemplate();
 
@@ -67,6 +68,4 @@ function($, _, Backbone, Broadcast, RolesCollection, listTemplate) {
             this.roleChangeByElement($(event.currentTarget));
         }
     });
-
 });
-

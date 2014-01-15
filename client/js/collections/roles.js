@@ -4,9 +4,15 @@
  * work including confidential and proprietary information of Rapid7.
  **************************************************************************/
 
-define(["jquery", "backbone", "../models/role"], function($, Backbone, RoleModel) {
+define(["jquery", "underscore", "backbone", "../models/role"], function($, _, Backbone, RoleModel) {
     return Backbone.Collection.extend({
         model: RoleModel,
-        url:   "api/roles/"
+        url:   "api/roles/",
+
+        unsetActive : function() {
+            _.each(this.models, function(model) {
+                model.unset("active");
+            });
+        }
     });
 });

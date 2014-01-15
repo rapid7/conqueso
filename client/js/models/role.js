@@ -14,6 +14,5 @@ define(["backbone", "underscore"], function(Backbone){
                 success : callback
             });
         }
-
     });
 });

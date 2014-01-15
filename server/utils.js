@@ -10,7 +10,7 @@ module.exports = {
     propertiesToTextPlain : function(properties) {
         var result = "";
         _.each(properties, function(property) {
-            result += property.key + "=" + property.value + "\n";
+            result += property.name + "=" + property.value + "\n";
         });
         return result;
     }
