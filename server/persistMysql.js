@@ -142,6 +142,28 @@ function getPropertiesForRole(role, callback) {
     });
 }
 
+function isMetadataSame(metadataModels, newMetadata) {
+    var attrKeys = [],
+        attrValues = [];
+
+    _.each(metadataModels, function(m) {
+        attrKeys.push(m.dataValues.attributeKey);
+        attrValues.push(m.dataValues.attributeValue);
+    });
+
+    // Same -- metadata null is a hack for polling GETs
+    return ( _.isEmpty(_.difference(attrKeys, _.keys(newMetadata))) &&
+             _.isEmpty(_.difference(attrValues, _.values(newMetadata))) || newMetadata === null);
+}
+
+function createInstanceForRole(role, ipAddress, callback) {
+    Instance.create({
+        ip : ipAddress
+    }).success(function(instance) {
+        role.addInstance(instance).success(callback);
+    });
+}
+
 // Todo : make this not suck
 function findOrCreateInstance(roleName, ipAddress, metadata, callback) {
     findRoleByName(roleName, function(role) {
@@ -149,40 +171,22 @@ function findOrCreateInstance(roleName, ipAddress, metadata, callback) {
             var instance;
 
             if (_.isEmpty(instances)) {
-                // Create a new instance
-                Instance.create({
-                    ip : ipAddress
-                }).success(function(instance) {
-                    role.addInstance(instance).success(callback);
-                });
+                createInstanceForRole(role, ipAddress, callback);
+                
             } else {
                 instance = instances[0];
-                // Check to see if metadata is the same, if it does, service is online
+                // Check to see if metadata is the same, if it is, service is online
                 // and return that instance, otherwise, we need a new instance because
                 // it's metadata (version?) has changed
                 instance.getInstanceMetadata().success(function(metadatas) {
-                    var attrKeys = [],
-                        attrValues = [];
-
-                    _.each(metadatas, function(m) {
-                        attrKeys.push(m.dataValues.attributeKey);
-                        attrValues.push(m.dataValues.attributeValue);
-                    });
-
+                    
                     // Same -- metadata null is a hack for polling GETs
-                    if ( _.isEmpty(_.difference(attrKeys, _.keys(metadata))) &&
-                         _.isEmpty(_.difference(attrValues, _.values(metadata))) || metadata === null) {
-
+                    if (isMetadataSame(metadatas, metadata)) {
                         instance.updateAttributes({ offline : false }).success(callback);
                     
                     // The instance should be offline, create a new one
                     } else {
-                        // Create a new instance
-                        Instance.create({
-                            ip : ipAddress
-                        }).success(function(instance) {
-                            role.addInstance(instance).success(callback);
-                        });
+                        createInstanceForRole(role, ipAddress, callback);
                     }
                 });
             }
