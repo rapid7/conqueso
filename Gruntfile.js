@@ -11,7 +11,7 @@
 
         var jsFiles   = ["*.js", "client/js/**/*.js", "*.json", "server/**/*.js"],
             htmlFiles = ["client/**/*.template", "client/*.html"],
-            cssFiles  = ["client/css/*.css"];
+            cssFiles  = ["client/css/*.scss"];
 
         grunt.initConfig({
 
@@ -77,6 +77,18 @@
                 src: htmlFiles
             },
 
+            sass: {
+                dist : {
+                    options: {
+                        includePaths: require("node-bourbon").includePaths,
+                        outputStyle: "compressed"
+                    },
+                    files: {
+                        "client/css/main.css" : "client/css/main.scss"
+                    }
+                }
+            },
+
             watch: {
                 scripts : {
                     files : jsFiles,
@@ -84,7 +96,7 @@
                 },
                 css : {
                     files : cssFiles,
-                    tasks : ["csslint"]
+                    tasks : ["sass:dist"]
                 },
                 html : {
                     files : htmlFiles,
@@ -103,11 +115,11 @@
         /* Depedencies */
         grunt.loadNpmTasks("grunt-exec");
         grunt.loadNpmTasks("grunt-contrib-jshint");
-        grunt.loadNpmTasks("grunt-contrib-csslint");
         grunt.loadNpmTasks("grunt-contrib-watch");
         grunt.loadNpmTasks("grunt-htmlhint");
+        grunt.loadNpmTasks("grunt-sass");
 
         /* Tasks */
-        grunt.registerTask("default", ["exec:bower", "jshint", "csslint", "htmlhint"]);
+        grunt.registerTask("default", ["exec:bower", "jshint", "sass:dist", "htmlhint"]);
     };
 })();

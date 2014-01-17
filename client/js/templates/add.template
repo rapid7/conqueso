@@ -25,6 +25,36 @@
                     </select>
                 </div> 
 
+                <div class="btn-group form-group btn-group-justified" data-toggle="buttons">
+                  <label class="btn btn-primary">
+                    <input type="radio" name="options" /> String
+                  </label>
+                  <label class="btn btn-primary">
+                    <input type="radio" name="options" /> Bool
+                  </label>
+                  <label class="btn btn-primary">
+                    <input type="radio" name="options" /> Double
+                  </label>
+                    <label class="btn btn-primary">
+                    <input type="radio" name="options" /> Float
+                  </label>
+                             <label class="btn btn-primary">
+                    <input type="radio" name="options" /> Int
+                  </label>
+                             <label class="btn btn-primary">
+                    <input type="radio" name="options" /> Long
+                  </label>
+                             <label class="btn btn-primary">
+                    <input type="radio" name="options" /> List
+                  </label>
+                             <label class="btn btn-primary">
+                    <input type="radio" name="options" /> Map
+                  </label>
+                             <label class="btn btn-primary">
+                    <input type="radio" name="options" /> Set
+                  </label>
+                </div>
+
                 <div class="form-group">
                     <input type="text" name="value" placeholder="Value" class="form-control" />
                 </div>
