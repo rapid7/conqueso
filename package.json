@@ -10,19 +10,19 @@
     },
     "dependencies" : {
         "grunt" : "~0.4.2",
-        "express" : "~3.4.7",
+        "express" : "~3.4.8",
         "grunt-exec" : "~0.4.2",
-        "grunt-contrib-jshint" : "~0.7.2",
+        "grunt-contrib-jshint" : "~0.8.0",
         "grunt-contrib-watch" : "~0.5.3",
         "grunt-htmlhint" : "~0.4.0",
         "nconf" : "~0.6.9",
-        "mysql" : "~2.0.0-rc2",
+        "mysql" : "~2.0.1",
         "lodash" : "~2.4.1",
-        "sequelize" : "~2.0.0-dev1",
+        "sequelize" : "~2.0.0-dev2",
         "enum" : "~0.2.5",
         "trycatch" : "~1.0.6",
         
-        "grunt-sass" : "~0.9.0",
+        "grunt-sass" : "~0.10.0",
         "node-bourbon" : "~1.0.0"
     }
 }
