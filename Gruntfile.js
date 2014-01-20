@@ -42,7 +42,7 @@
                     trailing:  true,
                     multistr:  true,
                     quotmark:  "double",
-                    maxcomplexity: 5,
+                    maxcomplexity: 10,
                     maxstatements: 20,
                     maxlen:        135,
                     globals : {

@@ -14,10 +14,15 @@
 * limitations under the License.
 */
 
-module.exports = function(persistence) {
-	var interval = require("./config/settings").getPropertiesPollInterval() * 1000;
+var settings = require("../config/settings"),
+	persistence;
 
-	setInterval(function() {
-		persistence.markInstancesOffline(interval);
-	}, interval);
-};
+switch (settings.getPersistType()) {
+	case "MYSQL":
+		persistence = require("./persistMysql");
+		break;
+	default:
+		throw new Error("Unrecognized persistence type");
+}
+
+module.exports = new persistence(settings.getPersistConfig());

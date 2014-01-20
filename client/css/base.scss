@@ -57,13 +57,25 @@ a:hover {
     font-weight: 300;
 }
 
-.property {
-    line-height: 35px;
+.property-item {
+    padding-top: 5px;
+    line-height: 20px;
 }
 
 .property-name {
     font-weight: 300;
     font-size: 12px;
+}
+
+.property-type {
+    display: none;
+}
+
+.property-textarea {
+    @include box-sizing(border-box);
+    width: 100%;
+    resize: vertical;
+    height: 100px;
 }
 
 .icon-hidden {
@@ -106,7 +118,5 @@ a:hover {
 }
 
 .modal-dialog {
-    width: 65%;
-    max-width: 900px;
-    min-width: 700px;
+    width: 55%;
 }

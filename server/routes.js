@@ -79,7 +79,7 @@ module.exports = function(express, app, persist) {
 
 
     // Delete a property
-    app.delete("/api/roles/:role/properties/:property", function(req, res) {
+    app.delete("/api/roles/:role/properties-web/:property", function(req, res) {
         persist.deleteProperty(req.params.role, req.params.property, function(property) {
             res.json(property);
         });

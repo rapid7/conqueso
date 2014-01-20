@@ -14,10 +14,9 @@
 * limitations under the License.
 */
 
-var config = require("./config/settings"),
-    mysqlConfig = config.getPersistConfig(),
+var config = {},
     Sequelize = require("sequelize"),
-    propertyType = require("./propertyType"),
+    propertyType = require("../propertyType"),
     mysql = require("mysql"),
     _ = require("lodash"),
     trycatch = require("trycatch"),
@@ -32,13 +31,13 @@ var config = require("./config/settings"),
 
 function connect() {
     trycatch(function() {
-        var connection = mysql.createConnection(mysqlConfig);
-        connection.query("CREATE DATABASE IF NOT EXISTS "+mysqlConfig.databaseName+";");
+        var connection = mysql.createConnection(config);
+        connection.query("CREATE DATABASE IF NOT EXISTS "+config.databaseName+";");
         connection.end();
 
-        sequelize = new Sequelize(mysqlConfig.databaseName, mysqlConfig.user, mysqlConfig.password, {
-            host : mysqlConfig.host,
-            port : mysqlConfig.port,
+        sequelize = new Sequelize(config.databaseName, config.user, config.password, {
+            host : config.host,
+            port : config.port,
             dialect : "mysql",
             omitNull: true
         });
@@ -83,15 +82,13 @@ function createTables() {
 
     Role.hasMany(Property, {as : "Properties"});
     Role.hasMany(Instance, {as : "Instances"});
-    //Instance.belongsTo(Role);
-
-    //InstanceMetadata.belongsTo(Instance);
 
     sequelize.sync();
 }
 
 // Constructor
-var PersistMysql = function() {
+var PersistMysql = function(configuration) {
+    config = configuration;
     connect();
     createTables();
 };

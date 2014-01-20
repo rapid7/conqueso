@@ -14,33 +14,53 @@
 * limitations under the License.
 */
 
-define(["jquery", "underscore", "backbone", "bootstrap",
+define(["jquery", "underscore", "backbone", "bootstrap", "bootstrap-switch",
         "../models/property",
-        "hbars!templates/add.template"],
-function($, _, Backbone, Bootstrap, Property, addTemplate) {
+        "hbars!templates/add.template",
+        "hbars!templates/propertyTypes.template"],
+function($, _, Backbone, Bootstrap, bsswitcher, Property, addTemplate, propertyTypes) {
     
     return Backbone.View.extend({
         el : "#modal",
 
         events : {
             "click .add-property-confirm" : "addProperty",
-            "change input,select" : "modelChange"
+            "keyup input" : "modelChange",
+            "change input,select" : "modelChange",
+            "click .type-selector" : "typeChange"
         },
 
         render: function(role) {
             this.role = role;
             this.$el.html(addTemplate()).modal("show");
+            this.$("#types").html(propertyTypes());
+            //this.$("input[type='checkbox']").bootstrapSwitch();
             this.property = new Property({role : role});
         },
 
         modelChange: function(event) {
+            console.log("here in model change");
             var target = $(event.currentTarget);
+            console.log(target.val());
             this.property.set(target.attr("name"), target.val());
+            console.log("model validity: " + this.property.isValid());
+            this.checkModelValidity();
+        },
+
+        checkModelValidity: function() {
+            this.$(".add-property-confirm").toggleClass("disabled", !this.property.isValid());
         },
 
         addCallback: function() {
             this.$el.modal("hide");
             this.trigger("property:add", this.role);
+        },
+
+        typeChange: function(event) {
+            var target = $(event.currentTarget).find("input");
+            this.$(".property-type").hide();
+            this.$(".property-type[data-type='"+target.val()+"']").show().change().keyup();
+            this.checkModelValidity();
         },
 
         addProperty: function() {
