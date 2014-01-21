@@ -14,36 +14,56 @@
 * limitations under the License.
 */
 
-define(["jquery", "underscore", "backbone", "bootstrap", "bootstrap-switch",
+define(["jquery", "underscore", "backbone", "bootstrap", "../broadcast", "bootstrap-switch",
         "../models/property",
-        "hbars!templates/add.template",
+        "hbars!templates/propertyEditor.template",
         "hbars!templates/propertyTypes.template"],
-function($, _, Backbone, Bootstrap, bsswitcher, Property, addTemplate, propertyTypes) {
+function($, _, Backbone, Bootstrap, Broadcast, bsswitcher, Property, editorTemplate, propertyTypes) {
     
     return Backbone.View.extend({
         el : "#modal",
 
         events : {
             "click .add-property-confirm" : "addProperty",
-            "keyup input" : "modelChange",
-            "change input,select" : "modelChange",
-            "click .type-selector" : "typeChange"
+            "keyup input,textarea" : "modelChange",
+            "change input,select"  : "modelChange",
+            "click .type-selector" : "typeChange",
+            "click .cancel" : "close"
         },
 
-        render: function(role) {
+        render: function(role, property) {
+            // This is view is for a particular property, which means we need to edit it
+            this.editing = property;
+
             this.role = role;
-            this.$el.html(addTemplate()).modal("show");
+            this.$el.html(editorTemplate({edit : this.editing})).modal("show");
             this.$("#types").html(propertyTypes());
-            //this.$("input[type='checkbox']").bootstrapSwitch();
-            this.property = new Property({role : role});
+            this.property = new Property({name : property, role : role});
+            if (this.editing) {
+                this.property.id = property;
+                this.property.fetch({success : _.bind(this.propertyFetchCallback, this) });
+            }
+        },
+
+        propertyFetchCallback: function(property) {
+            // name
+            this.$("input[name='name']").val(property.escape("name")).attr("disabled", true);
+
+            // type
+            this.$(".type-selector").addClass("disabled");
+            this.$(".property-type[name='type'][value='"+property.escape("type")+"']").parent(".type-selector")
+                .removeClass("disabled")
+                .addClass("active");
+
+            this.$(".type-selector > input[name='type'][value='"+property.escape("type")+"']").click();
+
+            // value
+            this.$(":input[name='value']").val(property.escape("value"));
         },
 
         modelChange: function(event) {
-            console.log("here in model change");
             var target = $(event.currentTarget);
-            console.log(target.val());
             this.property.set(target.attr("name"), target.val());
-            console.log("model validity: " + this.property.isValid());
             this.checkModelValidity();
         },
 
@@ -54,6 +74,7 @@ function($, _, Backbone, Bootstrap, bsswitcher, Property, addTemplate, propertyT
         addCallback: function() {
             this.$el.modal("hide");
             this.trigger("property:add", this.role);
+            Broadcast.trigger("route:previous");
         },
 
         typeChange: function(event) {
@@ -65,6 +86,12 @@ function($, _, Backbone, Bootstrap, bsswitcher, Property, addTemplate, propertyT
 
         addProperty: function() {
             this.property.save({}, { success : _.bind(this.addCallback, this) });
+        },
+
+        close: function() {
+            if (this.edit) {
+                Broadcast.trigger("route:previous");
+            }
         }
     });
 

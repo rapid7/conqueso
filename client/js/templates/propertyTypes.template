@@ -32,10 +32,10 @@
 	<textarea name="value" class="property-textarea" placeholder="Enter each item on a newline"></textarea>
 </div>
 
-<div class="property-type" data-type="STRING_MAP">
-	Not yet implemented
+<div class="property-type" data-type="STRING_SET">
+	<textarea name="value" class="property-textarea" placeholder="Enter each item on a newline"></textarea>
 </div>
 
-<div class="property-type" data-type="STRING_SET">
+<div class="property-type" data-type="STRING_MAP">
 	Not yet implemented
 </div>

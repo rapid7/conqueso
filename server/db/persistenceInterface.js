@@ -64,7 +64,7 @@ module.exports = {
      * role     string
      * name     string
      */
-    getProperty : function(role, name, callback) {
+    getPropertyForWeb : function(role, name, callback) {
 
     },
 

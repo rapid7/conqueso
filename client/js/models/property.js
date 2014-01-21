@@ -34,9 +34,21 @@ define(["backbone", "underscore"], function(Backbone, _){
             return "api/roles/" + this.get("role") + "/properties-web";
         },
 
+        initialize: function() {
+            this.on("change:value", this.flattenInput, this);
+        },
+
+        flattenInput: function(model) {
+            switch (model.get("type")) {
+                case "STRING_LIST":
+                case "STRING_SET":
+                    model.set({"value" : model.get("value").replace(/\n/g, ",")}, {silent: true});
+            }
+        },
+
         /* jshint maxcomplexity:false */
         validate: function(attributes) {
-            var name = attributes.name,
+            var name  = attributes.name,
                 type  = attributes.type,
                 value = attributes.value;
 
@@ -59,11 +71,7 @@ define(["backbone", "underscore"], function(Backbone, _){
                     }
                     break;
                 case "BOOLEAN":
-                    console.log("here in bool " + value);
-                    console.log("validity: " + (value !== "False" || value !== "True"));
-                    /*if (value !== "1" || value !== "0") {
-                        return "Invalid value";
-                    }*/
+                    // Value just has to be not empty
                     break;
                 case "DOUBLE":
                 case "FLOAT":
@@ -78,8 +86,10 @@ define(["backbone", "underscore"], function(Backbone, _){
                     }
                     break;
                 case "STRING_LIST":
-                case "STRING_MAP":
                 case "STRING_SET":
+                    // Value just has to be not empty
+                    return;
+                case "STRING_MAP":
                     return "Not supported yet";
             }
         }

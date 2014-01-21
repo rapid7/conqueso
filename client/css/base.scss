@@ -78,6 +78,15 @@ a:hover {
     height: 100px;
 }
 
+.type-selector.disabled {
+    opacity: 0.75;
+}
+
+.type-selector.disabled.active {
+    opacity: 0.95;
+    background-color: #ccc;
+}
+
 .icon-hidden {
     display: none;
 }

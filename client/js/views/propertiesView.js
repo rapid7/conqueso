@@ -15,10 +15,10 @@
 */
 
 define(["jquery", "backbone", "underscore", "../broadcast", "../models/role", "../collections/properties",
-        "./deletePropertyView", "./addPropertyView",
+        "./deletePropertyView", "./propertyEditorView",
         "hbars!templates/properties.template"],
 function($, Backbone, _, Broadcast, RoleModel, PropertiesCollection,
-         DeletePropertyView, AddPropertyView, mainTemplate) {
+         DeletePropertyView, PropertyEditorView, mainTemplate) {
     
     return Backbone.View.extend({
         el : "#main-content",
@@ -27,7 +27,7 @@ function($, Backbone, _, Broadcast, RoleModel, PropertiesCollection,
             this.removeView = new DeletePropertyView();
             this.removeView.on("property:delete", _.bind(this.render, this));
 
-            this.addView = new AddPropertyView();
+            this.addView = new PropertyEditorView();
             this.addView.on("property:add", _.bind(this.render, this));
         },
 

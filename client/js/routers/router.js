@@ -15,9 +15,9 @@
 */
 
 define(["backbone", "underscore", "../broadcast",
-        "../views/propertiesView", "../views/editPropertyView",
+        "../views/propertiesView", "../views/propertyEditorView",
         "../views/settingsView"],
-        function(Backbone, _, Broadcast, PropertiesView, EditPropertyView, SettingsView) {
+        function(Backbone, _, Broadcast, PropertiesView, PropertyEditorView, SettingsView) {
 
     return Backbone.Router.extend({
         totalRoutes : 0,
@@ -54,11 +54,12 @@ define(["backbone", "underscore", "../broadcast",
         },
 
         propertyRoute: function(role, property) {
-            console.log("Render property:" + property + ", for role:" + role);
-            if (!this.propertyView) {
-                this.propertyView = new EditPropertyView();
+            if (this.propertyView) {
+                this.propertyView.stopListening();
+                this.propertyView = null;
             }
-            this.propertyView.render(property);
+            this.propertyView = new PropertyEditorView();
+            this.propertyView.render(role, property);
         },
 
         settingsRoute: function() {

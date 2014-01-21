@@ -1,7 +1,7 @@
 <div class="modal-dialog">
     <div class="modal-content">
         <div class="modal-header">
-            <h4 class="modal-title">Add property</h4>
+            <h4 class="modal-title">{{#if edit}}Edit{{else}}Add{{/if}} property</h4>
         </div>
       
         <div class="modal-body">
@@ -54,7 +54,7 @@
         </div>
 
         <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-default cancel" data-dismiss="modal">Cancel</button>
             <button type="button" class="btn btn-primary disabled add-property-confirm">Save</button>
         </div>
 

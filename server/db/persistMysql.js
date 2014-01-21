@@ -109,6 +109,10 @@ function getGlobalProperties(callback) {
 }
 
 function toJSON(rows) {
+    if (_.isArray(rows) && rows.length === 1) {
+        rows = rows[0];
+    }
+
     return _.isArray(rows) ? _.pluck(rows, "dataValues") : rows.dataValues;
 }
 
@@ -137,10 +141,10 @@ function getPropertiesDto(roleModel, properties) {
     };
 }
 
-function getPropertiesForRole(role, callback) {
+function getPropertiesForRole(role, filtering, callback) {
     findRoleByName(role, function(role) {
         if (role) {
-            role.getProperties().success(function(properties) {
+            role.getProperties(filtering).success(function(properties) {
                 callback(role, properties);
             });
         } else {
@@ -173,7 +177,7 @@ function createInstanceForRole(role, ipAddress, callback) {
 
 // Todo : make this not suck
 function findOrCreateInstance(roleName, ipAddress, metadata, callback) {
-    findRoleByName(roleName, function(role) {
+    findOrCreateRole(roleName, function(role) {
         role.getInstances({ where : { ip : ipAddress }}).success(function(instances) {
             var instance;
 
@@ -215,14 +219,20 @@ PersistMysql.prototype.getRoles = function(callback) {
 };
 
 PersistMysql.prototype.getPropertiesForWeb = function(roleName, callback) {
-    getPropertiesForRole(roleName, function(role, properties) {
+    getPropertiesForRole(roleName, {}, function(role, properties) {
         callback(getPropertiesDto(role || roleName, toJSON(properties)));
+    });
+};
+
+PersistMysql.prototype.getPropertyForWeb = function(roleName, propertyName, callback) {
+    getPropertiesForRole(roleName, {where : {"name" : propertyName}}, function(role, properties) {
+        callback(toJSON(properties));
     });
 };
 
 PersistMysql.prototype.getPropertiesForClient = function(roleName, callback) {
     getGlobalProperties(function(globalProperties) {
-        getPropertiesForRole(roleName, function(role, properties) {
+        getPropertiesForRole(roleName, {}, function(role, properties) {
             if (role) {
                 callback(getPropertiesDto(role, toJSON(getCombinedProperties(globalProperties, properties))));
             } else {
@@ -269,7 +279,7 @@ function getNewProperties(existingProperties, properties) {
 
 PersistMysql.prototype.createProperties = function(roleName, properties, callback) {
     findOrCreateRole(roleName, function() {
-        getPropertiesForRole(roleName, function(role, existingProps) {
+        getPropertiesForRole(roleName, {}, function(role, existingProps) {
             properties = getNewProperties(existingProps, properties);
 
             // Add the role id to each property
@@ -284,17 +294,31 @@ PersistMysql.prototype.createProperties = function(roleName, properties, callbac
     });
 };
 
+// Takes an object that has key/value pairs and converts it into a list
+// [ {attributeKey : "key", attributeValue : "value"}]
+function convertMetadata(metadata) {
+    var result = [];
+    _.each(_.keys(metadata), function(key) {
+        result.push({
+            "attributeKey"   : key,
+            "attributeValue" : metadata[key]
+        });
+    });
+    console.log(result);
+    return result;
+}
+
 // Todo check if role exists
 PersistMysql.prototype.instanceCheckIn = function(roleName, ipAddress, metadata, callback) {
     findOrCreateInstance(roleName, ipAddress, metadata, function(instance) {
+        // Bumps the UpdatedAt column
         instance.updateAttributes({
             ip : ipAddress
         }).success(function(instance) {
-            InstanceMetadata.create({
-                attributeKey : "foo",
-                attributeValue : "bar"
-            }).success(function(metadata) {
-                instance.setInstanceMetadata([metadata]).success(function() {
+            InstanceMetadata.bulkCreate(convertMetadata(metadata)).success(function(metdatas) {
+                console.log(metdatas);
+                console.log(instance);
+                instance.setInstanceMetadata(metdatas).success(function() {
                     callback(instance);
                 });
             });
@@ -306,7 +330,6 @@ PersistMysql.prototype.markInstancesOffline = function() {
     Instance.findAll({ where : {offline : false} }).success(function(instances) {
         instances = _.filter(instances, function(instance) {
             var timeSinceUpdate = new Date() - instance.dataValues.updatedAt;
-            console.log(timeSinceUpdate);
             return timeSinceUpdate > instance.dataValues.pollingInterval * 2;
         });
 

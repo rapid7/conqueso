@@ -39,6 +39,19 @@ module.exports = function(express, app, persist) {
         });
     });
 
+    // Get a specific property
+    app.get("/api/roles/:role/properties-web/:property", function(req, res) {
+        persist.getPropertyForWeb(req.params.role, req.params.property, function(propsDto) {
+            res.json(propsDto);
+        });
+    });
+
+    // Update a specific property
+    app.put("/api/roles/:role/properties-web/:property", function(req, res) {
+        // Todo
+        res.json({});
+    });
+
     // Get properties (for client libraries)
     app.get("/api/roles/:role/properties", function(req, res) {
         persist.getPropertiesForClient(req.params.role, function(propsDto) {
@@ -67,9 +80,10 @@ module.exports = function(express, app, persist) {
             var properties = req.body.properties || req.body,
                 metadata = req.body.instanceMetadata || {};
 
-            persist.instanceCheckIn(req.params.role, getRemoteIp(req), metadata, null);
-            persist.createProperties(req.params.role, properties, function(properties) {
-                res.json(properties);
+            persist.instanceCheckIn(req.params.role, getRemoteIp(req), metadata, function() {
+                persist.createProperties(req.params.role, properties, function(properties) {
+                    res.json(properties);
+                });
             });
         }, function(err) {
             res.send(500, "Sorry -- something went wrong");
