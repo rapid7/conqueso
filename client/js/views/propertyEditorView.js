@@ -17,10 +17,14 @@
 define(["jquery", "underscore", "backbone", "bootstrap", "../broadcast", "bootstrap-switch",
         "../models/property",
         "hbars!templates/propertyEditor.template",
-        "hbars!templates/propertyTypes.template"],
-function($, _, Backbone, Bootstrap, Broadcast, bsswitcher, Property, editorTemplate, propertyTypes) {
+        "hbars!templates/propertyTypes.template",
+        "hbars!templates/newProperty.template",
+        "hbars!templates/editProperty.template"],
+function($, _, Backbone, Bootstrap, Broadcast, bsswitcher, Property, editorTemplate, propertyTypes,
+         newPropertyTemplate, editPropertyTemplate) {
     
-    return Backbone.View.extend({
+    var _singleton,
+        PropertyEditor = Backbone.View.extend({
         el : "#modal",
 
         events : {
@@ -31,41 +35,38 @@ function($, _, Backbone, Bootstrap, Broadcast, bsswitcher, Property, editorTempl
             "click .cancel" : "close"
         },
 
-        initialize: function() {
-            this.property = new Property();
-        },
-
-        render: function(role, property) {
-            // This is view is for a particular property, which means we need to edit it
-            this.editing = property;
+        render: function(role, propertyName) {
+            // This is view is for a particular propertyName, which means we need to edit it
+            this.editing = propertyName || false;
 
             this.role = role;
             this.$el.html(editorTemplate({edit : this.editing})).modal("show");
-            this.$("#types").html(propertyTypes());
             
-            this.property.clear();
-            this.property.set({name : property, role : role});
             if (this.editing) {
-                this.property.id = property;
-                this.property.idAttribute = "name";
-                this.property.fetch({success : _.bind(this.propertyFetchCallback, this) });
+                this.property = new Property({id : propertyName, name : propertyName, role : role});
+                this.property.fetch({success : _.bind(this.propertyFetchCallback, this)});
+            } else {
+                this.$(".modal-body").html(newPropertyTemplate());
+                this.$("#types").html(propertyTypes());
+                this.property = new Property({name : propertyName, role : role});
             }
         },
 
         propertyFetchCallback: function(property) {
-            // name
-            this.$("input[name='name']").val(property.escape("name")).attr("disabled", true);
+            var elem;
 
-            // type
-            this.$(".type-selector").addClass("disabled");
-            this.$(".property-type[name='type'][value='"+property.escape("type")+"']").parent(".type-selector")
-                .removeClass("disabled")
-                .addClass("active");
+            // Show appropriate input based on type
+            this.$(".modal-body").html(editPropertyTemplate(property.toJSON()));
+            elem = this.$(".property-type[data-type='"+property.escape("type")+"']").show();
 
-            this.$(".type-selector > input[name='type'][value='"+property.escape("type")+"']").click();
+            // Boolean is a little bit different...
+            if (property.escape("type") === "BOOLEAN") {
+                this.$(":input[name='value'][value='"+property.escape("value")+"']").click();
+            } else {
+                elem.find(":input").val(property.getExpandedInput());
+            }
 
-            // value
-            this.$(":input[name='value']").val(property.getExpandedInput());
+            this.checkModelValidity();
         },
 
         modelChange: function(event) {
@@ -81,27 +82,32 @@ function($, _, Backbone, Bootstrap, Broadcast, bsswitcher, Property, editorTempl
         addCallback: function() {
             this.$el.modal("hide");
             this.trigger("property:add", this.role);
-            this.close();
         },
 
         typeChange: function(event) {
             var target = $(event.currentTarget).find("input");
             this.$(".property-type").hide();
-            this.$(".property-type[data-type='"+target.val()+"']").show().change().keyup();
+            this.$(".property-type[data-type='"+target.val()+"']").show().change().keyup()
+                .find(":input").change().keyup();
             this.checkModelValidity();
         },
 
         addProperty: function() {
             this.property.save({}, { success : _.bind(this.addCallback, this) });
-            this.property.idAttribute = "id";
+            this.close();
         },
 
         close: function() {
-            if (this.edit) {
+            if (this.editing) {
                 Broadcast.trigger("route:previous");
             }
-            this.$el.empty();
         }
     });
 
+    if (!_singleton) {
+        _singleton = new PropertyEditor();
+    }
+    return function() {
+        return _singleton;
+    };
 });

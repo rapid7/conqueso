@@ -15,17 +15,15 @@
 */
 
 define(["backbone", "underscore", "../broadcast",
-        "../views/propertiesView", "../views/propertyEditorView",
-        "../views/settingsView"],
-        function(Backbone, _, Broadcast, PropertiesView, PropertyEditorView, SettingsView) {
+        "../views/propertiesView", "../views/propertyEditorView"],
+        function(Backbone, _, Broadcast, PropertiesView, PropertyEditorView) {
 
     return Backbone.Router.extend({
         totalRoutes : 0,
 
         routes : {
-            "roles/:name"                       : "roleRoute",
-            "roles/:name/properties/:property"  : "propertyRoute",
-            "settings"                          : "settingsRoute"
+            "roles/:name"                      : "roleRoute",
+            "roles/:name/properties/:property" : "propertyRoute"
         },
 
         initialize: function() {
@@ -58,13 +56,6 @@ define(["backbone", "underscore", "../broadcast",
                 this.propertyView = new PropertyEditorView();
             }
             this.propertyView.render(role, property);
-        },
-
-        settingsRoute: function() {
-            if (!this.settingsView) {
-                this.settingsView = new SettingsView();
-            }
-            this.settingsView.render();
         }
     });
 });

@@ -16,14 +16,14 @@
 
 define(["jquery", "underscore", "backbone", "bootstrap",
         "../models/property",
-        "hbars!templates/delete.template"],
-function($, _, Backbone, Bootstrap, Property, deleteTemplate) {
+        "hbars!templates/makeGlobal.template"],
+function($, _, Backbone, Bootstrap, Property, makeGlobalTemplate) {
     
     return Backbone.View.extend({
         el : "#modal",
 
         events : {
-            "click .confirm-delete" : "confirmDelete"
+            "click .confirm-make-global" : "confirmMakeGlobal"
         },
 
         render: function(role, propertyName) {
@@ -33,16 +33,15 @@ function($, _, Backbone, Bootstrap, Property, deleteTemplate) {
                 name : propertyName,
                 role : role
             });
-            this.$el.html(deleteTemplate(this.property.toJSON())).modal("show");
+            this.$el.html(makeGlobalTemplate(this.property.toJSON())).modal("show");
         },
 
-        deleteCallback: function() {
+        confirmCallback: function() {
             this.$el.modal("hide");
-            this.trigger("property:delete", this.roleName);
         },
 
-        confirmDelete: function() {
-            this.property.destroy({ success : _.bind(this.deleteCallback, this) });
+        confirmMakeGlobal: function() {
+            this.property.save({makeGlobal : true}, {success : _.bind(this.confirmCallback, this) });
         }
     });
 

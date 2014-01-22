@@ -1,5 +1,3 @@
-First install these...
-
 Install node
 ------
 sudo apt-get update
@@ -18,16 +16,16 @@ Install Grunt and Bower
 npm install -g grunt-cli bower
 
 
-Install NPM dependencies (run this in the root directory)
+Install NPM dependencies
 ------
 npm install
 
 
-Build, pull down Bower dependencies and more (run this in the root directory)
+Build, pull down Bower dependencies and more
 ------
 grunt
 
 
 Run the server
 ------
-node server/app
+npm start

@@ -16,6 +16,7 @@
 
 body {
     font-family: "Roboto", "Helvetica", "sans serif";
+    overflow-y: scroll;
 }
 
 a {
@@ -92,6 +93,8 @@ a:hover {
 }
 
 .icon {
+    margin-left: 0;
+    padding-right: 10px;
     opacity: 0.75
 }
 
@@ -100,11 +103,6 @@ a:hover {
     text-decoration: none;
     opacity: 1;
     color: #1fa67a;
-}
-
-.icon.edit {
-    margin-left: -10px;
-    padding-right: 10px;
 }
 
 .role-header {
@@ -124,6 +122,15 @@ a:hover {
 .role-item:hover {
     cursor: pointer;
     background-color :#D7F7EC;
+}
+
+.modal-open {
+    overflow-y: scroll;
+    margin: 0;
+}
+
+.modal {
+    overflow: auto;
 }
 
 .modal-dialog {

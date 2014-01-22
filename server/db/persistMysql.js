@@ -116,16 +116,16 @@ function toJSON(rows) {
 
 // Get global properites overlayed with role properties
 function getCombinedProperties(globalProperties, roleProperties) {
-    var properties = roleProperties;
+    var properties = globalProperties;
 
-    _.each(globalProperties, function(globalProp) {
+    _.each(roleProperties, function(roleProp) {
         var result = _.filter(properties, function(property){
-            return property.dataValues.name === globalProp.dataValues.name;
+            return property.dataValues.name === roleProp.dataValues.name;
         });
 
         // Add the global global property
         if (result.length === 0) {
-            properties.push(globalProp);
+            properties.push(roleProp);
         }
     });
 
@@ -142,7 +142,7 @@ function getPropertiesDto(roleModel, properties) {
 function getPropertiesForRole(role, filtering, callback) {
     findRoleByName(role, function(role) {
         if (role) {
-            role.getProperties(filtering).success(function(properties) {
+            role.getProperties(_.extend({order : "name ASC"}, filtering)).success(function(properties) {
                 callback(role, properties);
             });
         } else {

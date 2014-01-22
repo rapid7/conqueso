@@ -1,9 +1,7 @@
 <div class="container-full">
 	<ul class="list-group">
-
+{{isGlobal}}
 	 	<li class="list-group-item role-header">
-	 		{{name}}
-
 	 		<a class="btn btn-default btn-sm pull-right icon add-property" data-role="{{name}}">
   				<i class="fa fa-plus-circle fa-lg"></i> Add property
   			</a>
@@ -20,8 +18,9 @@
 					</span>
 
 					<span class="col-xs-2 icon-hidden controls">
-						<a href="#roles/{{../id}}/properties/{{name}}" class="fa fa-pencil fa-lg property icon edit"></a>
-						<i class="fa fa-times-circle fa-lg property icon remove" data-role="{{../id}}" data-name="{{name}}"></i>
+						<a class="fa fa-globe fa-lg property icon make-global" data-name="{{name}}" data-role="{{../id}}" title="Make property global"></a>
+						<a href="#roles/{{../id}}/properties/{{name}}" class="fa fa-pencil fa-lg property icon edit" title="Edit property"></a>
+						<a class="fa fa-times-circle fa-lg property icon remove" data-role="{{../id}}" data-name="{{name}}" title="Delete property"></a>
 					</span>
 				</div>
 		 	</li>

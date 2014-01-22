@@ -15,13 +15,11 @@
 */
 
 function isFloat(n) {
-    n = parseFloat(n, 10);
-    return n === +n && n !== (n|0);
+    return n.match(/^\-?[0-9]*\.?[0-9]+$/);
 }
 
 function isInteger(n) {
-    n = parseFloat(n, 10);
-    return n === +n && n === (n|0);
+    return n.match(/^\-?[0-9]+$/);
 }
 
 function isValidName(str) {

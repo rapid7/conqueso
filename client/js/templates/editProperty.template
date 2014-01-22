@@ -1,0 +1,52 @@
+
+<div class="form-group">
+    <h4>{{name}}</h4>
+</div>
+
+<div class="form-group">
+    Type: <span class="label label-default">{{type}}</span>
+</div>
+
+<div class="form-group">
+    <div class="property-type" data-type="STRING">
+      <input type="text" name="value" placeholder="Value" class="form-control" />
+    </div>
+
+    <div class="property-type" data-type="BOOLEAN">
+      <label class="radio-inline">
+        <input type="radio" name="value" value="true" /> True
+      </label>
+      
+      <label class="radio-inline">
+        <input type="radio" name="value" value="false" /> False
+      </label>
+    </div>
+
+    <div class="property-type" data-type="DOUBLE">
+      <input type="text" name="value" placeholder="Value" class="form-control" />
+    </div>
+
+    <div class="property-type" data-type="FLOAT">
+      <input type="text" name="value" placeholder="Value" class="form-control" />
+    </div>
+
+    <div class="property-type" data-type="INT">
+      <input type="text" name="value" placeholder="Value" class="form-control" />
+    </div>
+
+    <div class="property-type" data-type="LONG">
+      <input type="text" name="value" placeholder="Value" class="form-control" />
+    </div>
+
+    <div class="property-type" data-type="STRING_LIST">
+      <textarea name="value" class="property-textarea" placeholder="Enter each item on a newline"></textarea>
+    </div>
+
+    <div class="property-type" data-type="STRING_SET">
+      <textarea name="value" class="property-textarea" placeholder="Enter each item on a newline"></textarea>
+    </div>
+
+    <div class="property-type" data-type="STRING_MAP">
+      Not yet implemented
+    </div>
+</div>

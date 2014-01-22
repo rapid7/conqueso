@@ -15,10 +15,10 @@
 */
 
 define(["jquery", "backbone", "underscore", "../broadcast", "../models/role", "../collections/properties",
-        "./deletePropertyView", "./propertyEditorView",
+        "./deletePropertyView", "./propertyEditorView", "./makeGlobalView",
         "hbars!templates/properties.template"],
 function($, Backbone, _, Broadcast, RoleModel, PropertiesCollection,
-         DeletePropertyView, PropertyEditorView, mainTemplate) {
+         DeletePropertyView, PropertyEditorView, MakeGlobalView, mainTemplate) {
     
     return Backbone.View.extend({
         el : "#main-content",
@@ -29,13 +29,16 @@ function($, Backbone, _, Broadcast, RoleModel, PropertiesCollection,
 
             this.addView = new PropertyEditorView();
             this.addView.on("property:add", _.bind(this.render, this));
+
+            this.makeGlobalView = new MakeGlobalView();
         },
 
         events : {
             "mouseover .list-group-item" : "mouseOverPropertyRow",
             "mouseout  .list-group-item" : "mouseOutPropertyRow",
             "click .remove"              : "removeProperty",
-            "click .add-property"        : "addProperty"
+            "click .add-property"        : "addProperty",
+            "click .make-global"         : "makePropertyGlobal"
         },
 
         fetchCallback: function(model) {
@@ -77,6 +80,10 @@ function($, Backbone, _, Broadcast, RoleModel, PropertiesCollection,
         removeProperty: function(event) {
             this.removeView.render(this.getRole(event), this.getPropertyName(event));
         },
+
+        makePropertyGlobal: function(event) {
+            this.makeGlobalView.render(this.getRole(event), this.getPropertyName(event));
+        }
     });
 
 });

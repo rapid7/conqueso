@@ -26,11 +26,18 @@ module.exports = {
     },
 
     getPersistType: function() {
-        return nconf.get("persist:type");
+        return nconf.get("db:type");
     },
 
-    getPersistConfig: function() {
-        return nconf.get("persist:config");
+    /* global process */
+    getDbConfig: function() {
+        return {
+            host          : process.env.RDS_HOSTNAME || nconf.get("db:config:host"),
+            port          : process.env.RDS_PORT || nconf.get("db:config:port"),
+            user          : process.env.RDS_USERNAME || nconf.get("db:config:user"),
+            password      : process.env.RDS_PASSWORD || nconf.get("db:config:password"),
+            databaseName  : nconf.get("db:config:databaseName")
+        };
     },
 
     getPropertiesPollInterval: function() {

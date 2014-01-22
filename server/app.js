@@ -24,4 +24,3 @@ require("./routes/api")(express, app, PersistenceService);
 require("./serviceTracker")(PersistenceService);
 
 app.listen(port);
-console.log("Listening on port: " + port);

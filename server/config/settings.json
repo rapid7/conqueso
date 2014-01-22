@@ -2,7 +2,7 @@
     "http": {
         "port": 8080
     },
-    "persist" : {
+    "db" : {
         "type" : "MYSQL",
         "config" : {
             "host"          : "localhost",
@@ -13,6 +13,6 @@
         }
     },
     "properties" : {
-        "pollInteveralSecs" : 10
+        "pollInteveralSecs" : 15
     }
 }
