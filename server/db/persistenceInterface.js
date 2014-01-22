@@ -22,7 +22,15 @@ module.exports = {
      * role     string
      * property object      {name, value, type}
      */
-    createProperty : function(role, name, value, type, callback) {
+    createProperty : function(role, property, callback) {
+
+    },
+
+    /* Updates a property with a new value
+     * role     string
+     * property object      {name, value, type}
+     */
+    updateProperty : function(role, property, callback) {
 
     },
 
@@ -64,7 +72,7 @@ module.exports = {
      * role     string
      * name     string
      */
-    getPropertyForWeb : function(role, name, callback) {
+    getProperty : function(role, name, callback) {
 
     },
 
@@ -80,11 +88,9 @@ module.exports = {
 
     },
 
-    /* Checks every #{ageOutTime} seconds. If an instance has not checked in, mark
-     * it offline
+    /* Marks instances offline if they have not checked in for 2x their poll interval
      */
-    markInstsancesOffline : function(ageOutTime) {
+    markInstsancesOffline : function() {
 
     }
-
 };

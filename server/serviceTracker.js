@@ -18,6 +18,6 @@ module.exports = function(persistence) {
 	var interval = require("./config/settings").getPropertiesPollInterval() * 1000;
 
 	setInterval(function() {
-		persistence.markInstancesOffline(interval);
+		persistence.markInstancesOffline();
 	}, interval);
 };

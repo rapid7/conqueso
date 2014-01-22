@@ -54,11 +54,9 @@ define(["backbone", "underscore", "../broadcast",
         },
 
         propertyRoute: function(role, property) {
-            if (this.propertyView) {
-                this.propertyView.stopListening();
-                this.propertyView = null;
+            if (!this.propertyView) {
+                this.propertyView = new PropertyEditorView();
             }
-            this.propertyView = new PropertyEditorView();
             this.propertyView.render(role, property);
         },
 

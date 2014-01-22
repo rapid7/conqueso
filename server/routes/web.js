@@ -14,14 +14,6 @@
 * limitations under the License.
 */
 
-var express = require("express"),
-    app = express(),
-    PersistenceService = require("./db/persistenceService"),
-    port = require("./config/settings").getHttpPort();
-
-require("./routes/web")(express, app);
-require("./routes/api")(express, app, PersistenceService);
-require("./serviceTracker")(PersistenceService);
-
-app.listen(port);
-console.log("Listening on port: " + port);
+module.exports = function(express, app) {
+    app.use("/", express.static(__dirname + "/../../client"));
+};

@@ -23,6 +23,8 @@ var config = {},
     sequelize,
     GLOBAL_ROLE = "global",
 
+    POLL_INTEVERAL_META_KEY = "conqueso.poll.interval",
+
     // Tables
     Property,
     Role,
@@ -42,7 +44,7 @@ function connect() {
             omitNull: true
         });
     }, function() {
-        console.log("Failed to connect to database. Make sure SQL is running and you have the appropriate permissions.");
+        console.log("Failed to connect to database. Make sure your database is running and you have the appropriate permissions.");
     });
 }
 
@@ -62,7 +64,7 @@ function createTables() {
 
     Instance = sequelize.define("instance", {
         ip : Sequelize.STRING,
-        pollingInterval : {
+        pollInterval : {
             type : Sequelize.INTEGER,
             defaultValue : 60000
         },
@@ -109,10 +111,6 @@ function getGlobalProperties(callback) {
 }
 
 function toJSON(rows) {
-    if (_.isArray(rows) && rows.length === 1) {
-        rows = rows[0];
-    }
-
     return _.isArray(rows) ? _.pluck(rows, "dataValues") : rows.dataValues;
 }
 
@@ -175,10 +173,12 @@ function createInstanceForRole(role, ipAddress, callback) {
     });
 }
 
-// Todo : make this not suck
+/*
+ * Callback returns true/false if the instance is new and the instance model
+ */
 function findOrCreateInstance(roleName, ipAddress, metadata, callback) {
     findOrCreateRole(roleName, function(role) {
-        role.getInstances({ where : { ip : ipAddress }}).success(function(instances) {
+        role.getInstances({ where : { ip : ipAddress }, order: "updatedAt DESC", limit : 1}).success(function(instances) {
             var instance;
 
             if (_.isEmpty(instances)) {
@@ -191,7 +191,6 @@ function findOrCreateInstance(roleName, ipAddress, metadata, callback) {
                 // it's metadata (version?) has changed
                 instance.getInstanceMetadata().success(function(metadatas) {
                     
-                    // Same -- metadata null is a hack for polling GETs
                     if (isMetadataSame(metadatas, metadata)) {
                         instance.updateAttributes({ offline : false }).success(callback);
                     
@@ -224,9 +223,13 @@ PersistMysql.prototype.getPropertiesForWeb = function(roleName, callback) {
     });
 };
 
-PersistMysql.prototype.getPropertyForWeb = function(roleName, propertyName, callback) {
+PersistMysql.prototype.getProperty = function(roleName, propertyName, callback) {
     getPropertiesForRole(roleName, {where : {"name" : propertyName}}, function(role, properties) {
-        callback(toJSON(properties));
+        if (properties) {
+            callback(properties[0].dataValues);
+        } else {
+            callback({});
+        }
     });
 };
 
@@ -269,6 +272,20 @@ PersistMysql.prototype.createProperty = function(roleName, property, callback) {
     });
 };
 
+PersistMysql.prototype.updateProperty = function(roleName, property, callback) {
+    getPropertiesForRole(roleName, {where : {"name" : property.name}}, function(role, properties) {
+        var prop;
+        if (properties) {
+            prop = properties[0];
+            prop.updateAttributes({ value : property.value }).success(function(property) {
+                callback(toJSON(property));
+            });
+        } else {
+            callback({});
+        }
+    });
+};
+
 // Existing properties are models that already exist and properties are the new tuples to be created
 function getNewProperties(existingProperties, properties) {
     existingProperties = _.pluck(_.pluck(existingProperties, "dataValues"), "name");
@@ -296,32 +313,37 @@ PersistMysql.prototype.createProperties = function(roleName, properties, callbac
 
 // Takes an object that has key/value pairs and converts it into a list
 // [ {attributeKey : "key", attributeValue : "value"}]
-function convertMetadata(metadata) {
+function convertMetadata(metadata, instance) {
     var result = [];
     _.each(_.keys(metadata), function(key) {
         result.push({
-            "attributeKey"   : key,
-            "attributeValue" : metadata[key]
+            instanceId     : instance.dataValues.id,
+            attributeKey   : key,
+            attributeValue : metadata[key]
         });
     });
-    console.log(result);
     return result;
 }
 
-// Todo check if role exists
 PersistMysql.prototype.instanceCheckIn = function(roleName, ipAddress, metadata, callback) {
+    var updateObj = {
+        ip : ipAddress
+    };
+
+    if (metadata && metadata[POLL_INTEVERAL_META_KEY]) {
+        updateObj.pollInterval = metadata[POLL_INTEVERAL_META_KEY];
+    }
+
     findOrCreateInstance(roleName, ipAddress, metadata, function(instance) {
         // Bumps the UpdatedAt column
-        instance.updateAttributes({
-            ip : ipAddress
-        }).success(function(instance) {
-            InstanceMetadata.bulkCreate(convertMetadata(metadata)).success(function(metdatas) {
-                console.log(metdatas);
-                console.log(instance);
-                instance.setInstanceMetadata(metdatas).success(function() {
+        instance.updateAttributes(updateObj).success(function(instance) {
+            if (instance.options.isNewRecord) {
+                InstanceMetadata.bulkCreate(convertMetadata(metadata, instance)).success(function() {
                     callback(instance);
                 });
-            });
+            } else {
+                callback(instance);
+            }
         });
     });
 };
@@ -330,7 +352,7 @@ PersistMysql.prototype.markInstancesOffline = function() {
     Instance.findAll({ where : {offline : false} }).success(function(instances) {
         instances = _.filter(instances, function(instance) {
             var timeSinceUpdate = new Date() - instance.dataValues.updatedAt;
-            return timeSinceUpdate > instance.dataValues.pollingInterval * 2;
+            return timeSinceUpdate > instance.dataValues.pollInterval * 2;
         });
 
         _.each(instances, function(instance) {

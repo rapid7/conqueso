@@ -31,6 +31,10 @@ function($, _, Backbone, Bootstrap, Broadcast, bsswitcher, Property, editorTempl
             "click .cancel" : "close"
         },
 
+        initialize: function() {
+            this.property = new Property();
+        },
+
         render: function(role, property) {
             // This is view is for a particular property, which means we need to edit it
             this.editing = property;
@@ -38,9 +42,12 @@ function($, _, Backbone, Bootstrap, Broadcast, bsswitcher, Property, editorTempl
             this.role = role;
             this.$el.html(editorTemplate({edit : this.editing})).modal("show");
             this.$("#types").html(propertyTypes());
-            this.property = new Property({name : property, role : role});
+            
+            this.property.clear();
+            this.property.set({name : property, role : role});
             if (this.editing) {
                 this.property.id = property;
+                this.property.idAttribute = "name";
                 this.property.fetch({success : _.bind(this.propertyFetchCallback, this) });
             }
         },
@@ -58,7 +65,7 @@ function($, _, Backbone, Bootstrap, Broadcast, bsswitcher, Property, editorTempl
             this.$(".type-selector > input[name='type'][value='"+property.escape("type")+"']").click();
 
             // value
-            this.$(":input[name='value']").val(property.escape("value"));
+            this.$(":input[name='value']").val(property.getExpandedInput());
         },
 
         modelChange: function(event) {
@@ -74,7 +81,7 @@ function($, _, Backbone, Bootstrap, Broadcast, bsswitcher, Property, editorTempl
         addCallback: function() {
             this.$el.modal("hide");
             this.trigger("property:add", this.role);
-            Broadcast.trigger("route:previous");
+            this.close();
         },
 
         typeChange: function(event) {
@@ -86,12 +93,14 @@ function($, _, Backbone, Bootstrap, Broadcast, bsswitcher, Property, editorTempl
 
         addProperty: function() {
             this.property.save({}, { success : _.bind(this.addCallback, this) });
+            this.property.idAttribute = "id";
         },
 
         close: function() {
             if (this.edit) {
                 Broadcast.trigger("route:previous");
             }
+            this.$el.empty();
         }
     });
 

@@ -46,6 +46,16 @@ define(["backbone", "underscore"], function(Backbone, _){
             }
         },
 
+        getExpandedInput: function() {
+            switch (this.get("type")) {
+                case "STRING_LIST":
+                case "STRING_SET":
+                    return this.escape("value").replace(/,/g, "\n");
+                default:
+                    return this.escape("value");
+            }
+        },
+
         /* jshint maxcomplexity:false */
         validate: function(attributes) {
             var name  = attributes.name,

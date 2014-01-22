@@ -13,6 +13,6 @@
         }
     },
     "properties" : {
-        "pollInteveral" : 10
+        "pollInteveralSecs" : 10
     }
 }

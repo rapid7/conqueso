@@ -16,7 +16,7 @@
 
 module.exports = function(express, app, persist) {
     var trycatch = require("trycatch"),
-        utils = require("./utils");
+        utils = require("../utils");
 
     app.use(express.json());
     app.use(express.urlencoded());
@@ -41,15 +41,24 @@ module.exports = function(express, app, persist) {
 
     // Get a specific property
     app.get("/api/roles/:role/properties-web/:property", function(req, res) {
-        persist.getPropertyForWeb(req.params.role, req.params.property, function(propsDto) {
-            res.json(propsDto);
+        trycatch(function() {
+            persist.getProperty(req.params.role, req.params.property, function(propsDto) {
+                res.json(propsDto);
+            });
+        }, function() {
+            res.send(500, "Failed to fetch property");
         });
     });
 
     // Update a specific property
     app.put("/api/roles/:role/properties-web/:property", function(req, res) {
-        // Todo
-        res.json({});
+        trycatch(function() {
+            persist.updateProperty(req.params.role, req.body, function(property) {
+                res.json(property);
+            });
+        }, function() {
+            res.send(500, "Failed to update property");
+        });
     });
 
     // Get properties (for client libraries)
@@ -91,14 +100,10 @@ module.exports = function(express, app, persist) {
         });
     });
 
-
     // Delete a property
     app.delete("/api/roles/:role/properties-web/:property", function(req, res) {
         persist.deleteProperty(req.params.role, req.params.property, function(property) {
             res.json(property);
         });
     });
-
-    // Application
-    app.use("/", express.static(__dirname + "/../client"));
 };
