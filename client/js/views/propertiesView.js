@@ -67,11 +67,11 @@ function($, Backbone, _, Broadcast, RoleModel, PropertiesCollection,
         },
 
         getRole: function(event) {
-            return $(event.currentTarget).data("role");
+            return this.$(event.currentTarget).closest(".property-item").data("role");
         },
 
         getPropertyName: function(event) {
-            return $(event.currentTarget).data("name");
+            return this.$(event.currentTarget).closest(".property-item").data("name");
         },
 
         addProperty: function(event) {

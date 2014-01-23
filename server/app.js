@@ -14,6 +14,9 @@
 * limitations under the License.
 */
 
+var logger = require("./logger");
+logger.info("Starting Conqueso server.");
+
 var express = require("express"),
     app = express(),
     PersistenceService = require("./db/persistenceService"),

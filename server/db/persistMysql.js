@@ -45,8 +45,9 @@ function connect() {
             omitNull: true
         });
         logger.info("Successfully connected to database: %s:%s", config.host, config.port);
-    }, function() {
+    }, function(err) {
         logger.error("Failed to connect to database. Make sure your database is running and you have the appropriate permissions.");
+        logger.error(err.stack);
     });
 }
 

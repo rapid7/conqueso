@@ -16,7 +16,8 @@
         "pollInteveralSecs" : 15
     },
     "logging" : {
-        "file" : "logs/server.log",
-        "level" : "info"
+        "dir"    : "logs",
+        "file"   : "server.log",
+        "level"  : "info"
     }
 }

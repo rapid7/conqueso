@@ -47,6 +47,10 @@ module.exports = {
         return nconf.get("logging:level");
     },
 
+    getLogDirectory: function() {
+        return nconf.get("logging:dir");
+    },
+
     getLogOutputFile: function() {
         return nconf.get("logging:file");
     }

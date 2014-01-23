@@ -15,25 +15,32 @@
 */
 
 var winston = require("winston"),
+	fs = require("fs"),
 	config = require("./config/settings"),
 	loggingLevel = config.getLogLevel(),
+	outputDir = config.getLogDirectory(),
+	outputFile = config.getLogOutputFile(),
+	_logger = null;
 
-	_logger = new (winston.Logger)({
-		levels : {error: 3, warn: 2, info: 1, debug: 0},
-		colors: winston.config.syslog.colors,
-		level : loggingLevel,
-		transports: [
-			new (winston.transports.Console)({ colorize: true, handleExceptions: true }),
-			new (winston.transports.File)({ filename: config.getLogOutputFile(), handleExceptions: true })
-		]
-	});
+fs.exists(outputDir, function(exists) {
+	if (!exists) {
+		fs.mkdir(outputDir);
+	}
+});
 
-// Constructor
-var Logger = function() {};
+_logger = new (winston.Logger)({
+	levels : {error: 3, warn: 2, info: 1, debug: 0},
+	colors: winston.config.syslog.colors,
+	level : loggingLevel,
+	transports: [
+		new (winston.transports.Console)({ colorize: true, handleExceptions: true }),
+		new (winston.transports.File)({ filename: outputDir + "/" + outputFile, handleExceptions: true })
+	]
+});
 
-Logger.prototype.debug = _logger.debug;
-Logger.prototype.info = _logger.info;
-Logger.prototype.warn = _logger.warn;
-Logger.prototype.error = _logger.error;
-
-module.exports = new Logger();
+module.exports = {
+	debug  : _logger.debug,
+	info   : _logger.info,
+	warn   : _logger.warn,
+	error  : _logger.error
+};
