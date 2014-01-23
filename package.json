@@ -3,7 +3,7 @@
     "version" : "0.3.0",
     "repository": {
         "type": "git",
-        "url": "https://github.com/stevewillard/conqueso.git"
+        "url": "https://github.com/rapid7/conqueso.git"
     },
     "scripts": {
         "start": "node server/app"
