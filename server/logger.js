@@ -31,10 +31,9 @@ fs.exists(outputDir, function(exists) {
 _logger = new (winston.Logger)({
 	levels : {error: 3, warn: 2, info: 1, debug: 0},
 	colors: winston.config.syslog.colors,
-	level : loggingLevel,
 	transports: [
-		new (winston.transports.Console)({ colorize: true, handleExceptions: true }),
-		new (winston.transports.File)({ filename: outputDir + "/" + outputFile, handleExceptions: true })
+		new (winston.transports.Console)({level : loggingLevel, colorize: true, handleExceptions: true }),
+		new (winston.transports.File)({level : loggingLevel, filename: outputDir + "/" + outputFile, handleExceptions: true })
 	]
 });
 

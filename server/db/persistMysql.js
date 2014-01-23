@@ -24,6 +24,7 @@ var config = {},
     GLOBAL_ROLE = "global",
     logger = require("../logger"),
 
+    SPECIAL_PROPERTY_PREFIX = "conqueso.",
     POLL_INTEVERAL_META_KEY = "conqueso.poll.interval",
 
     // Tables
@@ -210,7 +211,7 @@ function findOrCreateInstance(roleName, ipAddress, metadata, callback) {
     });
 }
 
-PersistMysql.prototype.getRoles = function(callback) {
+function getRoles(callback) {
     Role.findAll({ where : ["name != ?", GLOBAL_ROLE], order : "name ASC",
                    include : [{model : Instance, as : "Instances"}] }).success(function(roles) {
 
@@ -222,7 +223,29 @@ PersistMysql.prototype.getRoles = function(callback) {
         });
         callback(toJSON(roles));
     });
-};
+}
+
+PersistMysql.prototype.getRoles = getRoles;
+
+/* 
+ * Returns a list of role to instance ips
+ * Example : [{ name : my-service, value : 127.0.0.1,192.168.0.100 }]
+ */
+function getInstanceIps(callback) {
+    var results = [];
+
+    getRoles(function(roles) {
+        _.each(roles, function(role) {
+            var key = SPECIAL_PROPERTY_PREFIX + role.name + ".ips";
+            results.push({
+                name  : key,
+                value : _.pluck(role.instances, "ip").join(",").replace(/'"/g, "")
+            });
+        });
+
+        callback(results);
+    });
+}
 
 PersistMysql.prototype.getPropertiesForWeb = function(roleName, callback) {
     getPropertiesForRole(roleName, {}, function(role, properties) {
@@ -244,11 +267,14 @@ PersistMysql.prototype.getProperty = function(roleName, propertyName, callback) 
 PersistMysql.prototype.getPropertiesForClient = function(roleName, callback) {
     getGlobalProperties({}, function(globalProperties) {
         getPropertiesForRole(roleName, {}, function(role, properties) {
-            if (role) {
-                callback(getPropertiesDto(role, toJSON(getCombinedProperties(globalProperties, properties))));
-            } else {
-                callback(getPropertiesDto(roleName, []));
-            }
+            getInstanceIps(function(instanceIpProperties) {
+                if (role) {
+                    callback(getPropertiesDto(role, toJSON(getCombinedProperties(globalProperties, properties))
+                                                        .concat(instanceIpProperties) ));
+                } else {
+                    callback(getPropertiesDto(roleName, []));
+                }
+            });
         });
     });
 };
