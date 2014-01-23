@@ -2,13 +2,13 @@
 	<ul class="list-group">
 {{isGlobal}}
 	 	<li class="list-group-item role-header">
-	 		<a class="btn btn-default btn-sm pull-right icon add-property" data-role="{{name}}">
+	 		<a class="btn btn-default btn-sm pull-right icon add-property property-item" data-role="{{name}}">
   				<i class="fa fa-plus-circle fa-lg"></i> Add property
   			</a>
 	 	</li>
 
 	 	{{#each properties}}
-		 	<li class="list-group-item property-item">
+		 	<li class="list-group-item property-item" data-name="{{name}}" data-role="{{../id}}">
 				<div class="row">
 				   	<span class="col-xs-4 property property-name">
 						<a href="#roles/{{../id}}/properties/{{name}}">{{name}}</a>
@@ -18,9 +18,11 @@
 					</span>
 
 					<span class="col-xs-2 icon-hidden controls">
-						<a class="fa fa-globe fa-lg property icon make-global" data-name="{{name}}" data-role="{{../id}}" title="Make property global"></a>
+						{{#compare ../id "global" operator="!=="}}
+						<a class="fa fa-globe fa-lg property icon make-global" title="Make property global"></a>
+						{{/compare}}
 						<a href="#roles/{{../id}}/properties/{{name}}" class="fa fa-pencil fa-lg property icon edit" title="Edit property"></a>
-						<a class="fa fa-times-circle fa-lg property icon remove" data-role="{{../id}}" data-name="{{name}}" title="Delete property"></a>
+						<a class="fa fa-times-circle fa-lg property icon remove" title="Delete property"></a>
 					</span>
 				</div>
 		 	</li>
