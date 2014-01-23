@@ -13,7 +13,7 @@
         }
     },
     "properties" : {
-        "pollInteveralSecs" : 15
+        "pollIntervalSecs" : 15
     },
     "logging" : {
         "file" : "logs/server.log",

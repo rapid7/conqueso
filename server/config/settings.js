@@ -40,7 +40,7 @@ module.exports = {
     },
 
     getPropertiesPollInterval: function() {
-        return nconf.get("properties:pollInteveralSecs");
+        return nconf.get("properties:pollIntervalSecs");
     },
 
     getLogLevel: function() {
