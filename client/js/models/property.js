@@ -26,7 +26,7 @@ function isValidName(str) {
     return str.match(/^[\w\_\-\.]*$/g);
 }
 
-define(["backbone", "underscore"], function(Backbone, _){
+define(["jquery", "backbone", "underscore"], function($, Backbone, _){
     return Backbone.Model.extend({
         urlRoot: function() {
             return "api/roles/" + this.get("role") + "/properties-web";
@@ -52,6 +52,15 @@ define(["backbone", "underscore"], function(Backbone, _){
                 default:
                     return this.escape("value");
             }
+        },
+
+        globalize: function(ajaxParams) {
+            var defaults = {
+                type: "POST",
+                data: this.toJSON(),
+                url: this.url()+"/globalize"
+            };
+            return $.ajax(_.extend(defaults, ajaxParams));
         },
 
         /* jshint maxcomplexity:false */

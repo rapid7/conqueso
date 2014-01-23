@@ -45,5 +45,4 @@ function($, _, Backbone, Bootstrap, Property, deleteTemplate) {
             this.property.destroy({ success : _.bind(this.deleteCallback, this) });
         }
     });
-
 });

@@ -61,6 +61,18 @@ module.exports = function(express, app, persist) {
         });
     });
 
+    // Makes a property global
+    app.post("/api/roles/:role/properties-web/:property/globalize", function(req, res) {
+        trycatch(function() {
+            persist.globalizeProperty(req.body, function() {
+                res.json({});
+            });
+        }, function(err) {
+            res.send(500, "Failed to make property global");
+            console.log(err.stack);
+        });
+    });
+
     // Get properties (for client libraries)
     app.get("/api/roles/:role/properties", function(req, res) {
         persist.getPropertiesForClient(req.params.role, function(propsDto) {
@@ -74,11 +86,14 @@ module.exports = function(express, app, persist) {
     // Create a property (for web interface)
     app.post("/api/roles/:role/properties-web", function(req, res) {
         trycatch(function() {
-            persist.createProperty(req.params.role, req.body, function(property) {
+            persist.createProperty(req.params.role, req.body, function(err, property) {
+                if (err) {
+                    res.json(418, {msg: "Property already exists"});
+                }
                 res.json(property);
             });
         }, function(err) {
-            res.send(500, "Sorry -- something went wrong");
+            res.send(500, "Failed to create property");
             console.log(err.stack);
         });
     });
@@ -95,7 +110,7 @@ module.exports = function(express, app, persist) {
                 });
             });
         }, function(err) {
-            res.send(500, "Sorry -- something went wrong");
+            res.send(500, "Failed to create properties");
             console.log(err.stack);
         });
     });

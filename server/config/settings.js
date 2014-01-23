@@ -14,8 +14,7 @@
 * limitations under the License.
 */
 
-var fs = require("fs"),
-    nconf = require("nconf"),
+var nconf = require("nconf"),
     configFile = __dirname + "/settings.json";
 
 nconf.env().file(configFile);
@@ -44,12 +43,11 @@ module.exports = {
         return nconf.get("properties:pollInteveralSecs");
     },
 
-    /*jshint unused:false */
-    save: function() {
-        nconf.save(function (err) {
-            fs.readFile(configFile, function (err, data) {
-                console.dir(JSON.parse(data.toString()));
-            });
-        });
+    getLogLevel: function() {
+        return nconf.get("logging:level");
+    },
+
+    getLogOutputFile: function() {
+        return nconf.get("logging:file");
     }
 };

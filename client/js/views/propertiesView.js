@@ -31,6 +31,7 @@ function($, Backbone, _, Broadcast, RoleModel, PropertiesCollection,
             this.addView.on("property:add", _.bind(this.render, this));
 
             this.makeGlobalView = new MakeGlobalView();
+            this.makeGlobalView.on("property:globalize", _.bind(this.render, this));
         },
 
         events : {
@@ -85,5 +86,4 @@ function($, Backbone, _, Broadcast, RoleModel, PropertiesCollection,
             this.makeGlobalView.render(this.getRole(event), this.getPropertyName(event));
         }
     });
-
 });

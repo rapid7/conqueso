@@ -12,7 +12,6 @@
         "requirejs"            : "2.1.9",
         "requirejs-text"       : "2.0.10",
         "requirejs-handlebars" : "0.1.1",
-        "roboto-fontface"      : "0.1.2",
-        "bootstrap-switch"     : "2.0.0"
+        "roboto-fontface"      : "0.1.2"
     }
 }

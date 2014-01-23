@@ -22,7 +22,7 @@ module.exports = {
      * role     string
      * property object      {name, value, type}
      */
-    createProperty : function(role, property, callback) {
+    createProperty : function(err, role, property, callback) {
 
     },
 
@@ -91,6 +91,12 @@ module.exports = {
     /* Marks instances offline if they have not checked in for 2x their poll interval
      */
     markInstsancesOffline : function() {
+
+    },
+
+    /* Takes a property, removes it from all roles and adds it as a global property
+     */
+    globalizeProperty : function(property, callback) {
 
     }
 };

@@ -22,6 +22,7 @@ var config = {},
     trycatch = require("trycatch"),
     sequelize,
     GLOBAL_ROLE = "global",
+    logger = require("../logger"),
 
     POLL_INTEVERAL_META_KEY = "conqueso.poll.interval",
 
@@ -43,8 +44,9 @@ function connect() {
             dialect : "mysql",
             omitNull: true
         });
+        logger.info("Successfully connected to database: %s:%s", config.host, config.port);
     }, function() {
-        console.log("Failed to connect to database. Make sure your database is running and you have the appropriate permissions.");
+        logger.error("Failed to connect to database. Make sure your database is running and you have the appropriate permissions.");
     });
 }
 
@@ -80,12 +82,15 @@ function createTables() {
         attributeValue : Sequelize.STRING
     });
 
+    Instance.belongsTo(Role);
     Instance.hasMany(InstanceMetadata);
 
     Role.hasMany(Property, {as : "Properties"});
     Role.hasMany(Instance, {as : "Instances"});
 
-    sequelize.sync();
+    sequelize.sync().success(function() {
+        logger.info("Synchronized with database '%s'.", config.databaseName);
+    });
 }
 
 // Constructor
@@ -104,9 +109,9 @@ function findOrCreateRole(roleName, callback) {
 }
 
 // Returns a callback with a list of property models
-function getGlobalProperties(callback) {
+function getGlobalProperties(filter, callback) {
     findOrCreateRole(GLOBAL_ROLE, function(role) {
-        role.getProperties().success(callback);
+        role.getProperties(filter).success(callback);
     });
 }
 
@@ -173,15 +178,13 @@ function createInstanceForRole(role, ipAddress, callback) {
     });
 }
 
-/*
- * Callback returns true/false if the instance is new and the instance model
- */
 function findOrCreateInstance(roleName, ipAddress, metadata, callback) {
     findOrCreateRole(roleName, function(role) {
         role.getInstances({ where : { ip : ipAddress }, order: "updatedAt DESC", limit : 1}).success(function(instances) {
             var instance;
 
             if (_.isEmpty(instances)) {
+                logger.info("Role does not have any instances. Creating a new instance.", {role:roleName, instance:ipAddress});
                 createInstanceForRole(role, ipAddress, callback);
                 
             } else {
@@ -192,10 +195,12 @@ function findOrCreateInstance(roleName, ipAddress, metadata, callback) {
                 instance.getInstanceMetadata().success(function(metadatas) {
                     
                     if (isMetadataSame(metadatas, metadata)) {
+                        logger.debug("Instance checking in with same metadata. Marking online.", {role:roleName, instance:ipAddress});
                         instance.updateAttributes({ offline : false }).success(callback);
                     
                     // The instance should be offline, create a new one
                     } else {
+                        logger.warn("Instance changed metadata! Created new instance.", {role:roleName, instance:ipAddress});
                         createInstanceForRole(role, ipAddress, callback);
                     }
                 });
@@ -205,7 +210,8 @@ function findOrCreateInstance(roleName, ipAddress, metadata, callback) {
 }
 
 PersistMysql.prototype.getRoles = function(callback) {
-    Role.findAll({ where : ["name != ?", GLOBAL_ROLE], include : [{model : Instance, as : "Instances"}] }).success(function(roles) {
+    Role.findAll({ where : ["name != ?", GLOBAL_ROLE], order : "name ASC",
+                   include : [{model : Instance, as : "Instances"}] }).success(function(roles) {
 
         // Only return instances that are online
         _.map(roles, function(role) {
@@ -226,6 +232,7 @@ PersistMysql.prototype.getPropertiesForWeb = function(roleName, callback) {
 PersistMysql.prototype.getProperty = function(roleName, propertyName, callback) {
     getPropertiesForRole(roleName, {where : {"name" : propertyName}}, function(role, properties) {
         if (properties) {
+            logger.debug("Retrieving property for role.", {role:roleName, property:propertyName});
             callback(properties[0].dataValues);
         } else {
             callback({});
@@ -234,7 +241,7 @@ PersistMysql.prototype.getProperty = function(roleName, propertyName, callback) 
 };
 
 PersistMysql.prototype.getPropertiesForClient = function(roleName, callback) {
-    getGlobalProperties(function(globalProperties) {
+    getGlobalProperties({}, function(globalProperties) {
         getPropertiesForRole(roleName, {}, function(role, properties) {
             if (role) {
                 callback(getPropertiesDto(role, toJSON(getCombinedProperties(globalProperties, properties))));
@@ -251,6 +258,7 @@ PersistMysql.prototype.deleteProperty = function(roleName, propertyName, callbac
             if (properties && properties.length > 0) {
                 var prop = properties[0];
                 prop.destroy().success(function() {
+                    logger.info("Deleted property.", {property : propertyName, role: roleName});
                     callback(toJSON(prop));
                 });
             }
@@ -258,17 +266,37 @@ PersistMysql.prototype.deleteProperty = function(roleName, propertyName, callbac
     });
 };
 
-PersistMysql.prototype.createProperty = function(roleName, property, callback) {
-    findOrCreateRole(roleName, function(role) {
-        Property.create({
-            name : property.name,
-            type : propertyType.get(property.type).key,
-            value : property.value
-        }).success(function(property) {
-            role.addProperty(property).success(function(property) {
-                callback(toJSON(property));
-            });
+// Returns a callback with an argument true/false if property already exists
+function doesPropertyAlreadyExist(roleName, propertyName, callback) {
+    getGlobalProperties({where : {"name" : propertyName}}, function(globalProperties) {
+        getPropertiesForRole(roleName, {where : {"name" : propertyName}}, function(role, properties) {
+            if (globalProperties && properties && globalProperties.length === 0 && properties.length === 0) {
+                callback(false);
+            } else {
+                callback(true);
+            }
         });
+    });
+}
+
+PersistMysql.prototype.createProperty = function(roleName, property, callback) {
+    doesPropertyAlreadyExist(roleName, property.name, function(alreadyExist) {
+        if (alreadyExist) {
+            callback(new Error("Property already exists"));
+        } else {
+            findOrCreateRole(roleName, function(role) {
+                Property.create({
+                    name : property.name,
+                    type : propertyType.get(property.type).key,
+                    value : property.value
+                }).success(function(property) {
+                    role.addProperty(property).success(function(property) {
+                        logger.info("Created property.", {property: property.dataValues}, {role: roleName});
+                        callback(null, toJSON(property));
+                    });
+                });
+            });
+        }
     });
 };
 
@@ -278,6 +306,7 @@ PersistMysql.prototype.updateProperty = function(roleName, property, callback) {
         if (properties) {
             prop = properties[0];
             prop.updateAttributes({ value : property.value }).success(function(property) {
+                logger.info("Updated property.", {property: property, role: roleName});
                 callback(toJSON(property));
             });
         } else {
@@ -296,16 +325,19 @@ function getNewProperties(existingProperties, properties) {
 
 PersistMysql.prototype.createProperties = function(roleName, properties, callback) {
     findOrCreateRole(roleName, function() {
-        getPropertiesForRole(roleName, {}, function(role, existingProps) {
-            properties = getNewProperties(existingProps, properties);
+        getGlobalProperties({},function(globalProperties) {
+            getPropertiesForRole(roleName, {}, function(role, existingProps) {
+                properties = getNewProperties(globalProperties.concat(existingProps), properties);
 
-            // Add the role id to each property
-            _.each(properties, function(property) {
-                property.roleId = role.dataValues.id;
-            });
+                // Add the role id to each property
+                _.each(properties, function(property) {
+                    property.roleId = role.dataValues.id;
+                });
 
-            Property.bulkCreate(properties).success(function(props) {
-                callback(toJSON(props));
+                Property.bulkCreate(properties).success(function(props) {
+                    logger.info("Created properties for role.", {role : role.dataValues.name, properties:properties});
+                    callback(toJSON(props));
+                });
             });
         });
     });
@@ -339,9 +371,11 @@ PersistMysql.prototype.instanceCheckIn = function(roleName, ipAddress, metadata,
         instance.updateAttributes(updateObj).success(function(instance) {
             if (instance.options.isNewRecord) {
                 InstanceMetadata.bulkCreate(convertMetadata(metadata, instance)).success(function() {
+                    logger.info("Created metadata for instance.", {instance: ipAddress, metdata: metadata});
                     callback(instance);
                 });
             } else {
+                logger.debug("Instance checking in.", {instance : ipAddress, role: roleName});
                 callback(instance);
             }
         });
@@ -349,7 +383,9 @@ PersistMysql.prototype.instanceCheckIn = function(roleName, ipAddress, metadata,
 };
 
 PersistMysql.prototype.markInstancesOffline = function() {
+    logger.debug("Checking for instances that have not checked in recently.");
     Instance.findAll({ where : {offline : false} }).success(function(instances) {
+        logger.debug("Found %s online instances.", instances.length);
         instances = _.filter(instances, function(instance) {
             var timeSinceUpdate = new Date() - instance.dataValues.updatedAt;
             return timeSinceUpdate > instance.dataValues.pollInterval * 2;
@@ -358,6 +394,28 @@ PersistMysql.prototype.markInstancesOffline = function() {
         _.each(instances, function(instance) {
             instance.updateAttributes({
                 offline : true
+            }).success(function(instance) {
+                instance.getRole().success(function(role) {
+                    logger.warn("Instance has not checked in recently. Marked offline.",
+                        {role : role.dataValues.name, instance : instance.dataValues.ip});
+                });
+            });
+        });
+    });
+};
+
+PersistMysql.prototype.globalizeProperty = function(property, callback) {
+    logger.info("Making property global.", {property: property});
+    this.getProperty(property.role, property.name, function(originalProperty) {
+        Property.destroy({"name" : property.name}).success(function() {
+            Property.create({
+                name : originalProperty.name,
+                type : propertyType.get(originalProperty.type).key,
+                value : originalProperty.value
+            }).success(function(property) {
+                findOrCreateRole(GLOBAL_ROLE, function(role) {
+                    role.addProperty(property).success(callback);
+                });
             });
         });
     });

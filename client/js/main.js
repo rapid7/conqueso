@@ -22,8 +22,7 @@
         paths: {
             "jquery"           : VENDOR_LIB + "jquery/jquery.min",
             "bootstrap"        : VENDOR_LIB + "bootstrap/dist/js/bootstrap.min",
-            "bootstrap-switch" : VENDOR_LIB + "bootstrap-switch/build/js/bootstrap-switch.min",
-            "handlebars"       : VENDOR_LIB + "handlebars/handlebars.amd.min",
+            "handlebars"       : VENDOR_LIB + "handlebars/handlebars.min",
             "text"             : VENDOR_LIB + "requirejs-text/text",
             "hbars"            : VENDOR_LIB + "requirejs-handlebars/hb",
             "backbone"         : VENDOR_LIB + "backbone-amd/backbone-min",
@@ -31,13 +30,13 @@
         },
 
         shim: {
-            bootstrap: ["jquery"],
-            switcher: ["bootstrap"]
+            bootstrap : ["jquery"],
+            handlebars : { exports : "Handlebars" }
         }
     });
 }());
 
-require(["jquery", "backbone", "routers/router", "views/rolesListView",],
+require(["jquery", "backbone", "routers/router", "views/rolesListView", "./helpers"],
          function($, Backbone, Router, RolesListView) {
     
     $(document).ready(function(){

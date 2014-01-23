@@ -1,0 +1,39 @@
+/**
+* COPYRIGHT (C) 2014, Rapid7 LLC, Boston, MA, USA.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
+var winston = require("winston"),
+	config = require("./config/settings"),
+	loggingLevel = config.getLogLevel(),
+
+	_logger = new (winston.Logger)({
+		levels : {error: 3, warn: 2, info: 1, debug: 0},
+		colors: winston.config.syslog.colors,
+		level : loggingLevel,
+		transports: [
+			new (winston.transports.Console)({ colorize: true, handleExceptions: true }),
+			new (winston.transports.File)({ filename: config.getLogOutputFile(), handleExceptions: true })
+		]
+	});
+
+// Constructor
+var Logger = function() {};
+
+Logger.prototype.debug = _logger.debug;
+Logger.prototype.info = _logger.info;
+Logger.prototype.warn = _logger.warn;
+Logger.prototype.error = _logger.error;
+
+module.exports = new Logger();

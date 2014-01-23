@@ -14,13 +14,13 @@
 * limitations under the License.
 */
 
-define(["jquery", "underscore", "backbone", "bootstrap", "../broadcast", "bootstrap-switch",
+define(["jquery", "underscore", "backbone", "bootstrap", "../broadcast",
         "../models/property",
         "hbars!templates/propertyEditor.template",
         "hbars!templates/propertyTypes.template",
         "hbars!templates/newProperty.template",
         "hbars!templates/editProperty.template"],
-function($, _, Backbone, Bootstrap, Broadcast, bsswitcher, Property, editorTemplate, propertyTypes,
+function($, _, Backbone, Bootstrap, Broadcast, Property, editorTemplate, propertyTypes,
          newPropertyTemplate, editPropertyTemplate) {
     
     var _singleton,
@@ -84,6 +84,10 @@ function($, _, Backbone, Bootstrap, Broadcast, bsswitcher, Property, editorTempl
             this.trigger("property:add", this.role);
         },
 
+        errorCallback: function() {
+            this.$(".alert").fadeOut().html("Property already exists. It may already be a global property.").fadeIn();
+        },
+
         typeChange: function(event) {
             var target = $(event.currentTarget).find("input");
             this.$(".property-type").hide();
@@ -93,7 +97,10 @@ function($, _, Backbone, Bootstrap, Broadcast, bsswitcher, Property, editorTempl
         },
 
         addProperty: function() {
-            this.property.save({}, { success : _.bind(this.addCallback, this) });
+            this.property.save({}, {
+                success : _.bind(this.addCallback, this),
+                error : _.bind(this.errorCallback, this)
+            });
             this.close();
         },
 

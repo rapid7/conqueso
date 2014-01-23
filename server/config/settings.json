@@ -14,5 +14,9 @@
     },
     "properties" : {
         "pollInteveralSecs" : 15
+    },
+    "logging" : {
+        "file" : "logs/server.log",
+        "level" : "info"
     }
 }

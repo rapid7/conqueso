@@ -38,11 +38,11 @@ function($, _, Backbone, Bootstrap, Property, makeGlobalTemplate) {
 
         confirmCallback: function() {
             this.$el.modal("hide");
+            this.trigger("property:globalize", this.roleName);
         },
 
         confirmMakeGlobal: function() {
-            this.property.save({makeGlobal : true}, {success : _.bind(this.confirmCallback, this) });
+            this.property.globalize({success : _.bind(this.confirmCallback, this) });
         }
     });
-
 });
