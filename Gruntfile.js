@@ -128,7 +128,7 @@
                         archive: "artifact/conqueso-server-<%= pkg.version %>.zip"
                     },
                     files: [
-                        {src: ["server/**", "client/**", "package.json", "templates/**" ], dest: "/"}
+                        {src: ["node_modules/**", "server/**", "client/**", "package.json", "templates/**"], dest: "/"}
                     ]
                 }
             },
