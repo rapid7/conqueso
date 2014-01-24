@@ -14,89 +14,146 @@
 * limitations under the License.
 */
 
-// Interface for persistence
 /* jshint unused:false */
-module.exports = {
 
-    /* Create a new property
-     * role     string
-     * property object      {name, value, type}
-     */
-    createProperty : function(err, role, property, callback) {
+/**
+ * Base class for all database persistence
+ * 
+ * @module PersistenceInterface
+ **/
 
-    },
+/**
+ * Peristence interface
+ *
+ * @class PersistenceInterface
+ * @constructor
+**/
+var PersistenceInterface = function() {};
 
-    /* Updates a property with a new value
-     * role     string
-     * property object      {name, value, type}
-     */
-    updateProperty : function(role, property, callback) {
+/**
+ * Creates a new property
+ * 
+ * @method createProperty
+ * @param {Object} err Null if everything is ok
+ * @param {String} role Role name
+ * @param {Object} property Tuple of property attributes (name, type, value)
+ *
+ * @param {Function}[callback] callback function
+ * @param {Object} callback.property Newly created property
+ **/
+PersistenceInterface.prototpe.createProperty = function(err, role, property, callback) {};
 
-    },
+/**
+ * Updates a new property
+ * 
+ * @method updateProperty
+ * @param {String} role Role name
+ * @param {Object} property Tuple of property attributes (name, type, value)
+ *
+ * @param {Function}[callback] callback function
+ * @param {Object} callback.property Updated property
+ **/
+PersistenceInterface.prototpe.updateProperty = function(role, property, callback) {};
 
-    /* Bulk update/create properties
-     * role         string
-     * properties   list        list of property objects
-     */
-    createProperties : function(role, properties, callback) {
+/**
+ * Creates properties for a role
+ * 
+ * @method createProperties
+ * @param {String} role Role name
+ * @param {Array} properties List of property tuples (name, type, value)
+ *
+ * @param {Function}[callback] callback function
+ * @param {Object} callback.properties Newly created properties
+ **/
+PersistenceInterface.prototpe.createProperties = function(role, properties, callback) {};
 
-    },
+/**
+ * Delete a property
+ * 
+ * @method deleteProperty
+ * @param {String} role Role name
+ * @param {String} name Property name
+ *
+ * @param {Function}[callback] callback function
+ * @param {Object} callback.property Deleted property
+ **/
+PersistenceInterface.prototpe.deleteProperty = function(role, name, callback) {};
 
-    /* Delete a property
-     * role     string
-     * name     string
-     */
-    deleteProperty : function(role, name, callback) {
+/**
+ * Get properties DTO for a role. This will not include global properties
+ * 
+ * @method getPropertiesForWeb
+ * @param {String} role Role name
+ *
+ * @param {Function}[callback] callback function
+ * @param {Object} callback.dto Role name with propeties list
+ * @example {role : "foo", properties : [{...},{...}]}
+ **/
+PersistenceInterface.prototpe.getPropertiesForWeb = function(role, callback) {};
 
-    },
+/**
+ * Gets all properties including global ones for a role
+ * 
+ * @method getPropertiesForClient
+ * @param {String} role Role name
+ *
+ * @param {Function}[callback] callback function
+ * @param {Array} callback.properties Properties for role
+ **/
+PersistenceInterface.prototpe.getPropertiesForClient = function(role, callback) {};
 
-    /* Get all properties for a role
-     * includeGlobal true/false
-     * role     string
-     * returns json
-     */
-    getPropertiesForWeb : function(role, callback) {
+/**
+ * Get details about a property
+ * 
+ * @method getProperty
+ * @param {String} role Role name
+ * @param {String} name Property name
+ *
+ * @param {Function}[callback] callback function
+ * @param {Object} callback.property Property object
+ **/
+PersistenceInterface.prototpe.getProperty = function(role, name, callback) {};
 
-    },
+/**
+ * Get a list of roles with instances
+ * 
+ * @method getRoles
+ *
+ * @param {Function}[callback] callback function
+ * @param {Array} callback.roles Role object with instances
+ **/
+PersistenceInterface.prototpe.getRoles = function(callback) {};
 
-    /* Get all properties for a role and overlay global properties
-     * includeGlobal true/false
-     * role     string
-     * returns text/plain
-     */
-    getPropertiesForClient : function(role, callback) {
+/**
+ * Instance ping
+ * 
+ * @method instanceCheckIn
+ * @param {String} role Role name
+ * @param {String} ipAddress IP of instance
+ *
+ * @param {Function}[callback] callback function
+ * @param {Object} callback.instance Instance that checked in
+ **/
+PersistenceInterface.prototpe.instanceCheckIn = function(role, ipAddress, callback) {};
 
-    },
+/**
+ * Marks instances offline if they have not checked in for 2x their poll interval
+ * 
+ * @method markInstsancesOffline
+ **/
+PersistenceInterface.prototpe.markInstsancesOffline = function() {};
 
-    /* Gets a property for a role by name
-     * role     string
-     * name     string
-     */
-    getProperty : function(role, name, callback) {
+/**
+ * Takes a property, removes it from all roles and adds it as a global property.
+ * Note, the value of this property will be whatever value is associated with the property
+ * of this role. If there are other roles with the same property name, they will be removed.
+ * 
+ * @method globalizeProperty
+ * @param {Object} property Property to globalize
+ *
+ * @param {Function}[callback] callback function
+ * @param {Object} callback.property Newly creted global property
+ **/
+PersistenceInterface.prototpe.globalizeProperty = function(property, callback) {};
 
-    },
-
-    /* Return a list of roles
-     */
-    getRoles : function(callback) {
-
-    },
-
-    /* Checks in a instance of a role 
-     */
-    instanceCheckIn : function(role, ipAddress, callback) {
-
-    },
-
-    /* Marks instances offline if they have not checked in for 2x their poll interval
-     */
-    markInstsancesOffline : function() {
-
-    },
-
-    /* Takes a property, removes it from all roles and adds it as a global property
-     */
-    globalizeProperty : function(property, callback) {
-
-    }
-};
+module.exports = new PersistenceInterface();
