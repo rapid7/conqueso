@@ -24,7 +24,8 @@
             cssFiles  = ["client/css/*.scss"];
 
         grunt.initConfig({
-
+   
+            pkg: grunt.file.readJSON("package.json"),
             jshint: {
                 options: {
                     eqeqeq:    true,
@@ -119,7 +120,21 @@
                     cwd : "client",
                     cmd : "bower install"
                 }
-            }
+            },
+            
+            compress: {
+                main: {
+                    options: {
+                        archive: "artifact/conqueso-server-<%= pkg.version %>.zip"
+                    },
+                    files: [
+                        {src: ["server/**", "client/**", "package.json", "templates/**" ], dest: "/"}
+                    ]
+                }
+            },
+
+            clean: ["artifact", "templates"]
+
         });
 
         /* Depedencies */
@@ -128,8 +143,25 @@
         grunt.loadNpmTasks("grunt-contrib-watch");
         grunt.loadNpmTasks("grunt-htmlhint");
         grunt.loadNpmTasks("grunt-sass");
+        grunt.loadNpmTasks("grunt-contrib-compress");
+        grunt.loadNpmTasks("grunt-contrib-clean");
 
         /* Tasks */
         grunt.registerTask("default", ["exec:bower", "jshint", "sass:dist", "htmlhint"]);
+        grunt.registerTask("package", ["clean", "default", "templategen",  "compress"]);
+        grunt.registerTask("templategen", function() {
+            var settings = grunt.file.readJSON("server/config/settings.json");
+            settings.http.port = "<%= node['conqueso']['http']['port'] %>";
+            settings.db.type = "<%= node['conqueso']['db']['type'] %>";
+            settings.db.config.host = "<%= node['conqueso']['db']['host'] %>";
+            settings.db.config.port = "<%= node['conqueso']['db']['port'] %>";
+            settings.db.config.databaseName = "<%= node['conqueso']['db']['databaseName'] %>";
+            settings.db.config.user = "<%= node['conqueso']['db']['user'] %>";
+            settings.db.config.password = "<%= node['conqueso']['db']['password'] %>";
+            settings.properties.pollIntervalSecs = "<%= node['conqueso']['pollintervalsecs'] %>";
+            settings.logging.file = "<%= node['conqueso']['logging']['file'] %>";
+            settings.logging.level = "<%= node['conqueso']['logging']['level'] %>";
+            grunt.file.write("templates/settings.json.erb", JSON.stringify(settings,null,2));
+        });
     };
 })();
