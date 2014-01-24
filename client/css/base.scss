@@ -68,8 +68,19 @@ a:hover {
     font-size: 12px;
 }
 
+.property-name-value {
+    font-weight: 500;
+    font-size: 14px;
+}
+
 .property-type {
     display: none;
+}
+
+.property-attribute {
+    width: 100px;
+    color: #969696;
+    font-size: 11px;
 }
 
 .property-textarea {
@@ -136,3 +147,8 @@ a:hover {
 .modal-dialog {
     width: 55%;
 }
+
+.table>tbody>tr:first-child>td {
+    border-top: 0 solid #ddd
+}
+

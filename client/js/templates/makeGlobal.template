@@ -5,6 +5,10 @@
         </div>
       
         <div class="modal-body">
+            <div class="alert alert-warning">
+                <strong>Heads up!</strong> This property may exist for different roles with different values.
+            </div>
+
             <p>Are you sure you want to make the <strong>{{name}}</strong> property a global? Doing this will remove it from ALL roles and add it as a global property.</p>
         </div>
 
