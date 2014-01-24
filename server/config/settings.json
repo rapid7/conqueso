@@ -6,7 +6,7 @@
         "type" : "MYSQL",
         "config" : {
             "host"          : "localhost",
-            "port"          : "8889",
+            "port"          : "3306",
             "databaseName"  : "conqueso",
             "user"          : "root",
             "password"      : "root"

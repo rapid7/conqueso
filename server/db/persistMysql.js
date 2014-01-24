@@ -14,16 +14,24 @@
 * limitations under the License.
 */
 
+
+/**
+ * Database connnection, persistence and DAOs for MySQL
+ * 
+ * @module PersistMySql
+ **/
 var config = {},
+    sequelize,
+    
     Sequelize = require("sequelize"),
-    propertyType = require("../propertyType"),
     mysql = require("mysql"),
     _ = require("lodash"),
     trycatch = require("trycatch"),
-    sequelize,
-    GLOBAL_ROLE = "global",
+
+    propertyType = require("../propertyType"),
     logger = require("../logger"),
 
+    GLOBAL_ROLE = "global",
     SPECIAL_PROPERTY_PREFIX = "conqueso.",
     POLL_INTEVERAL_META_KEY = "conqueso.poll.interval",
 
@@ -33,6 +41,12 @@ var config = {},
     Instance,
     InstanceMetadata;
 
+/**
+ * Initialize connection to SQL
+ * 
+ * @method connect
+ * @private
+ **/
 function connect() {
     trycatch(function() {
         var connection = mysql.createConnection(config);
@@ -52,6 +66,12 @@ function connect() {
     });
 }
 
+/**
+ * Create SQL tables and associations
+ * 
+ * @method createTables
+ * @private
+ **/
 function createTables() {
     Property = sequelize.define("property", {
         name : Sequelize.STRING,
@@ -95,33 +115,87 @@ function createTables() {
     });
 }
 
-// Constructor
+/**
+ * Connects to a MySQL database and provides DAO methods
+ *
+ * @class PersistMysql
+ * @param {Object} configuration Parameters for connecting to the database
+ * @extends PeristenceInterface
+ * @constructor
+ **/
 var PersistMysql = function(configuration) {
     config = configuration;
     connect();
     createTables();
 };
 
+/**
+ * Get a role object
+ * 
+ * @method findRoleByName
+ * @private
+ * @param {String} roleName Name of the role
+ *
+ * @param {Function}[callback] callback function
+ * @param {Object} callback.role The role object
+ **/
 function findRoleByName(roleName, callback) {
     Role.find({ where : { name : roleName }}).success(callback);
 }
 
+/**
+ * Get a role object or creates it if it doesn't exist
+ * 
+ * @method findOrCreateRole
+ * @private
+ * @param {String} roleName Name of the role
+ *
+ * @param {Function}[callback] callback function
+ * @param {Object} callback.role The role object
+ **/
 function findOrCreateRole(roleName, callback) {
     Role.findOrCreate({ name : roleName }).success(callback);
 }
 
-// Returns a callback with a list of property models
+/**
+ * Gets a list of property models for the "global" role
+ * 
+ * @method getGlobalProperties
+ * @private
+ * @param {Object} filter Filter properties that are retrieved using Sequelize syntax.
+ *      Example: {where : {"name" : "foo"}}
+ *
+ * @param {Function}[callback] callback function
+ * @param {Array} callback.properties Array of properties
+ **/
 function getGlobalProperties(filter, callback) {
     findOrCreateRole(GLOBAL_ROLE, function(role) {
         role.getProperties(filter).success(callback);
     });
 }
 
+/**
+ * Converts one or more Sequelize models to flattened JSON objects
+ * 
+ * @method toJSON
+ * @private
+ * @param {Object} rows Sequelize models to flatten out dataValues 
+ * @returns {Array|Object} Array of JSON properties
+ **/
 function toJSON(rows) {
     return _.isArray(rows) ? _.pluck(rows, "dataValues") : rows.dataValues;
 }
 
-// Get global properites overlayed with role properties
+/**
+ * Combines global and role properties into a single array. Global properties
+ * take prescedence over role properties.
+ * 
+ * @method getCombinedProperties
+ * @private
+ * @param {Array} globalProperties Sequelize models of global properties
+ * @param {Array} roleProperties Sequelize models of role properties
+ * @returns {Array} Array of combined models
+ **/
 function getCombinedProperties(globalProperties, roleProperties) {
     var properties = globalProperties;
 
@@ -139,17 +213,39 @@ function getCombinedProperties(globalProperties, roleProperties) {
     return properties;
 }
 
-function getPropertiesDto(roleModel, properties) {
+/**
+ * Converts a role and properties into a flatten JSON object used as a DTO
+ * 
+ * @method getPropertiesDto
+ * @private
+ * @param {Object|String} role Sequelize model or String
+ * @param {Array} properties Array of Sequelize model properties
+ * @returns {Object} DTO of role and properties
+ **/
+function getPropertiesDto(role, properties) {
     return {
-        name : _.isString(roleModel) ? roleModel : roleModel.dataValues.name,
+        name : _.isString(role) ? role : role.dataValues.name,
         properties : properties
     };
 }
 
-function getPropertiesForRole(role, filtering, callback) {
+/**
+ * Gets properties for a particular role
+ * 
+ * @method getPropertiesForRole
+ * @private
+ * @param {String} role Role name
+ * @param {Object} filter Filter properties that are retrieved using Sequelize syntax.
+ *      Example: {where : {"name" : "foo"}}
+ *
+ * @param {Function}[callback] callback function
+ * @param {Object} callback.role Role
+ * @param {Array} callback.properties Array of properties
+ **/
+function getPropertiesForRole(role, filter, callback) {
     findRoleByName(role, function(role) {
         if (role) {
-            role.getProperties(_.extend({order : "name ASC"}, filtering)).success(function(properties) {
+            role.getProperties(_.extend({order : "name ASC"}, filter)).success(function(properties) {
                 callback(role, properties);
             });
         } else {
@@ -158,6 +254,16 @@ function getPropertiesForRole(role, filtering, callback) {
     });
 }
 
+/**
+ * Compares metadata that exists and an object of new metadata. Metadata sameness 
+ * is based on all keys and all values matching.
+ * 
+ * @method isMetadataSame
+ * @private
+ * @param {Array} metadataModels Sequelize models of existing metadata
+ * @param {Object} newMetadata New metadata being sent from a client
+ * @returns {Boolean}
+ **/
 function isMetadataSame(metadataModels, newMetadata) {
     var attrKeys = [],
         attrValues = [];
@@ -172,6 +278,17 @@ function isMetadataSame(metadataModels, newMetadata) {
              _.isEmpty(_.difference(attrValues, _.values(newMetadata))) || newMetadata === null);
 }
 
+/**
+ * Creates a new intance for a role
+ * 
+ * @method createInstanceForRole
+ * @private
+ * @param {String} role Role name
+ * @param {String} ipAddress IP of the instance
+ *
+ * @param {Function}[callback] callback function
+ * @param {Object} callback.instance Newly created instance
+ **/
 function createInstanceForRole(role, ipAddress, callback) {
     Instance.create({
         ip : ipAddress
@@ -180,6 +297,20 @@ function createInstanceForRole(role, ipAddress, callback) {
     });
 }
 
+/**
+ * Gets an instance for a role by IP if it already exists. If the metadata for this instance has
+ * not changed, then mark the instance online. If it has changed, then create a new instance. If the
+ * role has no instance with this IP, then create a new instance.
+ * 
+ * @method findOrCreateInstance
+ * @private
+ * @param {String} roleName Role name
+ * @param {String} ipAddress IP of the instance
+ * @param {Object} metdata Key/value object of metadata attributes
+ *
+ * @param {Function}[callback] callback function
+ * @param {Object} callback.instance Newly created instance
+ **/
 function findOrCreateInstance(roleName, ipAddress, metadata, callback) {
     findOrCreateRole(roleName, function(role) {
         role.getInstances({ where : { ip : ipAddress }, order: "updatedAt DESC", limit : 1}).success(function(instances) {
@@ -191,16 +322,12 @@ function findOrCreateInstance(roleName, ipAddress, metadata, callback) {
                 
             } else {
                 instance = instances[0];
-                // Check to see if metadata is the same, if it is, service is online
-                // and return that instance, otherwise, we need a new instance because
-                // it's metadata (version?) has changed
                 instance.getInstanceMetadata().success(function(metadatas) {
                     
                     if (isMetadataSame(metadatas, metadata)) {
                         logger.debug("Instance checking in with same metadata. Marking online.", {role:roleName, instance:ipAddress});
                         instance.updateAttributes({ offline : false }).success(callback);
                     
-                    // The instance should be offline, create a new one
                     } else {
                         logger.warn("Instance changed metadata! Created new instance.", {role:roleName, instance:ipAddress});
                         createInstanceForRole(role, ipAddress, callback);
@@ -211,6 +338,15 @@ function findOrCreateInstance(roleName, ipAddress, metadata, callback) {
     });
 }
 
+/**
+ * Get all non-global roles. Includes instances that are online.
+ * 
+ * @method getRoles
+ * @private
+ *
+ * @param {Function}[callback] callback function
+ * @param {Array} callback.instance JSON objects of roles with instances
+ **/
 function getRoles(callback) {
     Role.findAll({ where : ["name != ?", GLOBAL_ROLE], order : "name ASC",
                    include : [{model : Instance, as : "Instances"}] }).success(function(roles) {
@@ -225,12 +361,17 @@ function getRoles(callback) {
     });
 }
 
-PersistMysql.prototype.getRoles = getRoles;
-
-/* 
- * Returns a list of role to instance ips
- * Example : [{ name : my-service, value : 127.0.0.1,192.168.0.100 }]
- */
+/**
+ * Gets an array of pseudo properties which map a role to a list of it's online
+ * instance ips. 
+ * 
+ * @method getInstanceIps
+ * @private
+ * @example [{ name : my-service, value : 127.0.0.1,192.168.0.100 }]
+ *
+ * @param {Function}[callback] callback function
+ * @param {Array} callback.instance JSON objects of instance ip properties
+ **/
 function getInstanceIps(callback) {
     var results = [];
 
@@ -247,12 +388,83 @@ function getInstanceIps(callback) {
     });
 }
 
+/**
+ * Gets a list of properties that should be created. Properties which already exist for this role
+ * will not be created again.
+ * 
+ * @method getNewProperties
+ * @private
+ *
+ * @param {Array} existingProperties Sequelize models of existing metadata
+ * @param {Object} properties Neww properties in JSON format
+ * @returns {Array} New properties
+ **/
+function getNewProperties(existingProperties, properties) {
+    existingProperties = _.pluck(_.pluck(existingProperties, "dataValues"), "name");
+    return _.filter(properties, function(prop) {
+        return !_.contains(existingProperties, prop.name);
+    });
+}
+
+// Returns a callback with an argument true/false if property already exists
+
+/**
+ * Checks to see if a given property for a role already exists
+ * 
+ * @method doesPropertyAlreadyExist
+ * @private
+ * @param {String} roleName Role name
+ * @param {String} propertyName Property name
+ *
+ * @param {Function}[callback] callback function
+ * @param {Boolean} callback.alreadyExist True if property already exists
+ **/
+function doesPropertyAlreadyExist(roleName, propertyName, callback) {
+    getGlobalProperties({where : {"name" : propertyName}}, function(globalProperties) {
+        getPropertiesForRole(roleName, {where : {"name" : propertyName}}, function(role, properties) {
+            if (globalProperties && properties && globalProperties.length === 0 && properties.length === 0) {
+                callback(false);
+            } else {
+                callback(true);
+            }
+        });
+    });
+}
+
+/**
+ * Takes an object that has key/value pairs and converts it into a list
+ * 
+ * @method convertMetadata
+ * @private
+ * @example [{attributeKey : "key", attributeValue : "value"}]
+ *
+ * @param {Object} metadata Key/value metadata object
+ * @param {Object} instance
+ * @returns {Array} Converted metadatas
+ **/
+function convertMetadata(metadata, instance) {
+    var result = [];
+    _.each(_.keys(metadata), function(key) {
+        result.push({
+            instanceId     : instance.dataValues.id,
+            attributeKey   : key,
+            attributeValue : metadata[key]
+        });
+    });
+    return result;
+}
+
+/* @Override */
+PersistMysql.prototype.getRoles = getRoles;
+
+/* @Override */
 PersistMysql.prototype.getPropertiesForWeb = function(roleName, callback) {
     getPropertiesForRole(roleName, {}, function(role, properties) {
         callback(getPropertiesDto(role || roleName, toJSON(properties)));
     });
 };
 
+/* @Override */
 PersistMysql.prototype.getProperty = function(roleName, propertyName, callback) {
     getPropertiesForRole(roleName, {where : {"name" : propertyName}}, function(role, properties) {
         if (properties) {
@@ -264,6 +476,7 @@ PersistMysql.prototype.getProperty = function(roleName, propertyName, callback) 
     });
 };
 
+/* @Override */
 PersistMysql.prototype.getPropertiesForClient = function(roleName, callback) {
     getGlobalProperties({}, function(globalProperties) {
         getPropertiesForRole(roleName, {}, function(role, properties) {
@@ -279,6 +492,7 @@ PersistMysql.prototype.getPropertiesForClient = function(roleName, callback) {
     });
 };
 
+/* @Override */
 PersistMysql.prototype.deleteProperty = function(roleName, propertyName, callback) {
     findRoleByName(roleName, function(role) {
         role.getProperties({ where : { name : propertyName }}).success(function(properties) {
@@ -293,19 +507,7 @@ PersistMysql.prototype.deleteProperty = function(roleName, propertyName, callbac
     });
 };
 
-// Returns a callback with an argument true/false if property already exists
-function doesPropertyAlreadyExist(roleName, propertyName, callback) {
-    getGlobalProperties({where : {"name" : propertyName}}, function(globalProperties) {
-        getPropertiesForRole(roleName, {where : {"name" : propertyName}}, function(role, properties) {
-            if (globalProperties && properties && globalProperties.length === 0 && properties.length === 0) {
-                callback(false);
-            } else {
-                callback(true);
-            }
-        });
-    });
-}
-
+/* @Override */
 PersistMysql.prototype.createProperty = function(roleName, property, callback) {
     doesPropertyAlreadyExist(roleName, property.name, function(alreadyExist) {
         if (alreadyExist) {
@@ -327,6 +529,7 @@ PersistMysql.prototype.createProperty = function(roleName, property, callback) {
     });
 };
 
+/* @Override */
 PersistMysql.prototype.updateProperty = function(roleName, property, callback) {
     getPropertiesForRole(roleName, {where : {"name" : property.name}}, function(role, properties) {
         var prop;
@@ -342,14 +545,7 @@ PersistMysql.prototype.updateProperty = function(roleName, property, callback) {
     });
 };
 
-// Existing properties are models that already exist and properties are the new tuples to be created
-function getNewProperties(existingProperties, properties) {
-    existingProperties = _.pluck(_.pluck(existingProperties, "dataValues"), "name");
-    return _.filter(properties, function(prop) {
-        return !_.contains(existingProperties, prop.name);
-    });
-}
-
+/* @Override */
 PersistMysql.prototype.createProperties = function(roleName, properties, callback) {
     findOrCreateRole(roleName, function() {
         getGlobalProperties({},function(globalProperties) {
@@ -370,20 +566,7 @@ PersistMysql.prototype.createProperties = function(roleName, properties, callbac
     });
 };
 
-// Takes an object that has key/value pairs and converts it into a list
-// [ {attributeKey : "key", attributeValue : "value"}]
-function convertMetadata(metadata, instance) {
-    var result = [];
-    _.each(_.keys(metadata), function(key) {
-        result.push({
-            instanceId     : instance.dataValues.id,
-            attributeKey   : key,
-            attributeValue : metadata[key]
-        });
-    });
-    return result;
-}
-
+/* @Override */
 PersistMysql.prototype.instanceCheckIn = function(roleName, ipAddress, metadata, callback) {
     var updateObj = {
         ip : ipAddress
@@ -409,10 +592,13 @@ PersistMysql.prototype.instanceCheckIn = function(roleName, ipAddress, metadata,
     });
 };
 
+/* @Override */
 PersistMysql.prototype.markInstancesOffline = function() {
     logger.debug("Checking for instances that have not checked in recently.");
+    
     Instance.findAll({ where : {offline : false} }).success(function(instances) {
         logger.debug("Found %s online instances.", instances.length);
+        
         instances = _.filter(instances, function(instance) {
             var timeSinceUpdate = new Date() - instance.dataValues.updatedAt;
             return timeSinceUpdate > instance.dataValues.pollInterval * 2;
@@ -431,8 +617,10 @@ PersistMysql.prototype.markInstancesOffline = function() {
     });
 };
 
+/* @Override */
 PersistMysql.prototype.globalizeProperty = function(property, callback) {
     logger.info("Making property global.", {property: property});
+    
     this.getProperty(property.role, property.name, function(originalProperty) {
         Property.destroy({"name" : property.name}).success(function() {
             Property.create({
