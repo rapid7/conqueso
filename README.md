@@ -1,3 +1,5 @@
+![](https://david-dm.org/rapid7/conqueso.png)
+
 Install node
 ------
 sudo apt-get update
