@@ -25,4 +25,4 @@ switch (settings.getPersistType()) {
 		throw new Error("Unrecognized persistence type");
 }
 
-module.exports = new persistence(settings.getDbConfig());
+module.exports = new persistence(settings.getDbConfig(), Function);
