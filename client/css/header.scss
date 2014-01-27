@@ -14,15 +14,29 @@
 * limitations under the License.
 */
 
-var settings = require("../config/settings"),
-	persistence;
-
-switch (settings.getPersistType()) {
-	case "MYSQL":
-		persistence = require("./persistMysql");
-		break;
-	default:
-		throw new Error("Unrecognized persistence type");
+.navbar {
+    border-radius: 0;
 }
 
-module.exports = new persistence(settings.getDbConfig(), Function);
+.navbar-inverse {
+    background-color: #1fa67a;
+    border-color: #1b926c;
+
+    .navbar-nav>li>a {
+    	color: #b0ddce;
+	}
+
+	.navbar-link {
+	    color: #b0ddce;
+	}
+
+	.navbar-link:hover {
+	    text-decoration: none;
+	}
+
+	.navbar-brand {
+	    color: #D7F7EC;
+	    font-size: 32px;
+	    font-weight: 300;
+	}
+}

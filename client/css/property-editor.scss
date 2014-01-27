@@ -14,15 +14,15 @@
 * limitations under the License.
 */
 
-var settings = require("../config/settings"),
-	persistence;
-
-switch (settings.getPersistType()) {
-	case "MYSQL":
-		persistence = require("./persistMysql");
-		break;
-	default:
-		throw new Error("Unrecognized persistence type");
+.type-selector.disabled {
+    opacity: 0.75;
 }
 
-module.exports = new persistence(settings.getDbConfig(), Function);
+.type-selector.disabled.active {
+    opacity: 0.95;
+    background-color: #ccc;
+}
+
+.table>tbody>tr:first-child>td {
+    border-top: 0 solid #ddd
+}

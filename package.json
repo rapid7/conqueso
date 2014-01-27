@@ -17,7 +17,9 @@
         "grunt-sass" : "~0.10.0",
         "node-bourbon" : "~1.0.0",
         "grunt-contrib-compress" : "~0.6.0",
-        "grunt-contrib-clean" : "~0.5.0"
+        "grunt-contrib-clean" : "~0.5.0",
+        "grunt-mocha-test" : "~0.8.2",
+        "sqlite3" : "~2.2.0"
     },
     "dependencies" : {
         "express" : "~3.4.8",

@@ -14,15 +14,39 @@
 * limitations under the License.
 */
 
-var settings = require("../config/settings"),
-	persistence;
-
-switch (settings.getPersistType()) {
-	case "MYSQL":
-		persistence = require("./persistMysql");
-		break;
-	default:
-		throw new Error("Unrecognized persistence type");
+.property-item {
+    padding-top: 5px;
+    line-height: 20px;
 }
 
-module.exports = new persistence(settings.getDbConfig(), Function);
+.property-name {
+    font-weight: 300;
+    font-size: 12px;
+}
+
+.property-name-value {
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.property-type {
+    display: none;
+}
+
+.property-attribute {
+    width: 100px;
+    color: #969696;
+    font-size: 11px;
+}
+
+.property-textarea {
+    @include box-sizing(border-box);
+    width: 100%;
+    resize: vertical;
+    height: 100px;
+}
+
+.add-property {
+    position: relative;
+    top: -7px;
+}

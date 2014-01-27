@@ -14,15 +14,16 @@
 * limitations under the License.
 */
 
-var settings = require("../config/settings"),
-	persistence;
-
-switch (settings.getPersistType()) {
-	case "MYSQL":
-		persistence = require("./persistMysql");
-		break;
-	default:
-		throw new Error("Unrecognized persistence type");
+.role-header {
+    background-color: #ccc;
+    height: 40px
 }
 
-module.exports = new persistence(settings.getDbConfig(), Function);
+.role-item.active {
+    background-color: #D7F7EC;
+}
+
+.role-item:hover {
+    cursor: pointer;
+    background-color :#D7F7EC;
+}

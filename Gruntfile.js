@@ -27,53 +27,7 @@
    
             pkg: grunt.file.readJSON("package.json"),
             jshint: {
-                options: {
-                    eqeqeq:    true,
-                    undef:     true,
-                    latedef:   true,
-                    immed:     true,
-                    browser:   true,
-                    indent:    4,
-                    maxdepth:  3,
-                    curly:     true,
-                    camelcase: true,
-                    newcap:    true,
-                    noempty:   true,
-                    unused:    true,
-                    trailing:  true,
-                    multistr:  true,
-                    quotmark:  "double",
-                    maxcomplexity: 10,
-                    maxstatements: 20,
-                    maxlen:        135,
-                    globals : {
-                        "define"  : false,
-                        "require" : false,
-                        "console" : false,
-                        "module"  : false,
-                        "__dirname" : false
-                    }
-                },
                 files: jsFiles
-            },
-
-            csslint: {
-                strict: {
-                    options: {
-                        "ids": false,
-                        "box-sizing": false,
-                        "important": false,
-                        "adjoining-classes": false,
-                        "fallback-colors": false,
-                        "gradients": false,
-                        "box-model": false,
-                        "outline-none": false,
-                        "regex-selectors": false,
-                        "unqualified-attributes": false,
-                        "font-sizes": false
-                    },
-                    src: cssFiles
-                }
             },
 
             htmlhint: {
@@ -97,6 +51,15 @@
                     files: {
                         "client/css/main.css" : "client/css/main.scss"
                     }
+                }
+            },
+
+            mochaTest: {
+                test: {
+                    options: {
+                        reporter: "nyan"
+                    },
+                    src: ["test/**/*.js"]
                 }
             },
 
@@ -145,10 +108,13 @@
         grunt.loadNpmTasks("grunt-sass");
         grunt.loadNpmTasks("grunt-contrib-compress");
         grunt.loadNpmTasks("grunt-contrib-clean");
+        grunt.loadNpmTasks("grunt-mocha-test");
 
         /* Tasks */
-        grunt.registerTask("default", ["exec:bower", "jshint", "sass:dist", "htmlhint"]);
-        grunt.registerTask("package", ["clean", "default", "templategen",  "compress"]);
+        grunt.registerTask("test", ["mochaTest"]);
+        grunt.registerTask("lint", ["jshint", "sass:dist", "htmlhint"]);
+        grunt.registerTask("default", ["exec:bower", "lint", "test"]);
+        grunt.registerTask("package", ["clean", "exec:bower", "lint", "templategen",  "compress"]);
         grunt.registerTask("templategen", function() {
             var settings = grunt.file.readJSON("server/config/settings.json");
             settings.http.port = "<%= node['conqueso']['http']['port'] %>";
@@ -161,7 +127,7 @@
             settings.properties.pollIntervalSecs = "<%= node['conqueso']['pollintervalsecs'] %>";
             settings.logging.file = "<%= node['conqueso']['logging']['file'] %>";
             settings.logging.level = "<%= node['conqueso']['logging']['level'] %>";
-            grunt.file.write("templates/settings.json.erb", JSON.stringify(settings,null,2));
+            grunt.file.write("templates/settings.json.erb", JSON.stringify(settings, null, 4));
         });
     };
 })();

@@ -21,82 +21,11 @@ body {
 
 a {
     color: #222;
-}
-
-a:hover {
-    color: #1fa67a;
+    &:hover { color: #1fa67a; }
 }
 
 .container {
     width: 95%;
-}
-
-.navbar {
-    border-radius: 0;
-}
-
-.navbar-inverse {
-    background-color: #1fa67a;
-    border-color: #1b926c;
-}
-
-.navbar-inverse .navbar-nav>li>a {
-    color: #b0ddce;
-}
-
-.navbar-inverse .navbar-link {
-    color: #b0ddce;
-}
-
-.navbar-inverse .navbar-link:hover {
-    text-decoration: none;
-}
-
-.navbar-inverse .navbar-brand {
-    color: #D7F7EC;
-    font-size: 32px;
-    font-weight: 300;
-}
-
-.property-item {
-    padding-top: 5px;
-    line-height: 20px;
-}
-
-.property-name {
-    font-weight: 300;
-    font-size: 12px;
-}
-
-.property-name-value {
-    font-weight: 500;
-    font-size: 14px;
-}
-
-.property-type {
-    display: none;
-}
-
-.property-attribute {
-    width: 100px;
-    color: #969696;
-    font-size: 11px;
-}
-
-.property-textarea {
-    @include box-sizing(border-box);
-    width: 100%;
-    resize: vertical;
-    height: 100px;
-}
-
-.type-selector.disabled {
-    opacity: 0.75;
-}
-
-.type-selector.disabled.active {
-    opacity: 0.95;
-    background-color: #ccc;
 }
 
 .icon-hidden {
@@ -106,33 +35,13 @@ a:hover {
 .icon {
     margin-left: 0;
     padding-right: 10px;
-    opacity: 0.75
-}
-
-.icon:hover {
-    cursor: pointer;
-    text-decoration: none;
-    opacity: 1;
-    color: #1fa67a;
-}
-
-.role-header {
-    background-color: #ccc;
-    height: 40px
-}
-
-.role-item.active {
-    background-color: #D7F7EC;
-}
-
-.add-property {
-    position: relative;
-    top: -6px;
-}
-
-.role-item:hover {
-    cursor: pointer;
-    background-color :#D7F7EC;
+    opacity: 0.75;
+    &:hover {
+        cursor: pointer;
+        text-decoration: none;
+        opacity: 1;
+        color: #1fa67a;
+    }
 }
 
 .modal-open {
@@ -147,8 +56,3 @@ a:hover {
 .modal-dialog {
     width: 55%;
 }
-
-.table>tbody>tr:first-child>td {
-    border-top: 0 solid #ddd
-}
-
