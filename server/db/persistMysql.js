@@ -20,20 +20,17 @@
  * 
  * @module PersistMySql
  **/
-var config = {},
-    sequelize,
-    
+var sequelize,
     Sequelize = require("sequelize"),
-    mysql = require("mysql"),
-    _ = require("lodash"),
-    trycatch = require("trycatch"),
+    _         = require("lodash"),
+    trycatch  = require("trycatch"),
 
     propertyType = require("../propertyType"),
-    logger = require("../logger"),
+    logger       = require("../logger"),
+    Globals      = require("../globals"),
 
-    GLOBAL_ROLE = "global",
-    SPECIAL_PROPERTY_PREFIX = "conqueso.",
-    POLL_INTEVERAL_META_KEY = "conqueso.poll.interval",
+    // Used for migration
+    exec = require("child_process").exec,
 
     // Tables
     Property,
@@ -41,30 +38,75 @@ var config = {},
     Instance,
     InstanceMetadata;
 
+
+/**
+ * Returns a MySQL connection URL based on a configuration object
+ * 
+ * @method getConnectionUrl
+ * @private
+ * @returns {String} Connection URL
+ **/
+function getConnectionUrl(config) {
+    return "mysql://" + config.user + ":" + config.password + "@" +
+                        config.host + ":" + config.port + "/" + config.databaseName;
+}
+
+/**
+ * Connects to the database and initializes the Sequelize object
+ * 
+ * @method setup
+ * @private
+ * @param {Object} configuration object to use to connect
+ * @param {Function}[callback] callback function
+ **/
+function setup(config, callback) {
+    sequelize = new Sequelize(config.databaseName, config.user, config.password, {
+        host : config.host,
+        port : config.port,
+        dialect : config.dialect || "mysql",
+        omitNull: true
+    });
+    callback();
+}
+
 /**
  * Initialize connection to SQL
  * 
  * @method connect
  * @private
+ * @param {Object} configuration object to use to connect
+ * @param {Function}[done] callback function for when this has finished
  **/
-function connect() {
+function connect(config, done) {
     trycatch(function() {
+
+        // Only create a database and migrate it if it is specified
         if (config.databaseName) {
-            var connection = mysql.createConnection(config);
-            connection.query("CREATE DATABASE IF NOT EXISTS "+config.databaseName+";");
+            var connection = require("mysql").createConnection(config);
+            connection.query("CREATE DATABASE IF NOT EXISTS "+config.databaseName+";", function(err) {
+                if (!err) {
+                    logger.info("Successfully connected to database: %s:%s", config.host, config.port);
+                }
+            });
             connection.end();
-            logger.info("Successfully connected to database: %s:%s", config.host, config.port);
+
+            // Migrate to the latest schema
+            exec(__dirname + "/../../node_modules/sequelize/bin/sequelize -m -U " + getConnectionUrl(config), function(err) {
+                if (!err) {
+                    logger.info("Migrated database schema to latest version");
+                    setup(config, done);
+                } else {
+                    throw new Error("Failed to migrate database schema");
+                }
+            });
+        // If no database is specified just setup Sequelize and don't migrate
+        } else {
+            setup(config, done);
         }
 
-        sequelize = new Sequelize(config.databaseName, config.user, config.password, {
-            host : config.host,
-            port : config.port,
-            dialect : config.dialect || "mysql",
-            omitNull: true
-        });
     }, function(err) {
-        logger.error("Failed to connect to database. Make sure your database is running and you have the appropriate permissions.");
-        logger.error(err.stack);
+        logger.error(err.message);
+        throw err;
     });
 }
 
@@ -73,6 +115,7 @@ function connect() {
  * 
  * @method createTables
  * @private
+ * @param {Function}[done] callback function for when this has finished
  **/
 function createTables(done) {
     Property = sequelize.define("property", {
@@ -113,9 +156,7 @@ function createTables(done) {
     Role.hasMany(Instance, {as : "Instances"});
 
     sequelize.sync().success(function() {
-        if (config.databaseName) {
-            logger.info("Synchronized with database '%s'.", config.databaseName);
-        }
+        logger.info("Synchronized with database");
         done();
     });
 }
@@ -129,9 +170,9 @@ function createTables(done) {
  * @constructor
  **/
 var PersistMysql = function(configuration, done) {
-    config = configuration;
-    connect();
-    createTables(done);
+    connect(configuration, function() {
+        createTables(done);
+    });
 };
 
 /**
@@ -174,7 +215,7 @@ function findOrCreateRole(roleName, callback) {
  * @param {Array} callback.properties Array of properties
  **/
 function getGlobalProperties(filter, callback) {
-    findOrCreateRole(GLOBAL_ROLE, function(role) {
+    findOrCreateRole(Globals.GLOBAL_ROLE, function(role) {
         role.getProperties(filter).success(callback);
     });
 }
@@ -353,7 +394,7 @@ function findOrCreateInstance(roleName, ipAddress, metadata, callback) {
  * @param {Array} callback.instance JSON objects of roles with instances
  **/
 function getRoles(callback) {
-    Role.findAll({ where : ["name != ?", GLOBAL_ROLE], order : "name ASC",
+    Role.findAll({ where : ["name != ?", Globals.GLOBAL_ROLE], order : "name ASC",
                    include : [{model : Instance, as : "Instances"}] }).success(function(roles) {
 
         // Only return instances that are online
@@ -382,7 +423,7 @@ function getInstanceIps(callback) {
 
     getRoles(function(roles) {
         _.each(roles, function(role) {
-            var key = SPECIAL_PROPERTY_PREFIX + role.name + ".ips";
+            var key = Globals.SPECIAL_PROPERTY_PREFIX + role.name + ".ips";
             results.push({
                 name  : key,
                 value : _.pluck(role.instances, "ip").join(",").replace(/'"/g, "")
@@ -577,8 +618,8 @@ PersistMysql.prototype.instanceCheckIn = function(roleName, ipAddress, metadata,
         ip : ipAddress
     };
 
-    if (metadata && metadata[POLL_INTEVERAL_META_KEY]) {
-        updateObj.pollInterval = metadata[POLL_INTEVERAL_META_KEY];
+    if (metadata && metadata[Globals.POLL_INTEVERAL_META_KEY]) {
+        updateObj.pollInterval = metadata[Globals.POLL_INTEVERAL_META_KEY];
     }
 
     findOrCreateInstance(roleName, ipAddress, metadata, function(instance) {
@@ -633,7 +674,7 @@ PersistMysql.prototype.globalizeProperty = function(property, callback) {
                 type : propertyType.get(originalProperty.type).key,
                 value : originalProperty.value
             }).success(function(property) {
-                findOrCreateRole(GLOBAL_ROLE, function(role) {
+                findOrCreateRole(Globals.GLOBAL_ROLE, function(role) {
                     role.addProperty(property).success(callback);
                 });
             });

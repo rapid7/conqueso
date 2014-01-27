@@ -14,18 +14,39 @@
 * limitations under the License.
 */
 
-var logger = require("./logger");
-logger.info("Starting Conqueso server");
+.property-item {
+    padding-top: 5px;
+    line-height: 20px;
+}
 
-var express = require("express"),
-    app = express(),
-    PersistenceService = require("./db/persistenceService"),
-    port = require("./config/settings").getHttpPort();
+.property-name {
+    font-weight: 300;
+    font-size: 12px;
+}
 
-require("./routes/web")(express, app);
-require("./routes/api")(express, app, PersistenceService);
-require("./serviceTracker")(PersistenceService);
+.property-name-value {
+    font-weight: 500;
+    font-size: 14px;
+}
 
-app.listen(port, function() {
-    logger.info("Listening on port %d", port);
-});
+.property-type {
+    display: none;
+}
+
+.property-attribute {
+    width: 100px;
+    color: #969696;
+    font-size: 11px;
+}
+
+.property-textarea {
+    @include box-sizing(border-box);
+    width: 100%;
+    resize: vertical;
+    height: 100px;
+}
+
+.add-property {
+    position: relative;
+    top: -7px;
+}

@@ -13,26 +13,35 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-var _ = require("lodash");
 
 /**
- * Lots of random goodies
+ * Global values
  * 
- * @module Utils
+ * @module Globals
  **/
 module.exports = {
     /**
-	 * Converts a list of property objects to plain text (Java Properties)
+	 * Name used for the special "global" role
 	 * 
-	 * @method propertiesToTextPlain
-	 * @param {Array} properties List of property objects {name:"foo", value:"bar"}
-	 * @returns {String} Plain text of properties
-	 **/
-    propertiesToTextPlain : function(properties) {
-        var result = "";
-        _.each(properties, function(property) {
-            result += property.name + "=" + property.value + "\n";
-        });
-        return result;
-    }
+	 * @property GLOBAL_ROLE
+     * @type {String}
+	 */
+    GLOBAL_ROLE : "global",
+
+    /**
+	 * Append this prefix to all special properties, such as the role ip list
+	 * 
+	 * @property SPECIAL_PROPERTY_PREFIX
+     * @type {String}
+	 */
+    SPECIAL_PROPERTY_PREFIX : "conqueso.",
+
+    /**
+	 * Metadata key which contains the Archaius polling interval setting. If 
+	 * this is not present, we will default to Archaius' standard polling rate (60s)
+	 * 
+	 * @property POLL_INTEVERAL_META_KEY
+     * @type {String}
+	 */
+    POLL_INTEVERAL_META_KEY : "conqueso.poll.interval",
 };

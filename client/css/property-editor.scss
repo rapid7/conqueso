@@ -14,18 +14,15 @@
 * limitations under the License.
 */
 
-var logger = require("./logger");
-logger.info("Starting Conqueso server");
+.type-selector.disabled {
+    opacity: 0.75;
+}
 
-var express = require("express"),
-    app = express(),
-    PersistenceService = require("./db/persistenceService"),
-    port = require("./config/settings").getHttpPort();
+.type-selector.disabled.active {
+    opacity: 0.95;
+    background-color: #ccc;
+}
 
-require("./routes/web")(express, app);
-require("./routes/api")(express, app, PersistenceService);
-require("./serviceTracker")(PersistenceService);
-
-app.listen(port, function() {
-    logger.info("Listening on port %d", port);
-});
+.table>tbody>tr:first-child>td {
+    border-top: 0 solid #ddd
+}
