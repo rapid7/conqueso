@@ -132,7 +132,7 @@ PersistenceInterface.prototpe.getRoles = function(callback) {};
  * @param {String} ipAddress IP of instance
  *
  * @param {Function}[callback] callback function
- * @param {Object} callback.instance Instance that checked in
+ * @param {Object} callback.instance Instance that checked in or null if no role exists
  **/
 PersistenceInterface.prototpe.instanceCheckIn = function(role, ipAddress, callback) {};
 

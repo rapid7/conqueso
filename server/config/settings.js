@@ -14,6 +14,13 @@
 * limitations under the License.
 */
 
+/**
+ * Get server settings from settings.json. Some settings, database connection parameters
+ * in particular can be overriden by environment variables.
+ * 
+ * @module settings
+ **/
+
 var nconf = require("nconf"),
     configFile = __dirname + "/settings.json";
 
@@ -28,7 +35,6 @@ module.exports = {
         return nconf.get("db:type");
     },
 
-    /* global process */
     getDbConfig: function() {
         return {
             host          : process.env.RDS_HOSTNAME || nconf.get("db:config:host"),

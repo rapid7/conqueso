@@ -17,6 +17,8 @@
 var logger = require("./logger");
 logger.info("Starting Conqueso server");
 
+process.setMaxListeners(25);
+
 var express = require("express"),
     app = express(),
     PersistenceService = require("./db/persistenceService"),

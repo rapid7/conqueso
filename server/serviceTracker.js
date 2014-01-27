@@ -14,10 +14,18 @@
 * limitations under the License.
 */
 
+/**
+ * Looks at existing instances at an interval. Instances which have not checked in
+ * in a long time will be marked offline.
+ * 
+ * @module serviceTracker
+ **/
+var _ = require("lodash");
+
 module.exports = function(persistence) {
 	var interval = require("./config/settings").getPropertiesPollInterval() * 1000;
 
-	setInterval(function() {
+	setInterval(_.bind(function() {
 		persistence.markInstancesOffline();
-	}, interval);
+	}, this), interval);
 };
