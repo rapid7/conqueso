@@ -49,17 +49,19 @@ var config = {},
  **/
 function connect() {
     trycatch(function() {
-        var connection = mysql.createConnection(config);
-        connection.query("CREATE DATABASE IF NOT EXISTS "+config.databaseName+";");
-        connection.end();
+        if (config.databaseName) {
+            var connection = mysql.createConnection(config);
+            connection.query("CREATE DATABASE IF NOT EXISTS "+config.databaseName+";");
+            connection.end();
+            logger.info("Successfully connected to database: %s:%s", config.host, config.port);
+        }
 
         sequelize = new Sequelize(config.databaseName, config.user, config.password, {
             host : config.host,
             port : config.port,
-            dialect : "mysql",
+            dialect : config.dialect || "mysql",
             omitNull: true
         });
-        logger.info("Successfully connected to database: %s:%s", config.host, config.port);
     }, function(err) {
         logger.error("Failed to connect to database. Make sure your database is running and you have the appropriate permissions.");
         logger.error(err.stack);
@@ -72,7 +74,7 @@ function connect() {
  * @method createTables
  * @private
  **/
-function createTables() {
+function createTables(done) {
     Property = sequelize.define("property", {
         name : Sequelize.STRING,
         value : Sequelize.TEXT,
@@ -111,7 +113,10 @@ function createTables() {
     Role.hasMany(Instance, {as : "Instances"});
 
     sequelize.sync().success(function() {
-        logger.info("Synchronized with database '%s'.", config.databaseName);
+        if (config.databaseName) {
+            logger.info("Synchronized with database '%s'.", config.databaseName);
+        }
+        done();
     });
 }
 
@@ -123,10 +128,10 @@ function createTables() {
  * @extends PeristenceInterface
  * @constructor
  **/
-var PersistMysql = function(configuration) {
+var PersistMysql = function(configuration, done) {
     config = configuration;
     connect();
-    createTables();
+    createTables(done);
 };
 
 /**

@@ -100,6 +100,15 @@
                 }
             },
 
+            mochaTest: {
+                test: {
+                    options: {
+                        reporter: "nyan"
+                    },
+                    src: ["test/**/*.js"]
+                }
+            },
+
             watch: {
                 scripts : {
                     files : jsFiles,
@@ -145,9 +154,12 @@
         grunt.loadNpmTasks("grunt-sass");
         grunt.loadNpmTasks("grunt-contrib-compress");
         grunt.loadNpmTasks("grunt-contrib-clean");
+        grunt.loadNpmTasks("grunt-mocha-test");
 
         /* Tasks */
-        grunt.registerTask("default", ["exec:bower", "jshint", "sass:dist", "htmlhint"]);
+        grunt.registerTask("test", ["mochaTest"]);
+        grunt.registerTask("lint", ["jshint", "sass:dist", "htmlhint"]);
+        grunt.registerTask("default", ["exec:bower", "lint", "test"]);
         grunt.registerTask("package", ["clean", "default", "templategen",  "compress"]);
         grunt.registerTask("templategen", function() {
             var settings = grunt.file.readJSON("server/config/settings.json");
