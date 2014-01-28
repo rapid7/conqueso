@@ -20,12 +20,10 @@
  * 
  * @module serviceTracker
  **/
-var _ = require("lodash");
-
 module.exports = function(persistence) {
 	var interval = require("./config/settings").getPropertiesPollInterval() * 1000;
 
-	setInterval(_.bind(function() {
+	setInterval(function() {
 		persistence.markInstancesOffline();
-	}, this), interval);
+	}, interval);
 };

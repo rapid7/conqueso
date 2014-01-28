@@ -59,7 +59,7 @@
                 </div>
 
                 <div class="property-type" data-type="STRING_MAP">
-                  Not yet implemented
+                  <textarea name="value" class="property-textarea" placeholder="Enter each item on a newline in the form key=value"></textarea>
                 </div>
             </td>
         </tr>

@@ -21,5 +21,5 @@
  * 
  * @module propertyType
  **/
-var Enum = new require("enum");
+var Enum = require("enum");
 module.exports = new Enum(["STRING", "BOOLEAN", "DOUBLE", "FLOAT", "INT", "LONG", "STRING_LIST", "STRING_MAP", "STRING_SET"]);

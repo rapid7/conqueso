@@ -17,7 +17,7 @@
 var logger = require("./logger");
 logger.info("Starting Conqueso server");
 
-process.setMaxListeners(25);
+process.setMaxListeners(0);
 
 var express = require("express"),
     app = express(),
