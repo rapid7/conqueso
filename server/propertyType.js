@@ -14,5 +14,12 @@
 * limitations under the License.
 */
 
+/**
+ * Available supported property types. Currently this is not shared with the client. 
+ * If more types are added, make sure to add to the appropriate type and editor to the
+ * client.
+ * 
+ * @module propertyType
+ **/
 var Enum = require("enum");
 module.exports = new Enum(["STRING", "BOOLEAN", "DOUBLE", "FLOAT", "INT", "LONG", "STRING_LIST", "STRING_MAP", "STRING_SET"]);

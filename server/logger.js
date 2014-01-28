@@ -14,6 +14,12 @@
 * limitations under the License.
 */
 
+/**
+ * Provides console and file logging
+ * 
+ * @module logger
+ **/
+
 var winston = require("winston"),
 	fs = require("fs"),
 	config = require("./config/settings"),

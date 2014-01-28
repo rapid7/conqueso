@@ -16,7 +16,8 @@
 
 module.exports = function(express, app, persist) {
     var trycatch = require("trycatch"),
-        utils = require("../utils");
+        utils = require("../utils"),
+        logger = require("../logger");
 
     app.use(express.json());
     app.use(express.urlencoded());
@@ -69,7 +70,7 @@ module.exports = function(express, app, persist) {
             });
         }, function(err) {
             res.send(500, "Failed to make property global");
-            console.log(err.stack);
+            logger.error(err.stack);
         });
     });
 
@@ -94,7 +95,7 @@ module.exports = function(express, app, persist) {
             });
         }, function(err) {
             res.send(500, "Failed to create property");
-            console.log(err.stack);
+            logger.error(err.stack);
         });
     });
 
@@ -111,7 +112,7 @@ module.exports = function(express, app, persist) {
             });
         }, function(err) {
             res.send(500, "Failed to create properties");
-            console.log(err.stack);
+            logger.error(err.stack);
         });
     });
 

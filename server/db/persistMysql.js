@@ -355,10 +355,18 @@ function createInstanceForRole(role, ipAddress, callback) {
  * @param {Object} metdata Key/value object of metadata attributes
  *
  * @param {Function}[callback] callback function
- * @param {Object} callback.instance Newly created instance
+ * @param {Object} callback.instance Newly created instance or null if no role exists for this name
  **/
 function findOrCreateInstance(roleName, ipAddress, metadata, callback) {
-    findOrCreateRole(roleName, function(role) {
+    // Create a global role if it doesn't exist. Don't create roles 
+    var getRole = (roleName === Globals.GLOBAL_ROLE || metadata !== null) ? findOrCreateRole : findRoleByName;
+    getRole(roleName, function(role) {
+        if (!role) {
+            logger.warn("No role associated with name.", {role : roleName});
+            callback(null);
+            return;
+        }
+
         role.getInstances({ where : { ip : ipAddress }, order: "updatedAt DESC", limit : 1}).success(function(instances) {
             var instance;
 
@@ -594,18 +602,23 @@ PersistMysql.prototype.updateProperty = function(roleName, property, callback) {
 /* @Override */
 PersistMysql.prototype.createProperties = function(roleName, properties, callback) {
     findOrCreateRole(roleName, function() {
-        getGlobalProperties({},function(globalProperties) {
-            getPropertiesForRole(roleName, {}, function(role, existingProps) {
-                properties = getNewProperties(globalProperties.concat(existingProps), properties);
+        sequelize.transaction(function(t) {
+            getGlobalProperties({transaction : t},function(globalProperties) {
+                getPropertiesForRole(roleName, {transaction : t}, function(role, existingProps) {
+                    properties = getNewProperties(globalProperties.concat(existingProps), properties);
 
-                // Add the role id to each property
-                _.each(properties, function(property) {
-                    property.roleId = role.dataValues.id;
-                });
+                    // Add the role id to each property
+                    _.each(properties, function(property) {
+                        property.roleId = role.dataValues.id;
+                    });
 
-                Property.bulkCreate(properties).success(function(props) {
-                    logger.info("Created properties for role.", {role : role.dataValues.name, properties:properties});
-                    callback(toJSON(props));
+                    Property.bulkCreate(properties, {transaction: t}).success(function(props) {
+                        logger.info("Created properties for role.", {role : role.dataValues.name, properties:properties});
+                        t.commit().success(Function);
+                        callback(toJSON(props));
+                    }).error(function() {
+                        t.rollback().success(Function);
+                    });
                 });
             });
         });
@@ -623,6 +636,11 @@ PersistMysql.prototype.instanceCheckIn = function(roleName, ipAddress, metadata,
     }
 
     findOrCreateInstance(roleName, ipAddress, metadata, function(instance) {
+        if (!instance) {
+            callback(null);
+            return;
+        }
+              
         // Bumps the UpdatedAt column
         instance.updateAttributes(updateObj).success(function(instance) {
             if (instance.options.isNewRecord) {
@@ -642,23 +660,29 @@ PersistMysql.prototype.instanceCheckIn = function(roleName, ipAddress, metadata,
 PersistMysql.prototype.markInstancesOffline = function() {
     logger.debug("Checking for instances that have not checked in recently.");
     
-    Instance.findAll({ where : {offline : false} }).success(function(instances) {
-        logger.debug("Found %s online instances.", instances.length);
-        
-        instances = _.filter(instances, function(instance) {
-            var timeSinceUpdate = new Date() - instance.dataValues.updatedAt;
-            return timeSinceUpdate > instance.dataValues.pollInterval * 2;
-        });
+    sequelize.transaction(function(t) {
+        Instance.findAll({ where : {offline : false}, transaction : t }).success(function(instances) {
+            logger.debug("Found %s online instances.", instances.length);
+            
+            instances = _.filter(instances, function(instance) {
+                var timeSinceUpdate = new Date() - instance.dataValues.updatedAt;
+                return timeSinceUpdate > instance.dataValues.pollInterval * 2;
+            });
 
-        _.each(instances, function(instance) {
-            instance.updateAttributes({
-                offline : true
-            }).success(function(instance) {
-                instance.getRole().success(function(role) {
-                    logger.warn("Instance has not checked in recently. Marked offline.",
-                        {role : role.dataValues.name, instance : instance.dataValues.ip});
+            _.each(instances, function(instance) {
+                instance.updateAttributes({
+                    offline : true
+                }, { transaction : t }).success(function(instance) {
+                    instance.getRole({ transaction: t }).success(function(role) {
+                        logger.warn("Instance has not checked in recently. Marked offline.",
+                            {role : role.dataValues.name, instance : instance.dataValues.ip});
+                    });
+                }).error(function() {
+                    t.commit().rollback(Function);
                 });
             });
+
+            t.commit().success(Function);
         });
     });
 };

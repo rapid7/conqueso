@@ -26,6 +26,10 @@ function isValidName(str) {
     return str.match(/^[\w\_\-\.]*$/g);
 }
 
+function isValidMap(str) {
+    return str.trim().match(/^(\w+\=\w+,?)+$/g);
+}
+
 define(["jquery", "backbone", "underscore"], function($, Backbone, _){
     return Backbone.Model.extend({
         urlRoot: function() {
@@ -40,6 +44,7 @@ define(["jquery", "backbone", "underscore"], function($, Backbone, _){
             switch (model.get("type")) {
                 case "STRING_LIST":
                 case "STRING_SET":
+                case "STRING_MAP":
                     model.set({"value" : model.get("value").replace(/\n/g, ",")}, {silent: true});
             }
         },
@@ -48,6 +53,7 @@ define(["jquery", "backbone", "underscore"], function($, Backbone, _){
             switch (this.get("type")) {
                 case "STRING_LIST":
                 case "STRING_SET":
+                case "STRING_MAP":
                     return this.escape("value").replace(/,/g, "\n");
                 default:
                     return this.escape("value");
@@ -83,10 +89,6 @@ define(["jquery", "backbone", "underscore"], function($, Backbone, _){
 
             switch (type) {
                 case "STRING":
-                    if (_.isEmpty(value)) {
-                        return "Value cannot be empty";
-                    }
-                    break;
                 case "BOOLEAN":
                     // Value just has to be not empty
                     break;
@@ -107,7 +109,9 @@ define(["jquery", "backbone", "underscore"], function($, Backbone, _){
                     // Value just has to be not empty
                     return;
                 case "STRING_MAP":
-                    return "Not supported yet";
+                    if (!isValidMap(value)) {
+                        return "Invalid map";
+                    }
             }
         }
     });

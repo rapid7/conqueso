@@ -14,6 +14,12 @@
 * limitations under the License.
 */
 
+/**
+ * Looks at existing instances at an interval. Instances which have not checked in
+ * in a long time will be marked offline.
+ * 
+ * @module serviceTracker
+ **/
 module.exports = function(persistence) {
 	var interval = require("./config/settings").getPropertiesPollInterval() * 1000;
 

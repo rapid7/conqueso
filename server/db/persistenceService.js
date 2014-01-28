@@ -14,11 +14,17 @@
 * limitations under the License.
 */
 
+/**
+ * Loads appropriate persistence implementation based on server settings
+ * 
+ * @module PersistenceService
+ **/
+
 var settings = require("../config/settings"),
 	persistence;
 
-switch (settings.getPersistType()) {
-	case "MYSQL":
+switch (settings.getPersistType().toLowerCase()) {
+	case "mysql":
 		persistence = require("./persistMysql");
 		break;
 	default:
