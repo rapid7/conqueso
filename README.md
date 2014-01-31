@@ -1,4 +1,5 @@
-![](https://david-dm.org/rapid7/conqueso.png) ![](https://travis-ci.org/rapid7/conqueso.png)
+# Conqueso [![Build Status](https://secure.travis-ci.org/rapid7/conqueso.png)](http://travis-ci.org/rapid7/conqueso) [![Dependency Status](https://david-dm.org/rapid7/conqueso.png)](https://david-dm.org/rapid7/conqueso) #
+
 
 Install node
 ------
