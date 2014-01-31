@@ -18,7 +18,6 @@
     var VENDOR_LIB = "../bower_components/";
 
     require.config({
-
         paths: {
             "jquery"           : VENDOR_LIB + "jquery/jquery.min",
             "bootstrap"        : VENDOR_LIB + "bootstrap/dist/js/bootstrap.min",

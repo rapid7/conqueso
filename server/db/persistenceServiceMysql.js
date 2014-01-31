@@ -18,7 +18,7 @@
 /**
  * Database connnection, persistence and DAOs for MySQL
  * 
- * @module PersistMySql
+ * @module PersistenceServiceMysql
  **/
 var sequelize,
     Sequelize = require("sequelize"),
@@ -164,12 +164,12 @@ function createTables(done) {
 /**
  * Connects to a MySQL database and provides DAO methods
  *
- * @class PersistMysql
+ * @class PersistenceServiceMysql
  * @param {Object} configuration Parameters for connecting to the database
  * @extends PeristenceInterface
  * @constructor
  **/
-var PersistMysql = function(configuration, done) {
+var PersistenceServiceMysql = function(configuration, done) {
     connect(configuration, function() {
         createTables(done);
     });
@@ -509,17 +509,17 @@ function convertMetadata(metadata, instance) {
 }
 
 /* @Override */
-PersistMysql.prototype.getRoles = getRoles;
+PersistenceServiceMysql.prototype.getRoles = getRoles;
 
 /* @Override */
-PersistMysql.prototype.getPropertiesForWeb = function(roleName, callback) {
+PersistenceServiceMysql.prototype.getPropertiesForWeb = function(roleName, callback) {
     getPropertiesForRole(roleName, {}, function(role, properties) {
         callback(getPropertiesDto(role || roleName, toJSON(properties)));
     });
 };
 
 /* @Override */
-PersistMysql.prototype.getProperty = function(roleName, propertyName, callback) {
+PersistenceServiceMysql.prototype.getProperty = function(roleName, propertyName, callback) {
     getPropertiesForRole(roleName, {where : {"name" : propertyName}}, function(role, properties) {
         if (properties) {
             logger.debug("Retrieving property for role.", {role:roleName, property:propertyName});
@@ -531,7 +531,7 @@ PersistMysql.prototype.getProperty = function(roleName, propertyName, callback) 
 };
 
 /* @Override */
-PersistMysql.prototype.getPropertiesForClient = function(roleName, callback) {
+PersistenceServiceMysql.prototype.getPropertiesForClient = function(roleName, callback) {
     getGlobalProperties({}, function(globalProperties) {
         getPropertiesForRole(roleName, {}, function(role, properties) {
             getInstanceIps(function(instanceIpProperties) {
@@ -547,7 +547,7 @@ PersistMysql.prototype.getPropertiesForClient = function(roleName, callback) {
 };
 
 /* @Override */
-PersistMysql.prototype.deleteProperty = function(roleName, propertyName, callback) {
+PersistenceServiceMysql.prototype.deleteProperty = function(roleName, propertyName, callback) {
     findRoleByName(roleName, function(role) {
         role.getProperties({ where : { name : propertyName }}).success(function(properties) {
             if (properties && properties.length > 0) {
@@ -562,7 +562,7 @@ PersistMysql.prototype.deleteProperty = function(roleName, propertyName, callbac
 };
 
 /* @Override */
-PersistMysql.prototype.createProperty = function(roleName, property, callback) {
+PersistenceServiceMysql.prototype.createProperty = function(roleName, property, callback) {
     doesPropertyAlreadyExist(roleName, property.name, function(alreadyExist) {
         if (alreadyExist) {
             callback(new Error("Property already exists"));
@@ -584,7 +584,7 @@ PersistMysql.prototype.createProperty = function(roleName, property, callback) {
 };
 
 /* @Override */
-PersistMysql.prototype.updateProperty = function(roleName, property, callback) {
+PersistenceServiceMysql.prototype.updateProperty = function(roleName, property, callback) {
     getPropertiesForRole(roleName, {where : {"name" : property.name}}, function(role, properties) {
         var prop;
         if (properties) {
@@ -600,7 +600,7 @@ PersistMysql.prototype.updateProperty = function(roleName, property, callback) {
 };
 
 /* @Override */
-PersistMysql.prototype.createProperties = function(roleName, properties, callback) {
+PersistenceServiceMysql.prototype.createProperties = function(roleName, properties, callback) {
     findOrCreateRole(roleName, function() {
         sequelize.transaction(function(t) {
             getGlobalProperties({transaction : t},function(globalProperties) {
@@ -626,7 +626,7 @@ PersistMysql.prototype.createProperties = function(roleName, properties, callbac
 };
 
 /* @Override */
-PersistMysql.prototype.instanceCheckIn = function(roleName, ipAddress, metadata, callback) {
+PersistenceServiceMysql.prototype.instanceCheckIn = function(roleName, ipAddress, metadata, callback) {
     var updateObj = {
         ip : ipAddress
     };
@@ -657,7 +657,7 @@ PersistMysql.prototype.instanceCheckIn = function(roleName, ipAddress, metadata,
 };
 
 /* @Override */
-PersistMysql.prototype.markInstancesOffline = function() {
+PersistenceServiceMysql.prototype.markInstancesOffline = function() {
     logger.debug("Checking for instances that have not checked in recently.");
     
     sequelize.transaction(function(t) {
@@ -688,7 +688,7 @@ PersistMysql.prototype.markInstancesOffline = function() {
 };
 
 /* @Override */
-PersistMysql.prototype.globalizeProperty = function(property, callback) {
+PersistenceServiceMysql.prototype.globalizeProperty = function(property, callback) {
     logger.info("Making property global.", {property: property});
     
     this.getProperty(property.role, property.name, function(originalProperty) {
@@ -706,4 +706,4 @@ PersistMysql.prototype.globalizeProperty = function(property, callback) {
     });
 };
 
-module.exports = PersistMysql;
+module.exports = PersistenceServiceMysql;

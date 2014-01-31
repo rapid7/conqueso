@@ -25,7 +25,7 @@ var settings = require("../config/settings"),
 
 switch (settings.getPersistType().toLowerCase()) {
 	case "mysql":
-		persistence = require("./persistMysql");
+		persistence = require("./persistenceServiceMysql");
 		break;
 	default:
 		throw new Error("Unrecognized persistence type");
