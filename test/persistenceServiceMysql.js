@@ -1,5 +1,5 @@
 var assert = require("assert"),
-    SqlService = require("../server/db/persistMysql"),
+    SqlService = require("../server/db/persistenceServiceMysql"),
     persistMysql;
 
 before(function(done) {
