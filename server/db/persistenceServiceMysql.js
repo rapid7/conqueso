@@ -44,6 +44,7 @@ var sequelize,
  * 
  * @method getConnectionUrl
  * @private
+ * @param {Object} configuration object to use to connect
  * @returns {String} Connection URL
  **/
 function getConnectionUrl(config) {

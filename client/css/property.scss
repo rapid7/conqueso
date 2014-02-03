@@ -14,6 +14,16 @@
 * limitations under the License.
 */
 
+.nav-pills>li.active>a, .nav-pills>li.active>a:hover, .nav-pills>li.active>a:focus {
+    background-color: $main-color;
+}
+
+.nav.nav-pills a {
+    font-size: 16px;
+    font-weight: 300;
+    margin-bottom: 20px;
+}
+
 .property-item {
     padding-top: 5px;
     line-height: 20px;
@@ -46,7 +56,6 @@
     height: 100px;
 }
 
-.add-property {
-    position: relative;
-    top: -7px;
+#add-property {
+    font-size: 13px;
 }

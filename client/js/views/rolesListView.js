@@ -59,10 +59,10 @@ function($, _, Backbone, Broadcast, Role, RolesCollection, listTemplate) {
 
         roleChange : function(event) {
             this.roleChangeByElement(this.$(".role-item[data-name='"+event.name+"'],"+
-                                            ".role-item[data-id='"  +event.name+"']"));
+                                            ".role-item[data-id='"  +event.name+"']"), event.silent);
         },
 
-        roleChangeByElement : function(element) {
+        roleChangeByElement : function(element, silent) {
             if (!element || element && element.length === 0) {
                 return;
             }
@@ -71,7 +71,9 @@ function($, _, Backbone, Broadcast, Role, RolesCollection, listTemplate) {
             this.roles.get(element.data("id")).set("active", true);
             this.renderTemplate();
 
-            window.location.href = element.find("a").attr("href");
+            if (!silent) {
+                window.location.href = element.find("a").attr("href");
+            }
         },
 
         roleClick: function(event) {

@@ -1,12 +1,18 @@
+<ul class="nav nav-pills">
+ 	<li class="active"><a href="#roles/{{id}}/properties">properties</a></li>
+ 	{{#compare id "global" operator="!=="}}
+ 	<li><a href="#roles/{{id}}/instances">instances</a></li>
+ 	{{/compare}}
+
+	<li class="pull-right">
+	  	<a id="add-property" class="btn btn-default btn-sm pull-right icon add-property property-item" data-role="{{id}}">
+	  		<i class="fa fa-plus-circle fa-lg"></i> Add property
+	  	</a>
+	</li>
+</ul>
+
 <div class="container-full">
 	<ul class="list-group">
-{{isGlobal}}
-	 	<li class="list-group-item role-header">
-	 		<a class="btn btn-default btn-sm pull-right icon add-property property-item" data-role="{{name}}">
-  				<i class="fa fa-plus-circle fa-lg"></i> Add property
-  			</a>
-	 	</li>
-
 	 	{{#each properties}}
 		 	<li class="list-group-item property-item" data-name="{{name}}" data-role="{{../id}}">
 				<div class="row">
