@@ -662,6 +662,8 @@ PersistenceServiceMysql.prototype.markInstancesOffline = function() {
     
     sequelize.transaction(function(t) {
         Instance.findAll({ where : {offline : false}, transaction : t }).success(function(instances) {
+            var ids = [];
+
             logger.debug("Found %s online instances.", instances.length);
             
             instances = _.filter(instances, function(instance) {
@@ -669,20 +671,25 @@ PersistenceServiceMysql.prototype.markInstancesOffline = function() {
                 return timeSinceUpdate > instance.dataValues.pollInterval * 2;
             });
 
-            _.each(instances, function(instance) {
-                instance.updateAttributes({
-                    offline : true
-                }, { transaction : t }).success(function(instance) {
-                    instance.getRole({ transaction: t }).success(function(role) {
-                        logger.warn("Instance has not checked in recently. Marked offline.",
-                            {role : role.dataValues.name, instance : instance.dataValues.ip});
+            ids = _.pluck(_.pluck(instances, "dataValues"), "id");
+
+            if (instances && instances.length > 0) {
+                Instance.update({offline : true}, { id : ids}, {transaction : t}).success(function() {
+                    _.each(instances, function(instance) {
+                        // Update already occurred logging can happen outside of transaction
+                        instance.getRole().success(function(role) {
+                            logger.warn("Instance has not checked in recently. Marked offline.",
+                                {instance : instance.dataValues.ip, role: role.name });
+                        });
                     });
+
+                    t.commit().success(Function);
                 }).error(function() {
                     t.commit().rollback(Function);
                 });
-            });
-
-            t.commit().success(Function);
+            } else  {
+                t.commit().success(Function);
+            }
         });
     });
 };
