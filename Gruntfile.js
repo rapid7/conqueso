@@ -82,6 +82,9 @@
                 bower : {
                     cwd : "client",
                     cmd : "bower install"
+                },
+                "npm-prod" : {
+                    cmd : "npm install --production"
                 }
             },
             
@@ -91,13 +94,15 @@
                         archive: "artifact/conqueso-server-<%= pkg.version %>.zip"
                     },
                     files: [
-                        {src: ["server/**", "client/**", "package.json", "templates/**" ], dest: "/"}
+                        {src: ["node_modules/**", "server/**", "client/**", "package.json", "migrations/**", "templates/**" ], dest: "/"}
                     ]
                 }
             },
 
-            clean: ["artifact", "templates"]
-
+            clean: {
+                artifact : ["artifact", "templates"],
+                npm : ["node_modules"]
+            }
         });
 
         /* Depedencies */
@@ -114,7 +119,6 @@
         grunt.registerTask("test", ["mochaTest"]);
         grunt.registerTask("lint", ["jshint", "sass:dist", "htmlhint"]);
         grunt.registerTask("default", ["exec:bower", "lint", "test"]);
-        grunt.registerTask("package", ["clean", "exec:bower", "lint", "templategen",  "compress"]);
         grunt.registerTask("templategen", function() {
             var settings = grunt.file.readJSON("server/config/settings.json");
             settings.http.port = "<%= node['conqueso']['http']['port'] %>";
@@ -129,5 +133,6 @@
             settings.logging.level = "<%= node['conqueso']['logging']['level'] %>";
             grunt.file.write("templates/settings.json.erb", JSON.stringify(settings, null, 4));
         });
+        grunt.registerTask("package", ["clean:artifact", "default", "templategen", "clean:npm", "exec:npm-prod", "compress"]);
     };
 })();
