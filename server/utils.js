@@ -33,7 +33,7 @@ module.exports = {
         _.each(properties, function(property) {
             result += property.name + "=" + property.value + "\n";
         });
-        return result;
+        return result.replace(/\s+$/g, "");
     },
 
     /**

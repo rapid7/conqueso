@@ -16,14 +16,14 @@ describe("utils", function() {
                 name  : "foo",
                 value : "bar"
             }]);
-            assert.equal("foo=bar\n", result);
+            assert.equal("foo=bar", result);
         });
 
         it("should return plain text of multiple properties", function() {
             var result = utils.propertiesToTextPlain([
             { name : "foo", value : "bar" },
             { name : "a", value : "b"}]);
-            assert.equal("foo=bar\na=b\n", result);
+            assert.equal("foo=bar\na=b", result);
         });
     });
 
