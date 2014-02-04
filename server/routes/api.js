@@ -74,13 +74,30 @@ module.exports = function(express, app, persist) {
         });
     });
 
-    // Get properties (for client libraries)
-    app.get("/api/roles/:role/properties", function(req, res) {
+    function getProperties(req, callback) {
         persist.getPropertiesForClient(req.params.role, function(propsDto) {
             persist.instanceCheckIn(req.params.role, getRemoteIp(req), null, function() {
-                res.header("Content-Type", "text/plain charset=UTF-8");
-                res.send(utils.propertiesToTextPlain(propsDto.properties));
+                callback(propsDto.properties);
             });
+        });
+    }
+
+    function sendPlainText(res, properties) {
+        res.header("Content-Type", "text/plain charset=UTF-8");
+        res.send(properties);
+    }
+
+    // Get properties (for client libraries)
+    app.get("/api/roles/:role/properties", function(req, res) {
+        getProperties(req, function(properties) {
+            sendPlainText(res, utils.propertiesToTextPlain(properties));
+        });
+    });
+
+    // Get specific property
+    app.get("/api/roles/:role/properties/:property", function(req, res) {
+        getProperties(req, function(properties) {
+            sendPlainText(res, utils.propertiesToTextPlain(utils.filterProperties(properties, req.params.property)));
         });
     });
 
