@@ -1,0 +1,42 @@
+<ul class="nav nav-pills">
+ 	<li><a href="#roles/{{role}}/properties">properties</a></li>
+ 	{{#compare role "global" operator="!=="}}
+ 	<li class="active"><a href="#roles/{{role}}/instances">instances</a></li>
+ 	{{/compare}}
+
+	<li class="pull-right">
+	  	<span class="instance-showing">
+	  		Showing {{showing}} of {{total}}
+	  	</span>
+	</li>
+</ul>
+
+<div class="instance-filtering"></div>
+
+<div class="container-full">
+	{{#if instances}}
+	 	{{#each instances}}
+	 		<div class="panel panel-default">
+	 			<div class="panel-heading">{{ip}}</div>
+	 			<div class="panel-body instance-panel">
+	 				{{#if metadata}}
+			    	<table class="table table-condensed">
+			    		<tbody>
+			    			{{#each metadata}}
+			    			<tr>
+			    				<td class="property-attribute">{{attributeKey}}</td>
+			    				<td><a class="metadata-value" data-key="{{attributeKey}}">{{attributeValue}}</a></td>
+			    			</tr>
+			    			{{/each}}
+			    		</tbody>
+			    	</table>
+			    	{{else}}
+			    		<div class="no-metadata">No metadata</div>
+			    	{{/if}}
+			  	</div>
+			</div>
+	 	{{/each}}
+ 	{{else}}
+ 		<div class="no-instances">No online instances</div>
+ 	{{/if}}
+</div>

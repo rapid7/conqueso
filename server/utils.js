@@ -33,6 +33,20 @@ module.exports = {
         _.each(properties, function(property) {
             result += property.name + "=" + property.value + "\n";
         });
-        return result;
+        return result.replace(/\s+$/g, "");
+    },
+
+    /**
+     * Filters down a list of properties with a matching name
+     * 
+     * @method filterProperties
+     * @param {Array} properties List of property objects {name:"foo", value:"bar"}
+     * @param {String} name Name of property to filter for
+     * @returns {Array } Filtered property list
+     **/
+    filterProperties : function(properties, name) {
+        return _.filter(properties, function(property) {
+            return property.name === name;
+        });
     }
 };
