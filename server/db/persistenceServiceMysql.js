@@ -65,6 +65,7 @@ function setup(config, callback) {
         host : config.host,
         port : config.port,
         dialect : config.dialect || "mysql",
+        logging : logger.debug,
         omitNull: true
     });
     callback();
@@ -79,14 +80,15 @@ function setup(config, callback) {
  * @param {Function}[done] callback function for when this has finished
  **/
 function connect(config, done) {
-    trycatch(function() {
-
+    try {
         // Only create a database and migrate it if it is specified
         if (config.databaseName) {
             var connection = require("mysql").createConnection(config);
             connection.query("CREATE DATABASE IF NOT EXISTS "+config.databaseName+";", function(err) {
                 if (!err) {
                     logger.info("Successfully connected to database: %s:%s", config.host, config.port);
+                } else {
+                    throw new Error("Failed to connect to database");
                 }
             });
             connection.end();
@@ -105,10 +107,10 @@ function connect(config, done) {
             setup(config, done);
         }
 
-    }, function(err) {
+    } catch (err) {
         logger.error(err.message);
         throw err;
-    });
+    }
 }
 
 /**
@@ -151,7 +153,7 @@ function createTables(done) {
     });
 
     Instance.belongsTo(Role);
-    Instance.hasMany(InstanceMetadata);
+    Instance.hasMany(InstanceMetadata, {as : "Metadata"});
 
     Role.hasMany(Property, {as : "Properties"});
     Role.hasMany(Instance, {as : "Instances"});
@@ -377,7 +379,7 @@ function findOrCreateInstance(roleName, ipAddress, metadata, callback) {
                 
             } else {
                 instance = instances[0];
-                instance.getInstanceMetadata().success(function(metadatas) {
+                instance.getMetadata().success(function(metadatas) {
                     
                     if (isMetadataSame(metadatas, metadata)) {
                         logger.debug("Instance checking in with same metadata. Marking online.", {role:roleName, instance:ipAddress});
@@ -511,6 +513,20 @@ function convertMetadata(metadata, instance) {
 
 /* @Override */
 PersistenceServiceMysql.prototype.getRoles = getRoles;
+
+/* @Override */
+PersistenceServiceMysql.prototype.getInstances = function(roleName, callback) {
+    findRoleByName(roleName, function(role) {
+        if (!role) {
+            return callback([]);
+        }
+
+        role.getInstances({ where : {offline : false}, order : "attributeKey ASC",
+                            include : [{model : InstanceMetadata, as : "Metadata"}] }).success(function(instances) {
+            callback(toJSON(instances));
+        });
+    });
+};
 
 /* @Override */
 PersistenceServiceMysql.prototype.getPropertiesForWeb = function(roleName, callback) {

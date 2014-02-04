@@ -84,6 +84,13 @@ module.exports = function(express, app, persist) {
         });
     });
 
+    // Get instances
+    app.get("/api/roles/:role/instances", function(req, res) {
+        persist.getInstances(req.params.role, function(instances) {
+            res.json(instances);
+        });
+    });
+
     // Create a property (for web interface)
     app.post("/api/roles/:role/properties-web", function(req, res) {
         trycatch(function() {

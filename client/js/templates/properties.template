@@ -19,7 +19,7 @@
 				   	<span class="col-xs-4 property property-name">
 						<a href="#roles/{{../id}}/properties/{{name}}">{{name}}</a>
 					</span>
-					<span class="col-xs-6">
+					<span class="col-xs-6 property-value">
 						<div class="">{{value}}</div>
 					</span>
 

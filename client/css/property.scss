@@ -18,10 +18,13 @@
     background-color: $main-color;
 }
 
+.nav.nav-pills {
+    margin-bottom: 20px;
+}
+
 .nav.nav-pills a {
     font-size: 16px;
     font-weight: 300;
-    margin-bottom: 20px;
 }
 
 .property-item {
@@ -32,6 +35,10 @@
 .property-name {
     font-weight: 300;
     font-size: 12px;
+}
+
+.property-value {
+    word-wrap: break-word;
 }
 
 .property-name-value {
@@ -47,6 +54,13 @@
     width: 100px;
     color: #969696;
     font-size: 11px;
+}
+
+.property-attribute-value {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    max-width: 400px;
 }
 
 .property-textarea {

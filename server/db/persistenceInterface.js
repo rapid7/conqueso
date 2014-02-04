@@ -41,7 +41,7 @@ var PersistenceInterface = function() {};
  * @param {Function}[callback] callback function
  * @param {Object} callback.property Newly created property
  **/
-PersistenceInterface.prototpe.createProperty = function(err, role, property, callback) {};
+PersistenceInterface.prototype.createProperty = function(err, role, property, callback) {};
 
 /**
  * Updates a new property
@@ -53,7 +53,7 @@ PersistenceInterface.prototpe.createProperty = function(err, role, property, cal
  * @param {Function}[callback] callback function
  * @param {Object} callback.property Updated property
  **/
-PersistenceInterface.prototpe.updateProperty = function(role, property, callback) {};
+PersistenceInterface.prototype.updateProperty = function(role, property, callback) {};
 
 /**
  * Creates properties for a role
@@ -65,7 +65,7 @@ PersistenceInterface.prototpe.updateProperty = function(role, property, callback
  * @param {Function}[callback] callback function
  * @param {Object} callback.properties Newly created properties
  **/
-PersistenceInterface.prototpe.createProperties = function(role, properties, callback) {};
+PersistenceInterface.prototype.createProperties = function(role, properties, callback) {};
 
 /**
  * Delete a property
@@ -77,7 +77,7 @@ PersistenceInterface.prototpe.createProperties = function(role, properties, call
  * @param {Function}[callback] callback function
  * @param {Object} callback.property Deleted property
  **/
-PersistenceInterface.prototpe.deleteProperty = function(role, name, callback) {};
+PersistenceInterface.prototype.deleteProperty = function(role, name, callback) {};
 
 /**
  * Get properties DTO for a role. This will not include global properties
@@ -89,7 +89,7 @@ PersistenceInterface.prototpe.deleteProperty = function(role, name, callback) {}
  * @param {Object} callback.dto Role name with propeties list
  * @example {role : "foo", properties : [{...},{...}]}
  **/
-PersistenceInterface.prototpe.getPropertiesForWeb = function(role, callback) {};
+PersistenceInterface.prototype.getPropertiesForWeb = function(role, callback) {};
 
 /**
  * Gets all properties including global ones for a role
@@ -100,7 +100,7 @@ PersistenceInterface.prototpe.getPropertiesForWeb = function(role, callback) {};
  * @param {Function}[callback] callback function
  * @param {Array} callback.properties Properties for role
  **/
-PersistenceInterface.prototpe.getPropertiesForClient = function(role, callback) {};
+PersistenceInterface.prototype.getPropertiesForClient = function(role, callback) {};
 
 /**
  * Get details about a property
@@ -112,7 +112,7 @@ PersistenceInterface.prototpe.getPropertiesForClient = function(role, callback) 
  * @param {Function}[callback] callback function
  * @param {Object} callback.property Property object
  **/
-PersistenceInterface.prototpe.getProperty = function(role, name, callback) {};
+PersistenceInterface.prototype.getProperty = function(role, name, callback) {};
 
 /**
  * Get a list of roles with instances
@@ -122,7 +122,18 @@ PersistenceInterface.prototpe.getProperty = function(role, name, callback) {};
  * @param {Function}[callback] callback function
  * @param {Array} callback.roles Role object with instances
  **/
-PersistenceInterface.prototpe.getRoles = function(callback) {};
+PersistenceInterface.prototype.getRoles = function(callback) {};
+
+/**
+ * Get a list of instances with metadata
+ * 
+ * @method getInstances
+ * @param {String} role Role name
+ *
+ * @param {Function}[callback] callback function
+ * @param {Array} callback.instances List of instances
+ **/
+PersistenceInterface.prototype.getInstances = function(role, callback) {};
 
 /**
  * Instance ping
@@ -134,14 +145,14 @@ PersistenceInterface.prototpe.getRoles = function(callback) {};
  * @param {Function}[callback] callback function
  * @param {Object} callback.instance Instance that checked in or null if no role exists
  **/
-PersistenceInterface.prototpe.instanceCheckIn = function(role, ipAddress, callback) {};
+PersistenceInterface.prototype.instanceCheckIn = function(role, ipAddress, callback) {};
 
 /**
  * Marks instances offline if they have not checked in for 2x their poll interval
  * 
  * @method markInstsancesOffline
  **/
-PersistenceInterface.prototpe.markInstsancesOffline = function() {};
+PersistenceInterface.prototype.markInstsancesOffline = function() {};
 
 /**
  * Takes a property, removes it from all roles and adds it as a global property.
@@ -154,6 +165,6 @@ PersistenceInterface.prototpe.markInstsancesOffline = function() {};
  * @param {Function}[callback] callback function
  * @param {Object} callback.property Newly creted global property
  **/
-PersistenceInterface.prototpe.globalizeProperty = function(property, callback) {};
+PersistenceInterface.prototype.globalizeProperty = function(property, callback) {};
 
 module.exports = new PersistenceInterface();
