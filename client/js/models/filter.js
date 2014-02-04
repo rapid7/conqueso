@@ -14,10 +14,22 @@
 * limitations under the License.
 */
 
-@import "bourbon";
-@import "base";
-@import "header";
-@import "property";
-@import "property-editor";
-@import "role";
-@import "instance";
+define(["backbone", "underscore"], function(Backbone, _){
+    return Backbone.Model.extend({
+        
+        toJSON: function() {
+            var json = _.clone(this.attributes),
+                result = [];
+
+            for (var key in json) {
+                result.push({
+                    attributeKey : key,
+                    attributeValue : json[key]
+                });
+            }
+
+            return result;
+        }
+
+    });
+});

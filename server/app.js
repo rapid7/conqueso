@@ -22,10 +22,13 @@ var express = require("express"),
     PersistenceService = require("./db/persistenceService"),
     port = require("./config/settings").getHttpPort();
 
-require("./routes/web")(express, app);
-require("./routes/api")(express, app, PersistenceService);
-require("./serviceTracker")(PersistenceService);
-
-app.listen(port, function() {
-    logger.info("Listening on port %d", port);
+persistenceService = PersistenceService(function() {
+    app.listen(port, function() {
+        logger.info("Listening on port %d", port);
+    });
 });
+
+require("./routes/web")(express, app);
+require("./routes/api")(express, app, persistenceService);
+require("./serviceTracker")(persistenceService);
+

@@ -2,7 +2,7 @@
  	{{#each this}}
 	<li class="list-group-item role-item {{#if active}}active{{/if}}" data-name="{{name}}" data-id="{{id}}">
 		<span class="pull-right label {{#if instances}}label-primary{{else}}label-default{{/if}}">{{instances.length}}</span>
-		<a href="#roles/{{#if url}}{{url}}{{else}}{{name}}{{/if}}">{{name}}</a>
+		<a href="#roles/{{#if url}}{{url}}{{else}}{{name}}{{/if}}/properties">{{name}}</a>
 	</li>
  	{{/each}}
 </ul>

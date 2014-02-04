@@ -14,10 +14,10 @@
 * limitations under the License.
 */
 
-@import "bourbon";
-@import "base";
-@import "header";
-@import "property";
-@import "property-editor";
-@import "role";
-@import "instance";
+define(["backbone", "underscore"], function(Backbone){
+    return Backbone.Model.extend({
+        urlRoot: function() {
+            return "api/roles/" + this.get("role") + "/instances";
+        }
+    });
+});

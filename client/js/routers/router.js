@@ -15,14 +15,16 @@
 */
 
 define(["backbone", "underscore", "../broadcast",
-        "../views/propertiesView", "../views/propertyEditorView"],
-        function(Backbone, _, Broadcast, PropertiesView, PropertyEditorView) {
+        "../views/propertiesView", "../views/instancesView", "../views/propertyEditorView"],
+        function(Backbone, _, Broadcast, PropertiesView, InstancesView, PropertyEditorView) {
 
     return Backbone.Router.extend({
         totalRoutes : 0,
 
         routes : {
             "roles/:name"                      : "roleRoute",
+            "roles/:name/properties"           : "rolePropertiesRoute",
+            "roles/:name/instances"            : "roleInstancesRoute",
             "roles/:name/properties/:property" : "propertyRoute"
         },
 
@@ -49,6 +51,20 @@ define(["backbone", "underscore", "../broadcast",
                 this.propertiesView = new PropertiesView();
             }
             this.propertiesView.render(name);
+        },
+
+        rolePropertiesRoute: function(name) {
+            if (!this.propertiesView) {
+                this.propertiesView = new PropertiesView();
+            }
+            this.propertiesView.render(name);
+        },
+
+        roleInstancesRoute: function(name) {
+            if (!this.instancesView) {
+                this.instancesView = new InstancesView();
+            }
+            this.instancesView.render(name);
         },
 
         propertyRoute: function(role, property) {

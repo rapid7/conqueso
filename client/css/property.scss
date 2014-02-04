@@ -14,6 +14,19 @@
 * limitations under the License.
 */
 
+.nav-pills>li.active>a, .nav-pills>li.active>a:hover, .nav-pills>li.active>a:focus {
+    background-color: $main-color;
+}
+
+.nav.nav-pills {
+    margin-bottom: 20px;
+}
+
+.nav.nav-pills a {
+    font-size: 16px;
+    font-weight: 300;
+}
+
 .property-item {
     padding-top: 5px;
     line-height: 20px;
@@ -22,6 +35,10 @@
 .property-name {
     font-weight: 300;
     font-size: 12px;
+}
+
+.property-value {
+    word-wrap: break-word;
 }
 
 .property-name-value {
@@ -39,6 +56,13 @@
     font-size: 11px;
 }
 
+.property-attribute-value {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    max-width: 400px;
+}
+
 .property-textarea {
     @include box-sizing(border-box);
     width: 100%;
@@ -46,7 +70,6 @@
     height: 100px;
 }
 
-.add-property {
-    position: relative;
-    top: -7px;
+#add-property {
+    font-size: 13px;
 }

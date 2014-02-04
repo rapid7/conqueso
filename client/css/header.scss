@@ -19,8 +19,8 @@
 }
 
 .navbar-inverse {
-    background-color: #1fa67a;
-    border-color: #1b926c;
+    background-color: $main-color;
+    border-color: $main-color-border;
 
     .navbar-nav>li>a {
     	color: #b0ddce;

@@ -15,15 +15,20 @@
 */
 
 .role-header {
-    background-color: #ccc;
-    height: 40px
+    background-color: #ebebeb;
+    height: 40px;
+    .name {
+    	font-weight:400;
+    	font-size: 18px;
+    	line-height: 18px;
+    }
 }
 
 .role-item.active {
-    background-color: #D7F7EC;
+    background-color: $main-color-hover;
 }
 
 .role-item:hover {
     cursor: pointer;
-    background-color :#D7F7EC;
+    background-color: $main-color-hover;
 }

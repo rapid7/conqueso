@@ -14,10 +14,19 @@
 * limitations under the License.
 */
 
-@import "bourbon";
-@import "base";
-@import "header";
-@import "property";
-@import "property-editor";
-@import "role";
-@import "instance";
+define(["jquery", "backbone", "../models/instance"], function($, Backbone, InstanceModel) {
+    return Backbone.Collection.extend({
+        model: InstanceModel,
+
+        initialize: function(models, options) {
+            options = options || {};
+            if (options.name) {
+                this.name = options.name;
+            }
+        },
+
+        url: function() {
+            return "api/roles/" + this.name + "/instances";
+        }
+    });
+});

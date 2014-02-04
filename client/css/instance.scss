@@ -14,10 +14,40 @@
 * limitations under the License.
 */
 
-@import "bourbon";
-@import "base";
-@import "header";
-@import "property";
-@import "property-editor";
-@import "role";
-@import "instance";
+.instance-showing {
+	font-size: 18px;
+	font-weight: 300;
+	line-height: 2;
+}
+
+.metadata-value {
+	cursor: pointer;
+}
+
+.instance-filtering {
+	margin-bottom:10px;
+}
+
+.filter-label {
+	margin-bottom: 5px;
+	display: inline-block;
+	font-weight: 300;
+	padding-top: 0;
+}
+
+.filter-remove {
+	float: none;
+	top: 3px;
+	position: relative;
+}
+
+.instance-panel {
+	padding-bottom: 0px !important;
+}
+
+.no-instances {
+	font-size: 24px;
+	margin-top: 100px;
+	text-align: center;
+	font-weight: 100;
+}

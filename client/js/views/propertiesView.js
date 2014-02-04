@@ -38,14 +38,14 @@ function($, Backbone, _, Broadcast, RoleModel, PropertiesCollection,
             "mouseover .list-group-item" : "mouseOverPropertyRow",
             "mouseout  .list-group-item" : "mouseOutPropertyRow",
             "click .remove"              : "removeProperty",
-            "click .add-property"        : "addProperty",
+            "click #add-property"        : "addProperty",
             "click .make-global"         : "makePropertyGlobal"
         },
 
         fetchCallback: function(model) {
             this.properties = new PropertiesCollection(model.properties, {name : model.get("name")});
             this.$el.html(mainTemplate(model.toJSON()));
-            Broadcast.trigger("role:change", {name : model.get("name")});
+            Broadcast.trigger("role:change", {name : model.get("name"), silent : true});
         },
 
         render: function(roleName) {

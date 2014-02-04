@@ -44,6 +44,7 @@ var sequelize,
  * 
  * @method getConnectionUrl
  * @private
+ * @param {Object} configuration object to use to connect
  * @returns {String} Connection URL
  **/
 function getConnectionUrl(config) {
@@ -64,6 +65,7 @@ function setup(config, callback) {
         host : config.host,
         port : config.port,
         dialect : config.dialect || "mysql",
+        logging : logger.debug,
         omitNull: true
     });
     callback();
@@ -78,14 +80,15 @@ function setup(config, callback) {
  * @param {Function}[done] callback function for when this has finished
  **/
 function connect(config, done) {
-    trycatch(function() {
-
+    try {
         // Only create a database and migrate it if it is specified
         if (config.databaseName) {
             var connection = require("mysql").createConnection(config);
             connection.query("CREATE DATABASE IF NOT EXISTS "+config.databaseName+";", function(err) {
                 if (!err) {
                     logger.info("Successfully connected to database: %s:%s", config.host, config.port);
+                } else {
+                    throw new Error("Failed to connect to database");
                 }
             });
             connection.end();
@@ -104,10 +107,10 @@ function connect(config, done) {
             setup(config, done);
         }
 
-    }, function(err) {
+    } catch (err) {
         logger.error(err.message);
         throw err;
-    });
+    }
 }
 
 /**
@@ -150,7 +153,7 @@ function createTables(done) {
     });
 
     Instance.belongsTo(Role);
-    Instance.hasMany(InstanceMetadata);
+    Instance.hasMany(InstanceMetadata, {as : "Metadata"});
 
     Role.hasMany(Property, {as : "Properties"});
     Role.hasMany(Instance, {as : "Instances"});
@@ -376,7 +379,7 @@ function findOrCreateInstance(roleName, ipAddress, metadata, callback) {
                 
             } else {
                 instance = instances[0];
-                instance.getInstanceMetadata().success(function(metadatas) {
+                instance.getMetadata().success(function(metadatas) {
                     
                     if (isMetadataSame(metadatas, metadata)) {
                         logger.debug("Instance checking in with same metadata. Marking online.", {role:roleName, instance:ipAddress});
@@ -510,6 +513,20 @@ function convertMetadata(metadata, instance) {
 
 /* @Override */
 PersistenceServiceMysql.prototype.getRoles = getRoles;
+
+/* @Override */
+PersistenceServiceMysql.prototype.getInstances = function(roleName, callback) {
+    findRoleByName(roleName, function(role) {
+        if (!role) {
+            return callback([]);
+        }
+
+        role.getInstances({ where : {offline : false}, order : "attributeKey ASC",
+                            include : [{model : InstanceMetadata, as : "Metadata"}] }).success(function(instances) {
+            callback(toJSON(instances));
+        });
+    });
+};
 
 /* @Override */
 PersistenceServiceMysql.prototype.getPropertiesForWeb = function(roleName, callback) {
@@ -662,6 +679,8 @@ PersistenceServiceMysql.prototype.markInstancesOffline = function() {
     
     sequelize.transaction(function(t) {
         Instance.findAll({ where : {offline : false}, transaction : t }).success(function(instances) {
+            var ids = [];
+
             logger.debug("Found %s online instances.", instances.length);
             
             instances = _.filter(instances, function(instance) {
@@ -669,20 +688,25 @@ PersistenceServiceMysql.prototype.markInstancesOffline = function() {
                 return timeSinceUpdate > instance.dataValues.pollInterval * 2;
             });
 
-            _.each(instances, function(instance) {
-                instance.updateAttributes({
-                    offline : true
-                }, { transaction : t }).success(function(instance) {
-                    instance.getRole({ transaction: t }).success(function(role) {
-                        logger.warn("Instance has not checked in recently. Marked offline.",
-                            {role : role.dataValues.name, instance : instance.dataValues.ip});
+            ids = _.pluck(_.pluck(instances, "dataValues"), "id");
+
+            if (instances && instances.length > 0) {
+                Instance.update({offline : true}, { id : ids}, {transaction : t}).success(function() {
+                    _.each(instances, function(instance) {
+                        // Update already occurred logging can happen outside of transaction
+                        instance.getRole().success(function(role) {
+                            logger.warn("Instance has not checked in recently. Marked offline.",
+                                {instance : instance.dataValues.ip, role: role.name });
+                        });
                     });
+
+                    t.commit().success(Function);
                 }).error(function() {
                     t.commit().rollback(Function);
                 });
-            });
-
-            t.commit().success(Function);
+            } else  {
+                t.commit().success(Function);
+            }
         });
     });
 };

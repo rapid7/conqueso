@@ -31,4 +31,6 @@ switch (settings.getPersistType().toLowerCase()) {
 		throw new Error("Unrecognized persistence type");
 }
 
-module.exports = new persistence(settings.getDbConfig(), Function);
+module.exports = function(done) {
+	return new persistence(settings.getDbConfig(), done || Function);
+};
