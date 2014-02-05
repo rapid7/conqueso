@@ -119,6 +119,25 @@
         grunt.registerTask("test", ["mochaTest"]);
         grunt.registerTask("lint", ["jshint", "sass:dist", "htmlhint"]);
         grunt.registerTask("default", ["exec:bower", "lint", "test"]);
+
+        // Task to create sha256 checksum file
+        grunt.registerTask("checksum", function() {
+            // Calculate md5 hash
+            var fs = require("fs");
+            var crypto = require("crypto");
+            var sha256 = crypto.createHash("sha256");
+            var file = grunt.template.process("artifact/conqueso-server-<%= pkg.version %>.zip");
+            var buffer = fs.readFileSync(file);
+            sha256.update(buffer);
+            var hash = sha256.digest("hex");
+            grunt.log.writeln("sha256: " + hash);
+
+            // Create new file with the same name with .md5 extension
+            var sha256File = "artifact/sha256sum.txt";
+            grunt.file.write(sha256File, hash);
+            grunt.log.write("File " + sha256File + " created.").verbose.write("...").ok();
+        });
+
         grunt.registerTask("templategen", function() {
             var settings = grunt.file.readJSON("server/config/settings.json");
             settings.http.port = "<%= node['conqueso']['http']['port'] %>";
@@ -130,9 +149,10 @@
             settings.db.config.password = "<%= node['conqueso']['db']['password'] %>";
             settings.properties.pollIntervalSecs = "<%= node['conqueso']['pollintervalsecs'] %>";
             settings.logging.file = "<%= node['conqueso']['logging']['file'] %>";
+            settings.logging.dir = "<%= node['conqueso']['logging']['dir'] %>";
             settings.logging.level = "<%= node['conqueso']['logging']['level'] %>";
             grunt.file.write("templates/settings.json.erb", JSON.stringify(settings, null, 4));
         });
-        grunt.registerTask("package", ["clean:artifact", "default", "templategen", "clean:npm", "exec:npm-prod", "compress"]);
+        grunt.registerTask("package", ["clean:artifact", "default", "templategen", "clean:npm", "exec:npm-prod", "compress", "checksum"]);
     };
 })();
