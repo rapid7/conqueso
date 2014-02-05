@@ -1,5 +1,6 @@
 # Conqueso [![Build Status](https://secure.travis-ci.org/rapid7/conqueso.png)](http://travis-ci.org/rapid7/conqueso) [![Dependency Status](https://david-dm.org/rapid7/conqueso.png)](https://david-dm.org/rapid7/conqueso) #
 Conqueso is a web server that provides an interface for centrally managing dynamic properties across your services. Simply add a client library to your service then track and manage its configuration in Conqueso.
+Everything's better... Conqueso.
 
 ### Features
 1. Web interface with REST API for all your configuration property desires
@@ -9,6 +10,9 @@ Conqueso is a web server that provides an interface for centrally managing dynam
 <img src="/images/screenshot1.png">
 <img src="/images/screenshot2.png">
 <img src="/images/screenshot3.png">
+
+### What's with the name?
+[Naming things is hard](http://martinfowler.com/bliki/TwoHardThings.html). The "con" prefix comes from "config" or "configuration". The name is silly and fun to say; we hope you enjoy seeing the word "conqueso" in your code as much as we do.
 
 ### Dependencies
 Conqueso runs on [Node](http://nodejs.org/) and is backed by MySQL.
@@ -123,7 +127,7 @@ Get all online instances with metadata for a role.
 ]
 ```
 ###### POST ```/api/roles/:role/properties"```
-Send your role properties and instance metadata. Creates a role if one does not already exist. If an instance does not already exist from the request IP, then a new instance will be created. If an instance from the request IP already exists and the metadata values have changed, other instanaces will be marked offline and a new instance will be created.
+Send your role properties and instance metadata. Creates a role if one does not already exist. For each property that does not already exist, the property is added with the given type and default value. If an instance does not already exist from the request IP, then a new instance will be created. If an instance from the request IP already exists and the metadata values have changed, other instanaces will be marked offline and a new instance will be created.
 ```json
 {
     "instanceMetadata": {
@@ -139,9 +143,6 @@ Send your role properties and instance metadata. Creates a role if one does not 
     ]
 }
 ```
-
-### What's with the name?
-Naming things is hard. The "con" prefix comes from "config" or "configuration". The name is silly and fun to say; we hope you enjoy seeing the word "conqueso" in your code as much as we do.
 
 ### Building
 #### Install node
