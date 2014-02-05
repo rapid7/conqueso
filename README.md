@@ -14,8 +14,11 @@ Everything's better... Conqueso.
 ### What's with the name?
 [Naming things is hard](http://martinfowler.com/bliki/TwoHardThings.html). The "con" prefix comes from "config" or "configuration". The name is silly and fun to say; we hope you enjoy seeing the word "conqueso" in your code as much as we do.
 
+### License
+The Conqueso server and the conqueso-client-java library are licensed under the [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.html).
+
 ### Dependencies
-Conqueso runs on [Node](http://nodejs.org/) and is backed by MySQL.
+Conqueso runs on [Node.js](http://nodejs.org/) and is backed by MySQL.
 
 ### Setup and configuration
 Conqueso requires that you provide a SQL user account capable of creating a database and tables. We'll manage all the migrations and database updates for you. You can modify your server settings by modifying
