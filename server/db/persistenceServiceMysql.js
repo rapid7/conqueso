@@ -94,7 +94,9 @@ function connect(config, done) {
             connection.end();
 
             // Migrate to the latest schema
-            exec(__dirname + "/../../node_modules/sequelize/bin/sequelize -m -U " + getConnectionUrl(config), function(err) {
+            var bin = __dirname + "/../../node_modules/sequelize/bin/sequelize";
+            require("fs").chmodSync(bin, 0755);
+            exec(bin + " -m -U " + getConnectionUrl(config), function(err) {
                 if (!err) {
                     logger.info("Migrated database schema to latest version");
                     setup(config, done);
