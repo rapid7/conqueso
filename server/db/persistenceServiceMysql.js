@@ -531,7 +531,8 @@ PersistenceServiceMysql.prototype.createProperties = function(roleName, properti
                         logger.info("Created properties for role.", {role : role.dataValues.name, properties:properties});
                         t.commit().success(Function);
                         callback(DataUtils.toJSON(props));
-                    }).error(function() {
+                    }).error(function(err) {
+                        logger.error(err);
                         t.rollback().success(Function);
                     });
                 });
@@ -555,18 +556,27 @@ PersistenceServiceMysql.prototype.instanceCheckIn = function(roleName, ipAddress
             callback(null);
             return;
         }
-              
-        // Bumps the UpdatedAt column
-        instance.updateAttributes(updateObj).success(function(instance) {
-            if (instance.options.isNewRecord) {
-                InstanceMetadata.bulkCreate(DataUtils.convertMetadata(metadata, instance)).success(function() {
-                    logger.info("Created metadata for instance.", {instance: ipAddress, metadata: metadata});
+        
+        sequelize.transaction(function(t) {
+            // Bumps the UpdatedAt column
+            instance.updateAttributes(updateObj, {transaction: t}).success(function(instance) {
+                if (instance.options.isNewRecord) {
+                    InstanceMetadata.bulkCreate(DataUtils.convertMetadata(metadata, instance), {transaction: t}).success(function() {
+                        t.commit().success(function() {
+                            logger.info("Created metadata for instance.", {instance: ipAddress, metadata: metadata});
+                        });
+                        callback(instance);
+                    });
+                } else {
+                    t.commit().success(Function);
+                    logger.debug("Instance checking in.", {instance : ipAddress, role: roleName});
                     callback(instance);
+                }
+            }).error(function(err) {
+                t.commit().rollback(function() {
+                    logger.error(err);
                 });
-            } else {
-                logger.debug("Instance checking in.", {instance : ipAddress, role: roleName});
-                callback(instance);
-            }
+            });
         });
     });
 };
@@ -599,7 +609,8 @@ PersistenceServiceMysql.prototype.markInstancesOffline = function() {
                     });
 
                     t.commit().success(Function);
-                }).error(function() {
+                }).error(function(err) {
+                    logger.error(err);
                     t.commit().rollback(Function);
                 });
             } else  {
