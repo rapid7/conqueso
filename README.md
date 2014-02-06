@@ -65,24 +65,12 @@ Gets all roles with instances.
 ```json
 [{
     "name": "analytics-service",
-    "createdAt": "2014-01-22T18:22:28.000Z",
-    "updatedAt": "2014-01-22T18:22:28.000Z",
-    "instances": [
-      {
-        "ip": "10.1.100.78",
-        "pollInterval": 60000,
-        "offline": false,
-        "createdAt": "2014-02-05T17:05:39.000Z",
-        "updatedAt": "2014-02-05T18:00:15.000Z",
-      }
-    ]
+    "instances": 1
   },
   {
     "name": "test-framework-server",
-    "createdAt": "2014-02-03T14:54:19.000Z",
-    "updatedAt": "2014-02-03T14:54:19.000Z",
-    "instances": []
-  }]
+    "instances": 0
+}]
 ```
 ###### GET ```/api/roles/:role/properties```
 Gets plain/text properties for a role. This will overlay (with precedence) any global properties. For convenience, this will also include special Conqueso properties (conqueso.:role.ips) which is a list of online instances for all the other roles. You may find this useful if you need one service to know where to find another service.
@@ -101,35 +89,28 @@ conqueso.web-interface-service.ips=
 ###### GET ```/api/roles/:role/properties/:property```
 Get a specific property in plain/text.
 
-###### GET ```/api/roles/:role/instances"```
+###### GET ```/api/roles/:role/instances```
 Get all online instances with metadata for a role.
 ```json
 [
   {
+    "role" : "analytics-service",
     "ip": "10.1.100.78",
     "pollInterval": 60000,
     "offline": false,
     "createdAt": "2014-02-05T17:05:39.000Z",
     "updatedAt": "2014-02-05T18:46:48.000Z",
-    "metadata": [
-      {
-        "attributeKey": "ami-id",
-        "attributeValue": "ami-133cb31d",
-        "createdAt": "2014-02-05T17:05:39.000Z",
-        "updatedAt": "2014-02-05T17:05:39.000Z",
-      },
-      {
-        "attributeKey": "availability-zone",
-        "attributeValue": "us-east-1d",
-        "createdAt": "2014-02-05T17:05:39.000Z",
-        "updatedAt": "2014-02-05T17:05:39.000Z",
-      },
-...
-    ]
-  }
+    "metadata": {
+        "ami-id" : "ami-133cb31d",
+        "availability-zone" : "us-east-1d",
+        ...
+    }
+  },
+  ...
 ]
 ```
-###### POST ```/api/roles/:role/properties"```
+
+###### POST ```/api/roles/:role/properties```
 Send your role properties and instance metadata. Creates a role if one does not already exist. For each property that does not already exist, the property is added with the given type and default value. If an instance does not already exist from the request IP, then a new instance will be created. If an instance from the request IP already exists and the metadata values have changed, other instanaces will be marked offline and a new instance will be created.
 ```json
 {

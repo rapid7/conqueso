@@ -41,7 +41,7 @@ module.exports = {
 	 * this is not present, we will default to Archaius' standard polling rate (60s)
 	 * 
 	 * @property POLL_INTEVERAL_META_KEY
-     * @type {String}
+     * @type {Number}
 	 */
     POLL_INTEVERAL_META_KEY : "conqueso.poll.interval",
 };

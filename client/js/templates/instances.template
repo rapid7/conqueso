@@ -19,13 +19,13 @@
 	 		<div class="panel panel-default">
 	 			<div class="panel-heading">{{ip}}</div>
 	 			<div class="panel-body instance-panel">
-	 				{{#if metadata}}
+	 				{{#if hasMetadata}}
 			    	<table class="table table-condensed">
 			    		<tbody>
 			    			{{#each metadata}}
 			    			<tr>
-			    				<td class="property-attribute">{{attributeKey}}</td>
-			    				<td><a class="metadata-value" data-key="{{attributeKey}}">{{attributeValue}}</a></td>
+			    				<td class="property-attribute">{{@key}}</td>
+			    				<td><a class="metadata-value" data-key="{{@key}}">{{this}}</a></td>
 			    			</tr>
 			    			{{/each}}
 			    		</tbody>

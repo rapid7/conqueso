@@ -23,9 +23,9 @@
 var sequelize,
     Sequelize = require("sequelize"),
     _         = require("lodash"),
-    trycatch  = require("trycatch"),
 
-    propertyType = require("../propertyType"),
+    DataUtils    = require("./dataConverters"),
+    PropertyType = require("../propertyType"),
     logger       = require("../logger"),
     Globals      = require("../globals"),
 
@@ -110,7 +110,7 @@ function connect(config, done) {
         }
 
     } catch (err) {
-        logger.error(err.message);
+        logger.error(err);
         throw err;
     }
 }
@@ -128,7 +128,7 @@ function createTables(done) {
         value : Sequelize.TEXT,
         type : {
             type : Sequelize.ENUM,
-            values : _.pluck(propertyType.enums, "key")
+            values : _.pluck(PropertyType.enums, "key")
         }
     });
 
@@ -226,61 +226,6 @@ function getGlobalProperties(filter, callback) {
 }
 
 /**
- * Converts one or more Sequelize models to flattened JSON objects
- * 
- * @method toJSON
- * @private
- * @param {Object} rows Sequelize models to flatten out dataValues 
- * @returns {Array|Object} Array of JSON properties
- **/
-function toJSON(rows) {
-    return _.isArray(rows) ? _.pluck(rows, "dataValues") : rows.dataValues;
-}
-
-/**
- * Combines global and role properties into a single array. Global properties
- * take prescedence over role properties.
- * 
- * @method getCombinedProperties
- * @private
- * @param {Array} globalProperties Sequelize models of global properties
- * @param {Array} roleProperties Sequelize models of role properties
- * @returns {Array} Array of combined models
- **/
-function getCombinedProperties(globalProperties, roleProperties) {
-    var properties = globalProperties;
-
-    _.each(roleProperties, function(roleProp) {
-        var result = _.filter(properties, function(property){
-            return property.dataValues.name === roleProp.dataValues.name;
-        });
-
-        // Add the global global property
-        if (result.length === 0) {
-            properties.push(roleProp);
-        }
-    });
-
-    return properties;
-}
-
-/**
- * Converts a role and properties into a flatten JSON object used as a DTO
- * 
- * @method getPropertiesDto
- * @private
- * @param {Object|String} role Sequelize model or String
- * @param {Array} properties Array of Sequelize model properties
- * @returns {Object} DTO of role and properties
- **/
-function getPropertiesDto(role, properties) {
-    return {
-        name : _.isString(role) ? role : role.dataValues.name,
-        properties : properties
-    };
-}
-
-/**
  * Gets properties for a particular role
  * 
  * @method getPropertiesForRole
@@ -303,30 +248,6 @@ function getPropertiesForRole(role, filter, callback) {
             callback(null, []);
         }
     });
-}
-
-/**
- * Compares metadata that exists and an object of new metadata. Metadata sameness 
- * is based on all keys and all values matching.
- * 
- * @method isMetadataSame
- * @private
- * @param {Array} metadataModels Sequelize models of existing metadata
- * @param {Object} newMetadata New metadata being sent from a client
- * @returns {Boolean}
- **/
-function isMetadataSame(metadataModels, newMetadata) {
-    var attrKeys = [],
-        attrValues = [];
-
-    _.each(metadataModels, function(m) {
-        attrKeys.push(m.dataValues.attributeKey);
-        attrValues.push(m.dataValues.attributeValue);
-    });
-
-    // Same -- metadata null is a hack for polling GETs
-    return ( _.isEmpty(_.difference(attrKeys, _.keys(newMetadata))) &&
-             _.isEmpty(_.difference(attrValues, _.values(newMetadata))) || newMetadata === null);
 }
 
 /**
@@ -383,7 +304,7 @@ function findOrCreateInstance(roleName, ipAddress, metadata, callback) {
                 instance = instances[0];
                 instance.getMetadata().success(function(metadatas) {
                     
-                    if (isMetadataSame(metadatas, metadata)) {
+                    if (DataUtils.isMetadataSame(metadatas, metadata)) {
                         logger.debug("Instance checking in with same metadata. Marking online.", {role:roleName, instance:ipAddress});
                         instance.updateAttributes({ offline : false }).success(callback);
                     
@@ -416,7 +337,7 @@ function getRoles(callback) {
                 return instance.offline === false;
             });
         });
-        callback(toJSON(roles));
+        callback(DataUtils.toJSON(roles));
     });
 }
 
@@ -447,24 +368,6 @@ function getInstanceIps(callback) {
     });
 }
 
-/**
- * Gets a list of properties that should be created. Properties which already exist for this role
- * will not be created again.
- * 
- * @method getNewProperties
- * @private
- *
- * @param {Array} existingProperties Sequelize models of existing metadata
- * @param {Object} properties Neww properties in JSON format
- * @returns {Array} New properties
- **/
-function getNewProperties(existingProperties, properties) {
-    existingProperties = _.pluck(_.pluck(existingProperties, "dataValues"), "name");
-    return _.filter(properties, function(prop) {
-        return !_.contains(existingProperties, prop.name);
-    });
-}
-
 // Returns a callback with an argument true/false if property already exists
 
 /**
@@ -490,31 +393,12 @@ function doesPropertyAlreadyExist(roleName, propertyName, callback) {
     });
 }
 
-/**
- * Takes an object that has key/value pairs and converts it into a list
- * 
- * @method convertMetadata
- * @private
- * @example [{attributeKey : "key", attributeValue : "value"}]
- *
- * @param {Object} metadata Key/value metadata object
- * @param {Object} instance
- * @returns {Array} Converted metadatas
- **/
-function convertMetadata(metadata, instance) {
-    var result = [];
-    _.each(_.keys(metadata), function(key) {
-        result.push({
-            instanceId     : instance.dataValues.id,
-            attributeKey   : key,
-            attributeValue : metadata[key]
-        });
-    });
-    return result;
-}
-
 /* @Override */
-PersistenceServiceMysql.prototype.getRoles = getRoles;
+PersistenceServiceMysql.prototype.getRoles = function(callback) {
+    getRoles(function(roles) {
+        callback(DataUtils.getRoleDto(roles));
+    });
+};
 
 /* @Override */
 PersistenceServiceMysql.prototype.getInstances = function(roleName, callback) {
@@ -525,7 +409,7 @@ PersistenceServiceMysql.prototype.getInstances = function(roleName, callback) {
 
         role.getInstances({ where : {offline : false}, order : "attributeKey ASC",
                             include : [{model : InstanceMetadata, as : "Metadata"}] }).success(function(instances) {
-            callback(toJSON(instances));
+            callback(DataUtils.getInstanceDto(roleName, DataUtils.toJSON(instances)));
         });
     });
 };
@@ -533,7 +417,7 @@ PersistenceServiceMysql.prototype.getInstances = function(roleName, callback) {
 /* @Override */
 PersistenceServiceMysql.prototype.getPropertiesForWeb = function(roleName, callback) {
     getPropertiesForRole(roleName, {}, function(role, properties) {
-        callback(getPropertiesDto(role || roleName, toJSON(properties)));
+        callback(DataUtils.getPropertiesDto(role || roleName, DataUtils.toJSON(properties)));
     });
 };
 
@@ -555,10 +439,10 @@ PersistenceServiceMysql.prototype.getPropertiesForClient = function(roleName, ca
         getPropertiesForRole(roleName, {}, function(role, properties) {
             getInstanceIps(function(instanceIpProperties) {
                 if (role) {
-                    callback(getPropertiesDto(role, toJSON(getCombinedProperties(globalProperties, properties))
+                    callback(DataUtils.getPropertiesDto(role, DataUtils.toJSON(DataUtils.getCombinedProperties(globalProperties, properties))
                                                         .concat(instanceIpProperties) ));
                 } else {
-                    callback(getPropertiesDto(roleName, []));
+                    callback(DataUtils.getPropertiesDto(roleName, []));
                 }
             });
         });
@@ -573,7 +457,7 @@ PersistenceServiceMysql.prototype.deleteProperty = function(roleName, propertyNa
                 var prop = properties[0];
                 prop.destroy().success(function() {
                     logger.info("Deleted property.", {property : propertyName, role: roleName});
-                    callback(toJSON(prop));
+                    callback(DataUtils.toJSON(prop));
                 });
             }
         });
@@ -589,12 +473,12 @@ PersistenceServiceMysql.prototype.createProperty = function(roleName, property, 
             findOrCreateRole(roleName, function(role) {
                 Property.create({
                     name : property.name,
-                    type : propertyType.get(property.type).key,
+                    type : PropertyType.get(property.type).key,
                     value : property.value
                 }).success(function(property) {
                     role.addProperty(property).success(function(property) {
                         logger.info("Created property.", {property: property.dataValues}, {role: roleName});
-                        callback(null, toJSON(property));
+                        callback(null, DataUtils.toJSON(property));
                     });
                 });
             });
@@ -610,7 +494,7 @@ PersistenceServiceMysql.prototype.updateProperty = function(roleName, property, 
             prop = properties[0];
             prop.updateAttributes({ value : property.value }).success(function(property) {
                 logger.info("Updated property.", {property: property, role: roleName});
-                callback(toJSON(property));
+                callback(DataUtils.toJSON(property));
             });
         } else {
             callback({});
@@ -624,7 +508,7 @@ PersistenceServiceMysql.prototype.createProperties = function(roleName, properti
         sequelize.transaction(function(t) {
             getGlobalProperties({transaction : t},function(globalProperties) {
                 getPropertiesForRole(roleName, {transaction : t}, function(role, existingProps) {
-                    properties = getNewProperties(globalProperties.concat(existingProps), properties);
+                    properties = DataUtils.getNewProperties(globalProperties.concat(existingProps), properties);
 
                     // Add the role id to each property
                     _.each(properties, function(property) {
@@ -634,7 +518,7 @@ PersistenceServiceMysql.prototype.createProperties = function(roleName, properti
                     Property.bulkCreate(properties, {transaction: t}).success(function(props) {
                         logger.info("Created properties for role.", {role : role.dataValues.name, properties:properties});
                         t.commit().success(Function);
-                        callback(toJSON(props));
+                        callback(DataUtils.toJSON(props));
                     }).error(function() {
                         t.rollback().success(Function);
                     });
@@ -663,7 +547,7 @@ PersistenceServiceMysql.prototype.instanceCheckIn = function(roleName, ipAddress
         // Bumps the UpdatedAt column
         instance.updateAttributes(updateObj).success(function(instance) {
             if (instance.options.isNewRecord) {
-                InstanceMetadata.bulkCreate(convertMetadata(metadata, instance)).success(function() {
+                InstanceMetadata.bulkCreate(DataUtils.convertMetadata(metadata, instance)).success(function() {
                     logger.info("Created metadata for instance.", {instance: ipAddress, metdata: metadata});
                     callback(instance);
                 });
@@ -721,7 +605,7 @@ PersistenceServiceMysql.prototype.globalizeProperty = function(property, callbac
         Property.destroy({"name" : property.name}).success(function() {
             Property.create({
                 name : originalProperty.name,
-                type : propertyType.get(originalProperty.type).key,
+                type : PropertyType.get(originalProperty.type).key,
                 value : originalProperty.value
             }).success(function(property) {
                 findOrCreateRole(Globals.GLOBAL_ROLE, function(role) {

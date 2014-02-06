@@ -1,6 +1,6 @@
 {{#each this}}
 	<span class="badge filter-label">
-		{{attributeKey}} --- {{attributeValue}}
-		<button type="button" class="close filter-remove" data-key="{{attributeKey}}" aria-hidden="true">&times;</button>
+		{{@key}} --- {{this}}
+		<button type="button" class="close filter-remove" data-key="{{@key}}" aria-hidden="true">&times;</button>
 	</span>
 {{/each}}

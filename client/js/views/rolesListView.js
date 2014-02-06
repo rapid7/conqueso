@@ -24,9 +24,8 @@ function($, _, Backbone, Broadcast, Role, RolesCollection, listTemplate) {
         FETCH_INTERVAL : 10000,
 
         globalRole : new Role({
-            name : "GLOBAL PROPERTIES",
-            url : "global",
-            id : "global",
+            display : "GLOBAL PROPERTIES",
+            name : "global",
             instances : null,
             active : false
         }),
@@ -58,8 +57,7 @@ function($, _, Backbone, Broadcast, Role, RolesCollection, listTemplate) {
         },
 
         roleChange : function(event) {
-            this.roleChangeByElement(this.$(".role-item[data-name='"+event.name+"'],"+
-                                            ".role-item[data-id='"  +event.name+"']"), event.silent);
+            this.roleChangeByElement(this.$(".role-item[data-name='"+event.name+"']"), event.silent);
         },
 
         roleChangeByElement : function(element, silent) {
@@ -68,7 +66,7 @@ function($, _, Backbone, Broadcast, Role, RolesCollection, listTemplate) {
             }
 
             this.roles.unsetActive();
-            this.roles.get(element.data("id")).set("active", true);
+            this.roles.get(element.data("name")).set("active", true);
             this.renderTemplate();
 
             if (!silent) {
