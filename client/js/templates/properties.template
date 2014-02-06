@@ -1,11 +1,11 @@
 <ul class="nav nav-pills">
- 	<li class="active"><a href="#roles/{{id}}/properties">properties</a></li>
- 	{{#compare id "global" operator="!=="}}
- 	<li><a href="#roles/{{id}}/instances">instances</a></li>
+ 	<li class="active"><a href="#roles/{{name}}/properties">properties</a></li>
+ 	{{#compare name "global" operator="!=="}}
+ 	<li><a href="#roles/{{name}}/instances">instances</a></li>
  	{{/compare}}
 
 	<li class="pull-right">
-	  	<a id="add-property" class="btn btn-default btn-sm pull-right icon add-property property-item" data-role="{{id}}">
+	  	<a id="add-property" class="btn btn-default btn-sm pull-right icon add-property property-item" data-role="{{name}}">
 	  		<i class="fa fa-plus-circle fa-lg"></i> Add property
 	  	</a>
 	</li>
@@ -14,20 +14,20 @@
 <div class="container-full">
 	<ul class="list-group">
 	 	{{#each properties}}
-		 	<li class="list-group-item property-item" data-name="{{name}}" data-role="{{../id}}">
+		 	<li class="list-group-item property-item" data-name="{{name}}" data-role="{{../name}}">
 				<div class="row">
 				   	<span class="col-xs-4 property property-name">
-						<a href="#roles/{{../id}}/properties/{{name}}">{{name}}</a>
+						<a href="#roles/{{../name}}/properties/{{name}}">{{name}}</a>
 					</span>
 					<span class="col-xs-6 property-value">
-						<div class="">{{value}}</div>
+						<div>{{value}}</div>
 					</span>
 
 					<span class="col-xs-2 icon-hidden controls">
-						{{#compare ../id "global" operator="!=="}}
+						{{#compare ../name "global" operator="!=="}}
 						<a class="fa fa-globe fa-lg property icon make-global" title="Make property global"></a>
 						{{/compare}}
-						<a href="#roles/{{../id}}/properties/{{name}}" class="fa fa-pencil fa-lg property icon edit" title="Edit property"></a>
+						<a href="#roles/{{../name}}/properties/{{name}}" class="fa fa-pencil fa-lg property icon edit" title="Edit property"></a>
 						<a class="fa fa-times-circle fa-lg property icon remove" title="Delete property"></a>
 					</span>
 				</div>

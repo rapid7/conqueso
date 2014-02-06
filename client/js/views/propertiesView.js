@@ -50,7 +50,7 @@ function($, Backbone, _, Broadcast, RoleModel, PropertiesCollection,
 
         render: function(roleName) {
             this.roleName = roleName;
-            this.role = new RoleModel({id : roleName});
+            this.role = new RoleModel({name : roleName});
             this.role.getProperties(_.bind(this.fetchCallback, this));
         },
 

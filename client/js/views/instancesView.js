@@ -59,29 +59,31 @@ function($, Backbone, _, Broadcast, InstancesCollection, FilterModel, instancesT
                 filtersJson = this.filters.toJSON(),
                 filteredSet = [];
 
-            if (filtersJson.length > 0) {
+            if (_.keys(filtersJson).length > 0) {
                 _.each(this.instances.toJSON(), function(instance) {
-                    var hasCriteria = 0;
+                    var filterCount = 0;
 
-                    _.each(instance.metadata, function(singleMetadata) {
-                        _.each(filtersJson, function(filter) {
-
-                            if (singleMetadata.attributeKey === filter.attributeKey &&
-                                singleMetadata.attributeValue === filter.attributeValue) {
-                                hasCriteria++;
-                            }
-                        });
-                    });
+                    for (var key in filtersJson) {
+                        var meta = instance.metadata;
+                        if (meta.hasOwnProperty(key) && meta[key] === filtersJson[key]) {
+                            filterCount++;
+                        }
+                    }
 
                     // check each filter
-                    if (hasCriteria === filtersJson.length) {
+                    if (filterCount === _.keys(filtersJson).length) {
                         filteredSet.push(instance);
                     }
                 });
             } else {
                 filteredSet = this.instances.toJSON();
             }
-            
+
+            // Handlebars doesn't consider '{}' to be falsy with #if
+            _.each(filteredSet, function(instance) {
+                instance.hasMetadata = !_.isEmpty(instance.metadata);
+            });
+
             data.instances = filteredSet;
             data.role = this.roleName;
             data.showing = filteredSet.length;

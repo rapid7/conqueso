@@ -18,6 +18,8 @@ define(["backbone", "underscore"], function(Backbone){
     return Backbone.Model.extend({
         urlRoot: "api/roles/",
 
+        idAttribute : "name",
+
         getProperties : function(callback) {
             this.fetch({
                 url : this.urlRoot + this.id + "/properties-web",

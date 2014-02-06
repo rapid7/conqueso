@@ -1,8 +1,14 @@
 <ul class="list-group">
  	{{#each this}}
-	<li class="list-group-item role-item {{#if active}}active{{/if}}" data-name="{{name}}" data-id="{{id}}">
-		<span class="pull-right label {{#if instances}}label-primary{{else}}label-default{{/if}}">{{instances.length}}</span>
-		<a href="#roles/{{#if url}}{{url}}{{else}}{{name}}{{/if}}/properties">{{name}}</a>
+	<li class="list-group-item role-item {{#if active}}active{{/if}}" data-name="{{name}}">
+		<span class="pull-right label {{#if instances}}label-primary{{else}}label-default{{/if}}">{{instances}}</span>
+		<a href="#roles/{{name}}/properties">
+			{{#if display}}
+				{{display}}
+			{{else}}
+				{{name}}
+			{{/if}}
+		</a>
 	</li>
  	{{/each}}
 </ul>
