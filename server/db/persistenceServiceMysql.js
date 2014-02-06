@@ -278,17 +278,24 @@ function createInstanceForRole(role, ipAddress, callback) {
  * @private
  * @param {String} roleName Role name
  * @param {String} ipAddress IP of the instance
- * @param {Object} metdata Key/value object of metadata attributes
+ * @param {Object} metadata Key/value object of metadata attributes
  *
  * @param {Function}[callback] callback function
  * @param {Object} callback.instance Newly created instance or null if no role exists for this name
  **/
 function findOrCreateInstance(roleName, ipAddress, metadata, callback) {
-    // Create a global role if it doesn't exist. Don't create roles 
+    // Create a global role if it doesn't exist. Don't create roles for null metadata.
     var getRole = (roleName === Globals.GLOBAL_ROLE || metadata !== null) ? findOrCreateRole : findRoleByName;
     getRole(roleName, function(role) {
         if (!role) {
             logger.warn("No role associated with name.", {role : roleName});
+            callback(null);
+            return;
+        }
+
+        if (roleName === Globals.GLOBAL_ROLE) {
+            logger.info("Not creating instance for this role. " +
+                        "his typically happens when the global API is hit directly", {role : roleName});
             callback(null);
             return;
         }
@@ -438,12 +445,17 @@ PersistenceServiceMysql.prototype.getPropertiesForClient = function(roleName, ca
     getGlobalProperties({}, function(globalProperties) {
         getPropertiesForRole(roleName, {}, function(role, properties) {
             getInstanceIps(function(instanceIpProperties) {
+                var resultingProperties = [];
+
                 if (role) {
-                    callback(DataUtils.getPropertiesDto(role, DataUtils.toJSON(DataUtils.getCombinedProperties(globalProperties, properties))
-                                                        .concat(instanceIpProperties) ));
+                    resultingProperties = DataUtils.getCombinedProperties(globalProperties, properties);
                 } else {
-                    callback(DataUtils.getPropertiesDto(roleName, []));
+                    role = roleName;
+                    resultingProperties = globalProperties;
                 }
+
+                callback(DataUtils.getPropertiesDto(role, DataUtils.toJSON(resultingProperties)
+                                                                   .concat(instanceIpProperties)));
             });
         });
     });
@@ -548,7 +560,7 @@ PersistenceServiceMysql.prototype.instanceCheckIn = function(roleName, ipAddress
         instance.updateAttributes(updateObj).success(function(instance) {
             if (instance.options.isNewRecord) {
                 InstanceMetadata.bulkCreate(DataUtils.convertMetadata(metadata, instance)).success(function() {
-                    logger.info("Created metadata for instance.", {instance: ipAddress, metdata: metadata});
+                    logger.info("Created metadata for instance.", {instance: ipAddress, metadata: metadata});
                     callback(instance);
                 });
             } else {
