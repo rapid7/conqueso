@@ -51,6 +51,13 @@
     display: none;
 }
 
+.property-type input[name=value],
+.property-type textarea[name=value] {
+    letter-spacing: 1px;
+    font-family: monospace;
+    font-size: 14px;
+}
+
 .property-attribute {
     width: 100px;
     color: #969696;

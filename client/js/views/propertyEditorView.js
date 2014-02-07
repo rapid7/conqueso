@@ -57,11 +57,11 @@ function($, _, Backbone, Bootstrap, Broadcast, Property, editorTemplate, propert
 
             // Show appropriate input based on type
             this.$(".modal-body").html(editPropertyTemplate(property.toJSON()));
-            elem = this.$(".property-type[data-type='"+property.escape("type")+"']").show();
+            elem = this.$(".property-type[data-type='"+property.get("type")+"']").show();
 
             // Boolean is a little bit different...
-            if (property.escape("type") === "BOOLEAN") {
-                this.$(":input[name='value'][value='"+property.escape("value")+"']").click();
+            if (property.get("type") === "BOOLEAN") {
+                this.$(":input[name='value'][value='"+property.get("value")+"']").click();
             } else {
                 elem.find(":input").val(property.getExpandedInput());
             }

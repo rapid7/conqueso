@@ -57,9 +57,9 @@ define(["jquery", "backbone", "underscore"], function($, Backbone, _){
                 case "STRING_LIST":
                 case "STRING_SET":
                 case "STRING_MAP":
-                    return this.escape("value").replace(/,/g, "\n");
+                    return this.get("value").replace(/,/g, "\n");
                 default:
-                    return this.escape("value");
+                    return this.get("value");
             }
         },
 
