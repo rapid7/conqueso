@@ -289,19 +289,17 @@ function findOrCreateInstance(roleName, ipAddress, metadata, callback) {
     getRole(roleName, function(role) {
         if (!role) {
             logger.warn("No role associated with name.", {role : roleName});
-            callback(null);
-            return;
+            return callback(null);
         }
 
-        if (roleName === Globals.GLOBAL_ROLE) {
-            logger.info("Not creating instance for this role. " +
-                        "his typically happens when the global API is hit directly", {role : roleName});
-            callback(null);
-            return;
-        }
-
-        role.getInstances({ where : { ip : ipAddress }, order: "updatedAt DESC", limit : 1}).success(function(instances) {
+        role.getInstances({ where : { ip : ipAddress }, order: "createdAt DESC", limit : 1}).success(function(instances) {
             var instance;
+
+            // Do not create instances on GET requests when there is no instance (ip) associated
+            // The only way to crate instances is with a POST
+            if (_.isEmpty(instances) && !metadata) {
+                return callback(null);
+            }
 
             if (_.isEmpty(instances)) {
                 logger.info("Role does not have any instances. Creating a new instance.", {role:roleName, instance:ipAddress});
@@ -531,7 +529,8 @@ PersistenceServiceMysql.prototype.createProperties = function(roleName, properti
                         logger.info("Created properties for role.", {role : role.dataValues.name, properties:properties});
                         t.commit().success(Function);
                         callback(DataUtils.toJSON(props));
-                    }).error(function() {
+                    }).error(function(err) {
+                        logger.error(err);
                         t.rollback().success(Function);
                     });
                 });
@@ -555,18 +554,27 @@ PersistenceServiceMysql.prototype.instanceCheckIn = function(roleName, ipAddress
             callback(null);
             return;
         }
-              
-        // Bumps the UpdatedAt column
-        instance.updateAttributes(updateObj).success(function(instance) {
-            if (instance.options.isNewRecord) {
-                InstanceMetadata.bulkCreate(DataUtils.convertMetadata(metadata, instance)).success(function() {
-                    logger.info("Created metadata for instance.", {instance: ipAddress, metadata: metadata});
+        
+        sequelize.transaction(function(t) {
+            // Bumps the UpdatedAt column
+            instance.updateAttributes(updateObj, {transaction: t}).success(function(instance) {
+                if (instance.options.isNewRecord && metadata) {
+                    InstanceMetadata.bulkCreate(DataUtils.convertMetadata(metadata, instance), {transaction: t}).success(function() {
+                        t.commit().success(function() {
+                            logger.info("Created metadata for instance.", {instance: ipAddress, metadata: metadata});
+                        });
+                        callback(instance);
+                    });
+                } else {
+                    t.commit().success(Function);
+                    logger.debug("Instance checking in.", {instance : ipAddress, role: roleName});
                     callback(instance);
+                }
+            }).error(function(err) {
+                t.commit().rollback(function() {
+                    logger.error(err);
                 });
-            } else {
-                logger.debug("Instance checking in.", {instance : ipAddress, role: roleName});
-                callback(instance);
-            }
+            });
         });
     });
 };
@@ -599,7 +607,8 @@ PersistenceServiceMysql.prototype.markInstancesOffline = function() {
                     });
 
                     t.commit().success(Function);
-                }).error(function() {
+                }).error(function(err) {
+                    logger.error(err);
                     t.commit().rollback(Function);
                 });
             } else  {
