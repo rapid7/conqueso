@@ -26,8 +26,11 @@ function isValidName(str) {
     return str.match(/^[\w\_\-\.]*$/g);
 }
 
+/* 
+ * key=value,key=value
+ */
 function isValidMap(str) {
-    return str.trim().match(/^(\w+\=\w+,?)+$/g);
+    return str.trim().match(/^([^\s,]+\=[^\s,]+,?)+$/g);
 }
 
 define(["jquery", "backbone", "underscore"], function($, Backbone, _){
@@ -54,9 +57,9 @@ define(["jquery", "backbone", "underscore"], function($, Backbone, _){
                 case "STRING_LIST":
                 case "STRING_SET":
                 case "STRING_MAP":
-                    return this.escape("value").replace(/,/g, "\n");
+                    return this.get("value").replace(/,/g, "\n");
                 default:
-                    return this.escape("value");
+                    return this.get("value");
             }
         },
 

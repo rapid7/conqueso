@@ -38,6 +38,7 @@
 }
 
 .property-value {
+    padding-left: 100px;
     word-wrap: break-word;
 }
 
@@ -48,6 +49,13 @@
 
 .property-type {
     display: none;
+}
+
+.property-type input[name=value],
+.property-type textarea[name=value] {
+    letter-spacing: 1px;
+    font-family: monospace;
+    font-size: 14px;
 }
 
 .property-attribute {
@@ -72,4 +80,9 @@
 
 #add-property {
     font-size: 13px;
+}
+
+.no-properties {
+    @extend .no-data;
+    margin-top: 100px;
 }
