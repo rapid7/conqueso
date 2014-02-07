@@ -26,8 +26,11 @@ function isValidName(str) {
     return str.match(/^[\w\_\-\.]*$/g);
 }
 
+/* 
+ * key=value,key=value
+ */
 function isValidMap(str) {
-    return str.trim().match(/^(\w+\=\w+,?)+$/g);
+    return str.trim().match(/^([^\s,]+\=[^\s,]+,?)+$/g);
 }
 
 define(["jquery", "backbone", "underscore"], function($, Backbone, _){
