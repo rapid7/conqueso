@@ -74,3 +74,8 @@
 #add-property {
     font-size: 13px;
 }
+
+.no-properties {
+    @extend .no-data;
+    margin-top: 100px;
+}

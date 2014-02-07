@@ -12,6 +12,7 @@
 </ul>
 
 <div class="container-full">
+	{{#if properties}}
 	<ul class="list-group">
 	 	{{#each properties}}
 		 	<li class="list-group-item property-item" data-name="{{name}}" data-role="{{../name}}">
@@ -34,4 +35,7 @@
 		 	</li>
 	 	{{/each}}
 	</ul>
+	{{else}}
+		<div class="no-properties">No properties</div>
+	{{/if}}
 </div>
