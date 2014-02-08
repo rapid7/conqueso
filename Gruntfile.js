@@ -81,7 +81,9 @@
             exec : {
                 bower : {
                     cwd : "client",
-                    cmd : "bower install"
+                    cmd : function() {
+                        return "bower install" + (process.env.USER === "root" ? " --allow-root" : "");
+                    }
                 },
                 "npm-prod" : {
                     cmd : "npm install --production"
@@ -122,7 +124,6 @@
 
         // Task to create sha256 checksum file
         grunt.registerTask("checksum", function() {
-            // Calculate md5 hash
             var fs = require("fs");
             var crypto = require("crypto");
             var sha256 = crypto.createHash("sha256");
@@ -132,7 +133,6 @@
             var hash = sha256.digest("hex");
             grunt.log.writeln("sha256: " + hash);
 
-            // Create new file with the same name with .md5 extension
             var sha256File = "artifact/sha256sum.txt";
             grunt.file.write(sha256File, hash);
             grunt.log.write("File " + sha256File + " created.").verbose.write("...").ok();
