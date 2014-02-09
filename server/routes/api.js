@@ -97,7 +97,9 @@ module.exports = function(express, app, persist) {
     // Get specific property
     app.get("/api/roles/:role/properties/:property", function(req, res) {
         getProperties(req, function(properties) {
-            sendPlainText(res, utils.propertiesToTextPlain(utils.filterProperties(properties, req.params.property)));
+            var filteredProperties = utils.filterProperties(properties, req.params.property),
+                prop = filteredProperties.length > 0 ? filteredProperties[0].value : "";
+            sendPlainText(res, prop);
         });
     });
 
