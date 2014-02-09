@@ -125,15 +125,27 @@ PersistenceInterface.prototype.getProperty = function(role, name, callback) {};
 PersistenceInterface.prototype.getRoles = function(callback) {};
 
 /**
- * Get a list of instances with metadata
+ * Get a list of instances with metadata for a role
  * 
- * @method getInstances
+ * @method getInstancesForRole
  * @param {String} role Role name
+ * @param {Object} query key/value pair to filter instances on
  *
  * @param {Function}[callback] callback function
  * @param {Array} callback.instances List of instances
  **/
-PersistenceInterface.prototype.getInstances = function(role, callback) {};
+PersistenceInterface.prototype.getInstancesForRole = function(role, query, callback) {};
+
+/**
+ * Get a list of instances with metadata
+ * 
+ * @method getInstances
+ * @param {Object} query key/value pair to filter instances on
+ *
+ * @param {Function}[callback] callback function
+ * @param {Array} callback.instances List of instances
+ **/
+PersistenceInterface.prototype.getInstances = function(query, callback) {};
 
 /**
  * Instance ping
