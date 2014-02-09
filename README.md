@@ -102,6 +102,10 @@ Get all online instances with metadata for a role.
   ...
 ]
 ```
+You can also query for instances of this role with matching metadata. Example:
+```
+/api/roles/my_server_role/instances?ami-id=ami-133cb31d&availability-zone=us-east-1d
+```
 ###### POST ```/api/roles/:role/properties```
 Send your role properties and instance metadata. Creates a role if one does not already exist. If an instance does not already exist from the request IP, then a new instance will be created. If an instance from the request IP already exists and the metadata values have changed, other instanaces will be marked offline and a new instance will be created.
 ```json
@@ -118,6 +122,29 @@ Send your role properties and instance metadata. Creates a role if one does not 
         }
     ]
 }
+```
+###### GET ```/api/instances```
+Returns a list of all online instances across roles. You may filter this list by matching metadata key/values.
+```
+/api/instances?ami-id=ami-0be1ba63&availability-zone=us-east-1d
+```
+```json
+[
+  {
+    "role": "mustache-generation-server",
+    "ip": "111.3.3.3",
+    "pollInterval": 60000,
+    "createdAt": "2014-02-07T14:25:07.000Z",
+    "updatedAt": "2014-03-07T14:25:07.000Z",
+    "metadata": {
+      "conqueso.poll.interval": "50000",
+      "instance-type": "t1.micro",
+      "ami-id": "ami-0be1ba63",
+      "block-device-mapping": "ami",
+      "availability-zone": "us-east-1d"
+    }
+  }
+]
 ```
 
 ### What's with the name?

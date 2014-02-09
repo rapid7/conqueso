@@ -22,12 +22,12 @@ var _ = require("lodash");
  **/
 module.exports = {
     /**
-	 * Converts a list of property objects to plain text (Java Properties)
-	 * 
-	 * @method propertiesToTextPlain
-	 * @param {Array} properties List of property objects {name:"foo", value:"bar"}
-	 * @returns {String} Plain text of properties
-	 **/
+     * Converts a list of property objects to plain text (Java Properties)
+     * 
+     * @method propertiesToTextPlain
+     * @param {Array} properties List of property objects {name:"foo", value:"bar"}
+     * @returns {String} Plain text of properties
+     **/
     propertiesToTextPlain : function(properties) {
         var result = "";
         _.each(properties, function(property) {
@@ -42,7 +42,7 @@ module.exports = {
      * @method filterProperties
      * @param {Array} properties List of property objects {name:"foo", value:"bar"}
      * @param {String} name Name of property to filter for
-     * @returns {Array } Filtered property list
+     * @returns {Array} Filtered property list
      **/
     filterProperties : function(properties, name) {
         return _.filter(properties, function(property) {

@@ -155,7 +155,7 @@ function createTables(done) {
         attributeValue : Sequelize.STRING
     });
 
-    Instance.belongsTo(Role);
+    Instance.belongsTo(Role, {as : "Role"});
     Instance.hasMany(InstanceMetadata, {as : "Metadata"});
 
     Role.hasMany(Property, {as : "Properties"});
@@ -410,7 +410,7 @@ PersistenceServiceMysql.prototype.getRoles = function(callback) {
 };
 
 /* @Override */
-PersistenceServiceMysql.prototype.getInstances = function(roleName, callback) {
+PersistenceServiceMysql.prototype.getInstancesForRole = function(roleName, query, callback) {
     findRoleByName(roleName, function(role) {
         if (!role) {
             return callback([]);
@@ -418,8 +418,17 @@ PersistenceServiceMysql.prototype.getInstances = function(roleName, callback) {
 
         role.getInstances({ where : {offline : false}, order : "attributeKey ASC",
                             include : [{model : InstanceMetadata, as : "Metadata"}] }).success(function(instances) {
-            callback(DataUtils.getInstanceDto(roleName, DataUtils.toJSON(instances)));
+            callback(DataUtils.filterInstancesByMetadata( DataUtils.getInstanceDto(roleName, DataUtils.toJSON(instances)), query));
         });
+    });
+};
+
+/* @Override */
+PersistenceServiceMysql.prototype.getInstances = function(query, callback) {
+    Instance.findAll({ where : {offline : false},
+                            include : [{model : InstanceMetadata, as : "Metadata"},
+                                       {model: Role, as : "Role"}] }).success(function(instances) {
+        callback(DataUtils.filterInstancesByMetadata( DataUtils.getInstanceDto(null, DataUtils.toJSON(instances)), query));
     });
 };
 

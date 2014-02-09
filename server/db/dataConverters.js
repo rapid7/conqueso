@@ -30,7 +30,6 @@ module.exports = {
      * will be ignored.
      * 
      * @method getNewProperties
-     * @private
      *
      * @param {Array} existingProperties Sequelize models of existing metadata
      * @param {Object} properties Neww properties in JSON format
@@ -49,7 +48,7 @@ module.exports = {
      * take prescedence over role properties.
      * 
      * @method getCombinedProperties
-     * @private
+     *
      * @param {Array} globalProperties Sequelize models of global properties
      * @param {Array} roleProperties Sequelize models of role properties
      * @returns {Array} Array of combined models
@@ -75,7 +74,7 @@ module.exports = {
      * Converts one or more Sequelize models to flattened JSON objects
      * 
      * @method toJSON
-     * @private
+     *
      * @param {Object} rows Sequelize models to flatten out dataValues 
      * @returns {Array|Object} Array of JSON properties
      **/
@@ -87,7 +86,6 @@ module.exports = {
      * Takes an object that has key/value pairs and converts it into a list
      * 
      * @method convertMetadata
-     * @private
      * @example [{attributeKey : "key", attributeValue : "value"}]
      *
      * @param {Object} metadata Key/value metadata object
@@ -130,6 +128,45 @@ module.exports = {
     },
 
     /**
+     * Returns a new object with lower case keys and values (if that value is a string)
+     * 
+     * @method lowerKeysValues
+     * @param {Object} obj Object to lower case
+     * @returns {Object} New object with lowered keys and values
+     **/
+    lowerKeysValues : function(obj) {
+        var newObj = {};
+        _.each(_.keys(obj), function(key) {
+            var value = obj[key];
+            newObj[key.toLowerCase()] = _.isString(value) ? value.toLowerCase() : value;
+        });
+        return newObj;
+    },
+
+    /**
+     * Filters down a list of instances based on metadata key/values. Additionally,
+     * if 'ip' is in the filter data, then the list will filter to that IP.
+     * 
+     * @method filterInstancesByMetadata
+     *
+     * @param {Array} instances List of instance DTOs with metadata
+     * @param {Object} metadataFilter Object of key:value pairs which must match
+     * @returns {Array} Filtered instances
+     **/
+    filterInstancesByMetadata : function(instances, metadataFilter) {
+        metadataFilter = this.lowerKeysValues(metadataFilter);
+        return _.filter(instances, function(instance) {
+            for (var key in metadataFilter) {
+                if (!(instance.metadata.hasOwnProperty(key) &&
+                      instance.metadata[key] === metadataFilter[key])) {
+                    return false;
+                }
+            }
+            return true;
+        });
+    },
+
+    /**
      * Converts a role and properties into a flatten JSON object used as a DTO
      * 
      * @method getPropertiesDto
@@ -159,14 +196,15 @@ module.exports = {
                   "availability-zone" : "us-east-1d"
                 }
             }]
-     * @param {String} role Name of role
+     * @param {String} role Name of role. If null, will try to pull out the role
+     *                 name from the instance.
      * @param {Array} instanceData Array of instance JSON with metadata
      * @returns {Array} DTO of instances with metadata
      **/
     getInstanceDto : function(role, instanceData) {
         return _.reduce(instanceData, function(output, instance) {
             output.push({
-                role : role,
+                role : (instance.role ? instance.role.dataValues.name : role),
                 ip : instance.ip,
                 pollInterval: instance.pollInterval,
                 createdAt : instance.createdAt,
