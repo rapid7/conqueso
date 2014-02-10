@@ -17,7 +17,11 @@
 	{{#if instances}}
 	 	{{#each instances}}
 	 		<div class="panel panel-default">
-	 			<div class="panel-heading">{{ip}}</div>
+	 			<div class="panel-heading">
+	 				<div>{{ip}}
+	 					<div class="pull-right text-muted">First seen {{formatDate createdAt}}</div>
+	 				</div>
+	 			</div>
 	 			<div class="panel-body instance-panel">
 	 				{{#if hasMetadata}}
 			    	<table class="table table-condensed">

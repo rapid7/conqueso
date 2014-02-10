@@ -1,4 +1,4 @@
-require(["handlebars"], function(Handlebars) {
+require(["handlebars", "moment"], function(Handlebars, moment) {
     Handlebars.registerHelper("compare", function(lvalue, rvalue, options) {
         var operator;
 
@@ -29,5 +29,9 @@ require(["handlebars"], function(Handlebars) {
         } else {
             return options.inverse(this);
         }
+    });
+
+    Handlebars.registerHelper("formatDate", function(date) {
+        return moment(date).format("M/D/YY hh:mm:ss A");
     });
 });
