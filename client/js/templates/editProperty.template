@@ -10,11 +10,11 @@
         </tr>
         <tr>
             <td class="property-attribute">created</td>
-            <td>{{createdAt}}</td>
+            <td>{{formatDate createdAt}}</td>
         </tr>
         <tr>
             <td class="property-attribute">last updated</td>
-            <td>{{updatedAt}}</td>
+            <td>{{formatDate updatedAt}}</td>
         </tr>
 
         <tr>

@@ -25,7 +25,8 @@
             "text"             : VENDOR_LIB + "requirejs-text/text",
             "hbars"            : VENDOR_LIB + "requirejs-handlebars/hb",
             "backbone"         : VENDOR_LIB + "backbone-amd/backbone-min",
-            "underscore"       : VENDOR_LIB + "lodash/dist/lodash.underscore.min"
+            "underscore"       : VENDOR_LIB + "lodash/dist/lodash.underscore.min",
+            "moment"           : VENDOR_LIB + "moment/min/moment.min"
         },
 
         shim: {
