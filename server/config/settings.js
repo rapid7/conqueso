@@ -41,7 +41,8 @@ module.exports = {
             port          : process.env.RDS_PORT || nconf.get("db:config:port"),
             user          : process.env.RDS_USERNAME || nconf.get("db:config:user"),
             password      : process.env.RDS_PASSWORD || nconf.get("db:config:password"),
-            databaseName  : nconf.get("db:config:databaseName")
+            databaseName  : nconf.get("db:config:databaseName"),
+            pool          : nconf.get("db:config:pool")
         };
     },
 

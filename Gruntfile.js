@@ -147,6 +147,8 @@
             settings.db.config.databaseName = "<%= node['conqueso']['db']['databaseName'] %>";
             settings.db.config.user = "<%= node['conqueso']['db']['user'] %>";
             settings.db.config.password = "<%= node['conqueso']['db']['password'] %>";
+            settings.db.config.pool.maxConnections = "<%= node['conqueso']['db']['maxConnections'] %>";
+            settings.db.config.pool.maxIdleTime = "<%= node['conqueso']['db']['maxIdleTime'] %>";
             settings.properties.pollIntervalSecs = "<%= node['conqueso']['pollintervalsecs'] %>";
             settings.logging.file = "<%= node['conqueso']['logging']['file'] %>";
             settings.logging.dir = "<%= node['conqueso']['logging']['dir'] %>";

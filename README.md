@@ -37,7 +37,8 @@ server/config/settings.json
             "port"          : "3306",
             "databaseName"  : "conqueso",
             "user"          : "root",
-            "password"      : "root"
+            "password"      : "root",
+            "pool"          : { "maxConnections": 10, "maxIdleTime": 30 }
         }
     },
     "properties" : {

@@ -64,7 +64,7 @@ function setup(config, callback) {
     sequelize = new Sequelize(config.databaseName, config.user, config.password, {
         host : config.host,
         port : config.port,
-        pool: { maxConnections: 10, maxIdleTime: 30 },
+        pool : config.pool,
         dialect : config.dialect || "mysql",
         logging : logger.debug,
         omitNull: true
