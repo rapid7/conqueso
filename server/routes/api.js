@@ -105,14 +105,14 @@ module.exports = function(express, app, persist) {
 
     // Get instances by role
     app.get("/api/roles/:role/instances", function(req, res) {
-        persist.getInstancesForRole(req.params.role, decodeURIComponent(req.query), function(instances) {
+        persist.getInstancesForRole(req.params.role, req.query, function(instances) {
             res.json(instances);
         });
     });
 
     // Get instances
     app.get("/api/instances", function(req, res) {
-        persist.getInstances(decodeURIComponent(req.query), function(instances) {
+        persist.getInstances(req.query, function(instances) {
             res.json(instances);
         });
     });
