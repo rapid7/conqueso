@@ -20,13 +20,12 @@ logger.info("Starting Conqueso server");
 var express = require("express"),
     app = express(),
     PersistenceService = require("./db/persistenceService"),
-    port = require("./config/settings").getHttpPort();
-
-persistenceService = PersistenceService(function() {
-    app.listen(port, function() {
-        logger.info("Listening on port %d", port);
+    port = require("./config/settings").getHttpPort(),
+    persistenceService = new PersistenceService(function() {
+        app.listen(port, function() {
+            logger.info("Listening on port %d", port);
+        });
     });
-});
 
 require("./routes/web")(express, app);
 require("./routes/api")(express, app, persistenceService);

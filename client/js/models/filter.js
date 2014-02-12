@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-define(["backbone", "underscore"], function(Backbone, _){
+define(["backbone"], function(Backbone){
     return Backbone.Model.extend({
     });
 });
