@@ -55,7 +55,6 @@ function($, Backbone, _, Broadcast, InstancesCollection, FilterModel, instancesT
 
         renderInstances : function() {
             var data = {},
-                self = this,
                 filtersJson = this.filters.toJSON(),
                 filteredSet = [];
 
@@ -89,7 +88,7 @@ function($, Backbone, _, Broadcast, InstancesCollection, FilterModel, instancesT
             data.showing = filteredSet.length;
             data.total = this.total;
 
-            this.$el.html(instancesTemplate(data));     
+            this.$el.html(instancesTemplate(data));
         },
 
         fetchCallback: function(collection) {

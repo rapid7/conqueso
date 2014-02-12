@@ -19,7 +19,7 @@
     module.exports = function(grunt) {
         "use strict";
 
-        var jsFiles   = ["*.js", "client/js/**/*.js", "*.json", "server/**/*.js"],
+        var jsFiles   = ["*.js", "client/js/**/*.js", "server/**/*.js"],
             htmlFiles = ["client/**/*.template", "client/*.html"],
             cssFiles  = ["client/css/*.scss"];
 
@@ -27,6 +27,9 @@
    
             pkg: grunt.file.readJSON("package.json"),
             jshint: {
+                options : {
+                    jshintrc : true
+                },
                 files: jsFiles
             },
 
@@ -96,7 +99,8 @@
                         archive: "artifact/conqueso-server-<%= pkg.version %>.zip"
                     },
                     files: [
-                        {src: ["node_modules/**", "server/**", "client/**", "package.json", "migrations/**", "templates/**" ], dest: "/"}
+                        {src: ["node_modules/**", "server/**", "client/**",
+                               "package.json", "migrations/**", "templates/**" ], dest: "/"}
                     ]
                 }
             },
@@ -155,6 +159,7 @@
             settings.logging.level = "<%= node['conqueso']['logging']['level'] %>";
             grunt.file.write("templates/settings.json.erb", JSON.stringify(settings, null, 4));
         });
-        grunt.registerTask("package", ["clean:artifact", "default", "templategen", "clean:npm", "exec:npm-prod", "compress", "checksum"]);
+        grunt.registerTask("package", ["clean:artifact", "default", "templategen",
+                                       "clean:npm", "exec:npm-prod", "compress", "checksum"]);
     };
 })();
