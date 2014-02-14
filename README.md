@@ -191,8 +191,6 @@ The following types are supported:
 ```
 "STRING", "BOOLEAN", "DOUBLE", "FLOAT", "INT", "LONG", "STRING_LIST", "STRING_MAP", "STRING_SET"
 ```
-### What's with the name?
-Naming things is hard. The "con" prefix comes from "config" or "configuration". The name is silly and fun to say; we hope you enjoy seeing the word "conqueso" in your code as much as we do.
 ### Building
 #### Install node
 ```
