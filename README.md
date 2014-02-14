@@ -147,10 +147,43 @@ Returns a list of all online instances across roles. You may filter this list by
   }
 ]
 ```
-
+### Create roles and properties on startup
+If you want to initialize your server with roles and/or properties, you may create a defaults.json file in the server/config directory. Example file:
+```json
+[
+    {
+        "role": "old-record-player",
+        "properties": [
+            {
+                "name": "company",
+                "type": "STRING",
+                "value": "Victor Talking Machine Company"
+            }
+        ]
+    },
+    {
+        "role": "global",
+        "properties": [
+            {
+                "name": "cassette",
+                "type": "BOOLEAN",
+                "value": true
+            },
+            {
+                "name": "books",
+                "type": "FLOAT",
+                "value": 12.2
+            }
+        ]
+    }
+]
+```
+The following types are supported:
+```
+"STRING", "BOOLEAN", "DOUBLE", "FLOAT", "INT", "LONG", "STRING_LIST", "STRING_MAP", "STRING_SET"
+```
 ### What's with the name?
 Naming things is hard. The "con" prefix comes from "config" or "configuration". The name is silly and fun to say; we hope you enjoy seeing the word "conqueso" in your code as much as we do.
-
 ### Building
 #### Install node
 ```
