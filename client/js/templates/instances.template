@@ -13,7 +13,7 @@
 
 <div class="instance-filtering"></div>
 
-<div class="container-full">
+<div class="container-full instance-list" data-role="{{role}}">
 	{{#if instances}}
 	 	{{#each instances}}
 	 		<div class="panel panel-default">

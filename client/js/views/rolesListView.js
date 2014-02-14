@@ -48,7 +48,7 @@ function($, _, Backbone, Broadcast, Role, RolesCollection, listTemplate) {
         },
 
         fetchRolesPoller: function() {
-            this.roles.fetch({update: true, merge: true, remove: false, success: _.bind(this.fetchCallback, this)});
+            this.roles.fetch({remove: false, success: _.bind(this.fetchCallback, this)});
         },
 
         render: function() {

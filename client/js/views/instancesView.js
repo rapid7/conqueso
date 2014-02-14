@@ -28,6 +28,8 @@ function($, Backbone, _, Broadcast, InstancesCollection, FilterModel, instancesT
         initialize: function() {
             this.filters = new FilterModel();
             this.filters.on("change", _.bind(this.filterChange, this));
+
+            Broadcast.on("change:instances", _.bind(this.instancesChange, this));
         },
 
         events : {
@@ -47,6 +49,12 @@ function($, Backbone, _, Broadcast, InstancesCollection, FilterModel, instancesT
         filterChange: function() {
             this.renderInstances();
             this.renderFilters();
+        },
+
+        instancesChange: function(roleName) {
+            if (this.$(".instance-list[data-role='"+roleName+"']").length) {
+                this.render(roleName);
+            }
         },
 
         removeFilter: function(event) {
