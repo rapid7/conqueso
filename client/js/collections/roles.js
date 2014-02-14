@@ -14,10 +14,23 @@
 * limitations under the License.
 */
 
-define(["jquery", "underscore", "backbone", "../models/role"], function($, _, Backbone, RoleModel) {
+define(["jquery", "underscore", "backbone", "../models/role", "../broadcast"],
+        function($, _, Backbone, RoleModel, Broadcast) {
+
     return Backbone.Collection.extend({
         model: RoleModel,
         url:   "api/roles/",
+        comparator : function(model) {
+            return model.get("name") === "global" ? model : model.get("name");
+        },
+
+        initialize : function() {
+            this.on("change:instances", this.instanceChange, this);
+        },
+
+        instanceChange : function(model) {
+            Broadcast.trigger("change:instances", model.get("name"));
+        },
 
         unsetActive : function() {
             _.each(this.models, function(model) {
