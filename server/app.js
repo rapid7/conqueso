@@ -22,6 +22,9 @@ var express = require("express"),
     PersistenceService = require("./db/persistenceService"),
     port = require("./config/settings").getHttpPort(),
     persistenceService = new PersistenceService(function() {
+        // Load server default properties and roles if defaults.json file specified
+        require("./propertyLoader")(persistenceService);
+
         app.listen(port, function() {
             logger.info("Listening on port %d", port);
         });
