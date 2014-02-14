@@ -20,7 +20,9 @@ define(["jquery", "underscore", "backbone", "../models/role", "../broadcast"],
     return Backbone.Collection.extend({
         model: RoleModel,
         url:   "api/roles/",
-        comparator : "name",
+        comparator : function(model) {
+            return model.get("name") === "global" ? model : model.get("name");
+        },
 
         initialize : function() {
             this.on("change:instances", this.instanceChange, this);
