@@ -24,7 +24,7 @@
             "handlebars"       : VENDOR_LIB + "handlebars/handlebars.min",
             "text"             : VENDOR_LIB + "requirejs-text/text",
             "hbars"            : VENDOR_LIB + "requirejs-handlebars/hb",
-            "backbone"         : VENDOR_LIB + "backbone-amd/backbone-min",
+            "backbone"         : VENDOR_LIB + "backbone/backbone",
             "underscore"       : VENDOR_LIB + "lodash/dist/lodash.underscore.min",
             "moment"           : VENDOR_LIB + "moment/min/moment.min"
         },
