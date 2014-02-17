@@ -203,7 +203,7 @@ sudo apt-get install nodejs
 
 #### Install Grunt and Bower
 ```
-npm install -g grunt-cli bower
+sudo npm install -g grunt-cli bower
 ```
 
 #### Install NPM dependencies
