@@ -19,7 +19,7 @@
 
     require.config({
         paths: {
-            "jquery"           : VENDOR_LIB + "jquery/jquery.min",
+            "jquery"           : VENDOR_LIB + "jquery/dist/jquery.min",
             "bootstrap"        : VENDOR_LIB + "bootstrap/dist/js/bootstrap.min",
             "handlebars"       : VENDOR_LIB + "handlebars/handlebars.min",
             "text"             : VENDOR_LIB + "requirejs-text/text",
