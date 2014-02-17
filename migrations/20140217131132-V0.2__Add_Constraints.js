@@ -37,16 +37,16 @@ module.exports = {
         migration.changeColumn("properties", "roleId", { type: DataTypes.INTEGER, allowNull: true });
         migration.removeIndex("properties", ["name", "roleId"]);
 
-        // Add constraints on the role table
+        // Remove constraints on the role table
         migration.changeColumn("roles", "name", { type: DataTypes.STRING, allowNull: true });
         migration.removeIndex("roles", ["name"]);
 
-        // Add constraints on the instance table
+        // Remove constraints on the instance table
         migration.changeColumn("instances", "ip", { type: DataTypes.STRING, allowNull: true });
         migration.changeColumn("instances", "pollInterval", { type: DataTypes.INTEGER, defaultValue: 60000, allowNull: true });
         migration.changeColumn("instances", "roleId", { type: DataTypes.INTEGER, allowNull: true });
 
-        // Add constraints on the instance_metadata table
+        // Removes constraints on the instance_metadata table
         migration.changeColumn("instance_metadata", "attributeKey", { type: DataTypes.STRING, allowNull: true });
         migration.changeColumn("instance_metadata", "attributeValue", { type: DataTypes.STRING, allowNull: true });
         migration.changeColumn("instance_metadata", "instanceId", { type: DataTypes.INTEGER, allowNull: true });
