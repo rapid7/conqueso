@@ -42,7 +42,10 @@ module.exports = {
             user          : process.env.RDS_USERNAME || nconf.get("db:config:user"),
             password      : process.env.RDS_PASSWORD || nconf.get("db:config:password"),
             databaseName  : nconf.get("db:config:databaseName"),
-            pool          : nconf.get("db:config:pool")
+            pool          : {
+                maxConnections : parseInt(nconf.get("db:config:pool:maxConnections"), 10),
+                maxIdleTime : parseInt(nconf.get("db:config:pool:maxIdleTime"), 10)
+            },
         };
     },
 
