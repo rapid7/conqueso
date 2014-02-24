@@ -125,22 +125,40 @@ function connect(config, done) {
  **/
 function createTables(done) {
     Property = sequelize.define("property", {
-        name : Sequelize.STRING,
-        value : Sequelize.TEXT,
+        name : {
+            type : Sequelize.STRING,
+            allowNull : false
+        },
+        value : {
+            type: Sequelize.TEXT,
+            allowNull : false
+        },
         type : {
             type : Sequelize.ENUM,
-            values : _.pluck(PropertyType.enums, "key")
+            values : _.pluck(PropertyType.enums, "key"),
+            allowNull : false
+        },
+        description : {
+            type : Sequelize.STRING,
+            allowNull : true
         }
     });
 
     Role = sequelize.define("role", {
-        name : Sequelize.STRING
+        name : {
+            type : Sequelize.STRING,
+            allowNull : false
+        }
     });
 
     Instance = sequelize.define("instance", {
-        ip : Sequelize.STRING,
+        ip : {
+            type : Sequelize.STRING,
+            allowNull : false
+        },
         pollInterval : {
             type : Sequelize.INTEGER,
+            allowNull : false,
             defaultValue : 60000
         },
         offline : {
@@ -151,8 +169,14 @@ function createTables(done) {
     });
 
     InstanceMetadata = sequelize.define("instance_metadata", {
-        attributeKey : Sequelize.STRING,
-        attributeValue : Sequelize.STRING
+        attributeKey : {
+            type : Sequelize.STRING,
+            allowNull : false
+        },
+        attributeValue : {
+            type : Sequelize.STRING,
+            allowNull : false
+        }
     });
 
     Instance.belongsTo(Role, {as : "Role"});
@@ -497,7 +521,8 @@ PersistenceServiceMysql.prototype.createProperty = function(roleName, property, 
                 Property.create({
                     name : property.name,
                     type : PropertyType.get(property.type).key,
-                    value : property.value
+                    value : property.value,
+                    description : property.description
                 }).success(function(property) {
                     role.addProperty(property).success(function(property) {
                         logger.info("Created property.", {property: property.dataValues}, {role: roleName});
@@ -515,7 +540,7 @@ PersistenceServiceMysql.prototype.updateProperty = function(roleName, property, 
         var prop;
         if (properties) {
             prop = properties[0];
-            prop.updateAttributes({ value : property.value }).success(function(property) {
+            prop.updateAttributes({ value : property.value, description : property.description }).success(function(property) {
                 logger.info("Updated property.", {property: property, role: roleName});
                 callback(DataUtils.toJSON(property));
             });

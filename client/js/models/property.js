@@ -74,9 +74,9 @@ define(["jquery", "backbone", "underscore"], function($, Backbone, _){
 
         /* jshint maxcomplexity:false */
         validate: function(attributes) {
-            var name  = attributes.name,
-                type  = attributes.type,
-                value = attributes.value;
+            var name        = attributes.name,
+                type        = attributes.type,
+                value       = attributes.value;
 
             if (!name || !isValidName(name)) {
                 return "Must have a name";
