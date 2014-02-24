@@ -18,6 +18,13 @@
         </tr>
 
         <tr>
+            <td class="property-attribute">description</td>
+            <td>
+                <input type="text" name="description" placeholder="Description" class="form-control" value="{{description}}" />
+            </td>
+        </tr>
+
+        <tr>
             <td class="property-attribute">value</td>
             <td>
                 <div class="property-type" data-type="STRING">

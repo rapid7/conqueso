@@ -32,7 +32,7 @@ module.exports = {
      * @method getNewProperties
      *
      * @param {Array} existingProperties Sequelize models of existing metadata
-     * @param {Object} properties Neww properties in JSON format
+     * @param {Object} properties New properties in JSON format
      * @returns {Array} New properties
      **/
     getNewProperties : function(existingProperties, properties) {

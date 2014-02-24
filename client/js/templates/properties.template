@@ -18,7 +18,7 @@
 		 	<li class="list-group-item property-item" data-name="{{name}}" data-role="{{../name}}">
 				<div class="row">
 				   	<span class="col-xs-4 property property-name">
-						<a href="#roles/{{../name}}/properties/{{name}}">{{name}}</a>
+						<a href="#roles/{{../name}}/properties/{{name}}" title="{{description}}">{{name}}</a>
 					</span>
 					<span class="col-xs-6 property-value">
 						<div>{{value}}</div>
