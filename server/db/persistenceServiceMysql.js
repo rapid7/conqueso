@@ -14,7 +14,6 @@
 * limitations under the License.
 */
 
-
 /**
  * Database connnection, persistence and DAOs for MySQL
  * 
@@ -29,9 +28,6 @@ var sequelize,
     logger       = require("../logger"),
     Globals      = require("../globals"),
 
-    // Used for migration
-    exec = require("child_process").exec,
-
     // Tables
     Property,
     Role,
@@ -40,27 +36,13 @@ var sequelize,
 
 
 /**
- * Returns a MySQL connection URL based on a configuration object
+ * Initialize the Sequelize object
  * 
- * @method getConnectionUrl
+ * @method initSequelize
  * @private
  * @param {Object} configuration object to use to connect
- * @returns {String} Connection URL
  **/
-function getConnectionUrl(config) {
-    return "mysql://" + config.user + ":" + config.password + "@" +
-                        config.host + ":" + config.port + "/" + config.databaseName;
-}
-
-/**
- * Connects to the database and initializes the Sequelize object
- * 
- * @method setup
- * @private
- * @param {Object} configuration object to use to connect
- * @param {Function}[callback] callback function
- **/
-function setup(config, callback) {
+function initSequelize(config) {
     sequelize = new Sequelize(config.databaseName, config.user, config.password, {
         host : config.host,
         port : config.port,
@@ -69,50 +51,62 @@ function setup(config, callback) {
         logging : logger.debug,
         omitNull: true
     });
-    callback();
 }
 
 /**
- * Initialize connection to SQL
+ * Creates the conqueso database if it does not already exist
+ * 
+ * @method createDatabase
+ * @private
+ * @param {Object} configuration object to use to connect
+ **/
+function createDatabase(config) {
+    var connection = require("mysql").createConnection(config);
+    connection.query("CREATE DATABASE IF NOT EXISTS "+config.databaseName+";", function(err) {
+        if (err) {
+            throw new Error("Failed to connect to database");
+        }
+        logger.info("Successfully connected to database: %s:%s", config.host, config.port);
+    });
+    connection.end();
+}
+
+/**
+ * Migrates the database to the latest schema version
+ * 
+ * @method migrate
+ * @private
+ * @param {Function}[done] done callback function
+ **/
+function migrate(done) {
+    sequelize.getMigrator({
+        path : process.cwd() + "/migrations",
+        logging : logger.info
+    })
+    .migrate()
+    .success(done)
+    .error(function(err) {
+        logger.error(err);
+        throw err;
+    });
+}
+
+/**
+ * Connects to the database and initializes the Sequelize object
  * 
  * @method connect
  * @private
  * @param {Object} configuration object to use to connect
- * @param {Function}[done] callback function for when this has finished
+ * @param {Function}[callback] callback function
  **/
-function connect(config, done) {
-    try {
-        // Only create a database and migrate it if it is specified
-        if (config.databaseName) {
-            var connection = require("mysql").createConnection(config);
-            connection.query("CREATE DATABASE IF NOT EXISTS "+config.databaseName+";", function(err) {
-                if (!err) {
-                    logger.info("Successfully connected to database: %s:%s", config.host, config.port);
-                } else {
-                    throw new Error("Failed to connect to database");
-                }
-            });
-            connection.end();
-
-            // Migrate to the latest schema
-            var bin = __dirname + "/../../node_modules/sequelize/bin/sequelize";
-            require("fs").chmodSync(bin, 0755);
-            exec(bin + " -m -U " + getConnectionUrl(config), function(err) {
-                if (!err) {
-                    logger.info("Migrated database schema to latest version");
-                    setup(config, done);
-                } else {
-                    throw new Error("Failed to migrate database schema");
-                }
-            });
-        // If no database is specified just setup Sequelize and don't migrate
-        } else {
-            setup(config, done);
-        }
-
-    } catch (err) {
-        logger.error(err);
-        throw err;
+function connect(config, callback) {
+    if (config.databaseName) {
+        createDatabase(config);
+        initSequelize(config);
+        migrate(callback);
+    } else {
+        initSequelize(config);
+        callback();
     }
 }
 
