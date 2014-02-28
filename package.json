@@ -27,7 +27,7 @@
         "nconf" : "~0.6.9",
         "mysql" : "~2.1.0",
         "lodash" : "~2.4.1",
-        "sequelize" : "sequelize/sequelize",
+        "sequelize" : "v2.0.0-dev10",
         "enum" : "~0.2.5",
         "trycatch" : "~1.0.6",
         "winston" : "~0.7.2"
