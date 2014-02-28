@@ -184,7 +184,7 @@ If you want to initialize your server with roles and/or properties, you may crea
                 "name": "books",
                 "type": "FLOAT",
                 "value": 12.2,
-                "description": "What company manufactured the old-record-player"
+                "description": "Books, yeah books."
             }
         ]
     }
