@@ -363,6 +363,7 @@ function getRoles(callback) {
             role.dataValues.instances = _.filter(role.dataValues.instances, function(instance) {
                 return instance.offline === false;
             });
+            role.dataValues.instances = _.sortBy(role.dataValues.instances, "createdAt");
         });
         callback(DataUtils.toJSON(roles));
     });
