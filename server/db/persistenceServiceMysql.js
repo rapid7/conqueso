@@ -358,12 +358,13 @@ function getRoles(callback) {
     Role.findAll({ where : ["name != ?", Globals.GLOBAL_ROLE], order : "name ASC",
                    include : [{model : Instance, as : "Instances"}] }).success(function(roles) {
 
-        // Only return instances that are online
+        // Only return instances that are online and sort instances by the created time
         _.map(roles, function(role) {
-            role.dataValues.instances = _.filter(role.dataValues.instances, function(instance) {
-                return instance.offline === false;
-            });
-            role.dataValues.instances = _.sortBy(role.dataValues.instances, "createdAt");
+            role.dataValues.instances = _.sortBy(
+                _.filter(role.dataValues.instances, function(instance) {
+                    return instance.offline === false;
+                }),
+                "createdAt");
         });
         callback(DataUtils.toJSON(roles));
     });
