@@ -116,7 +116,7 @@ You can also query for instances of this role with matching metadata. Example:
 ```
 
 ###### POST ```/api/roles/:role/properties```
-Send your role properties and instance metadata. Creates a role if one does not already exist. For each property that does not already exist, the property is added with the given type and default value. If an instance does not already exist from the request IP, then a new instance will be created. If an instance from the request IP already exists and the metadata values have changed, other instanaces will be marked offline and a new instance will be created.
+Send your role properties and instance metadata. Creates a role if one does not already exist. For each property that does not already exist, the property is added with the given type and default value. The description attribute optionally describes the meaning of the property, for display when viewing and editing properties in the Conqueso interface. If an instance does not already exist from the request IP, then a new instance will be created. If an instance from the request IP already exists and the metadata values have changed, other instanaces will be marked offline and a new instance will be created.
 ```json
 {
     "instanceMetadata": {
@@ -127,7 +127,8 @@ Send your role properties and instance metadata. Creates a role if one does not 
         {
             "name": "hipster-mode-enabled",
             "value": "true",
-            "type": "BOOLEAN"
+            "type": "BOOLEAN",
+            "description": "Are you wearing skinny jeans?"
         }
     ]
 }
@@ -166,7 +167,8 @@ If you want to initialize your server with roles and/or properties, you may crea
             {
                 "name": "company",
                 "type": "STRING",
-                "value": "Victor Talking Machine Company"
+                "value": "Victor Talking Machine Company",
+                "description": "What company manufactured the old-record-player"
             }
         ]
     },
@@ -181,7 +183,8 @@ If you want to initialize your server with roles and/or properties, you may crea
             {
                 "name": "books",
                 "type": "FLOAT",
-                "value": 12.2
+                "value": 12.2,
+                "description": "What company manufactured the old-record-player"
             }
         ]
     }
@@ -191,6 +194,7 @@ The following types are supported:
 ```
 "STRING", "BOOLEAN", "DOUBLE", "FLOAT", "INT", "LONG", "STRING_LIST", "STRING_MAP", "STRING_SET"
 ```
+The description attribute optionally describes the meaning of the property, for display when viewing and editing properties in the Conqueso interface.
 ### Building
 #### Install node
 ```
