@@ -112,14 +112,7 @@
         });
 
         /* Depedencies */
-        grunt.loadNpmTasks("grunt-exec");
-        grunt.loadNpmTasks("grunt-contrib-jshint");
-        grunt.loadNpmTasks("grunt-contrib-watch");
-        grunt.loadNpmTasks("grunt-htmlhint");
-        grunt.loadNpmTasks("grunt-sass");
-        grunt.loadNpmTasks("grunt-contrib-compress");
-        grunt.loadNpmTasks("grunt-contrib-clean");
-        grunt.loadNpmTasks("grunt-mocha-test");
+        require("load-grunt-tasks")(grunt);
 
         /* Tasks */
         grunt.registerTask("test", ["mochaTest"]);

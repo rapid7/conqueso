@@ -10,6 +10,7 @@
         "start": "node server/app"
     },
     "devDependencies" : {
+        "load-grunt-tasks" : "~0.4.0",
         "grunt" : "~0.4.2",
         "grunt-exec" : "~0.4.3",
         "grunt-contrib-jshint" : "~0.8.0",
@@ -23,6 +24,7 @@
         "sqlite3" : "~2.2.0"
     },
     "dependencies" : {
+        "forever-monitor" : "~1.2.3",
         "express" : "~3.4.8",
         "nconf" : "~0.6.9",
         "mysql" : "~2.1.0",
