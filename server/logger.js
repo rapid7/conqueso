@@ -38,12 +38,22 @@ _logger = new (winston.Logger)({
 	levels : {error: 3, warn: 2, info: 1, debug: 0},
 	colors: winston.config.syslog.colors,
 	transports: [
-		new (winston.transports.Console)({level : loggingLevel, colorize: true, handleExceptions: true }),
-		new (winston.transports.File)({level : loggingLevel, filename: outputDir + "/" + outputFile, handleExceptions: true })
+		new (winston.transports.Console)({
+			level : loggingLevel,
+			colorize: true,
+			handleExceptions: true
+		}),
+		new (winston.transports.DailyRotateFile)({
+			level : loggingLevel,
+			maxsize : 10485760, // 10 MB
+			filename: outputDir + "/" + outputFile,
+			handleExceptions: true
+		})
 	]
 });
 
 module.exports = {
+	logFile : outputDir + "/" + outputFile,
 	debug  : _logger.debug,
 	info   : _logger.info,
 	warn   : _logger.warn,

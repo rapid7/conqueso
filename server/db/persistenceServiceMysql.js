@@ -64,9 +64,15 @@ function createDatabase(config) {
     var connection = require("mysql").createConnection(config);
     connection.query("CREATE DATABASE IF NOT EXISTS "+config.databaseName+";", function(err) {
         if (err) {
-            throw new Error("Failed to connect to database");
+            logger.error("Failed to connect to database.", err);
+            
+            // If we get an access denied, we probably can't recover
+            if (err.code === "ER_ACCESS_DENIED_ERROR") {
+                process.exit(Globals.FATAL_ERR_CODE);
+            }
+        } else {
+            logger.info("Successfully connected to database: %s:%s", config.host, config.port);
         }
-        logger.info("Successfully connected to database: %s:%s", config.host, config.port);
     });
     connection.end();
 }
