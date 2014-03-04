@@ -14,23 +14,28 @@
 * limitations under the License.
 */
 
-var forever = require("forever-monitor"),
-	logger = require("./logger"),
-	Globals = require("./globals"),
-	child = new (forever.Monitor)("server/main.js", {
-		minUptime: 3000,
-		spinSleepTime: 5000
-	});
+if (process.env.NODE_ENV === "production" && process.setuid && process.setgid) {
+    process.setgid("conqueso");
+    process.setuid("conqueso");
+}
 
-child.on("restart", function() {
-	logger.warn("Conqueso restarting...");
-});
+var logger = require("./logger");
+logger.info("Starting Conqueso server");
 
-child.on("exit:code", function(code) {
-	// Can't recover from this error code (bad username, etc.)
-	if (code === Globals.FATAL_ERR_CODE) {
-		process.exit();
-	}
-});
+var express = require("express"),
+    app = express(),
+    PersistenceService = require("./db/persistenceService"),
+    port = require("./config/settings").getHttpPort(),
+    persistenceService = new PersistenceService(function() {
+        // Load server default properties and roles if defaults.json file specified
+        require("./propertyLoader")(persistenceService);
 
-child.start();
+        app.listen(port, function() {
+            logger.info("Listening on port %d", port);
+        });
+    });
+
+require("./routes/web")(express, app);
+require("./routes/api")(express, app, persistenceService);
+require("./serviceTracker")(persistenceService);
+
