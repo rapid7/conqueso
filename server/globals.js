@@ -43,13 +43,5 @@ module.exports = {
 	 * @property POLL_INTEVERAL_META_KEY
      * @type {Number}
 	 */
-    POLL_INTEVERAL_META_KEY : "conqueso.poll.interval",
-
-    /**
-	 * Exit code used to notify Forever that we should just shutdown and not restart
-	 * 
-	 * @property FATAL_ERR_CODE
-     * @type {Number}
-	 */
-    FATAL_ERR_CODE : 2
+    POLL_INTEVERAL_META_KEY : "conqueso.poll.interval"
 };
