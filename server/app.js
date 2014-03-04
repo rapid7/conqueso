@@ -19,8 +19,7 @@ if (process.env.NODE_ENV === "production" && process.setuid && process.setgid) {
     process.setuid("conqueso");
 }
 
-var logger = require("./logger"),
-    Globals = require("./globals");
+var logger = require("./logger");
 logger.info("Starting Conqueso server");
 
 var express = require("express"),
