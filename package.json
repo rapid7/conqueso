@@ -26,7 +26,7 @@
     "dependencies" : {
         "express" : "~3.4.8",
         "nconf" : "~0.6.9",
-        "mysql" : "~2.1.0",
+        "mysql" : "~2.1.1",
         "lodash" : "~2.4.1",
         "sequelize" : "v2.0.0-dev10",
         "enum" : "~0.2.5",
