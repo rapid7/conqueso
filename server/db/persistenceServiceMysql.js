@@ -101,7 +101,7 @@ function migrate(done) {
  * @param {Function}[callback] callback function
  **/
 function connect(config, callback) {
-    if (config.databaseName) {
+    if (config.databaseName && process.env.isMaster) {
         createDatabase(config);
         initSequelize(config);
         migrate(callback);
@@ -181,7 +181,9 @@ function createTables(done) {
     Role.hasMany(Instance, {as : "Instances"});
 
     sequelize.sync().success(function() {
-        logger.info("Synchronized with database");
+        if (process.env.isMaster) {
+            logger.info("Synchronized with database");
+        }
         done();
     }).error(function(err) {
         logger.error(err);

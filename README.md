@@ -28,7 +28,9 @@ server/config/settings.json
 ```json
 {
     "http": {
-        "port": 8080
+        "port": 8080,
+        "enableClustering" : true,
+        "clusterCountOverride" : null
     },
     "db" : {
         "type" : "MYSQL",
