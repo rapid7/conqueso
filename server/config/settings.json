@@ -1,6 +1,8 @@
 {
     "http": {
-        "port": 8080
+        "port": 8080,
+        "enableClustering" : true,
+        "clusterCountOverride" : null
     },
     "db" : {
         "type" : "MYSQL",
@@ -10,7 +12,7 @@
             "databaseName"  : "conqueso",
             "user"          : "root",
             "password"      : "root",
-            "pool"          : { "maxConnections": 15, "maxIdleTime": 5000 }
+            "pool"          : { "maxConnections": 25, "maxIdleTime": 2000 }
         }
     },
     "properties" : {
