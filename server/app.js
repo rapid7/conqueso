@@ -51,11 +51,11 @@ if (config.isClusteringEnabled() && cluster.isMaster) {
 } else {
     var PersistenceService = require("./db/persistenceService"),
         persistenceService = new PersistenceService(function() {
-            // Load server default properties and roles if defaults.json file specified
-            require("./propertyLoader")(persistenceService);
-
             app.listen(port, function() {
                 if (process.env.isMaster) {
+                    // Load server default properties and roles if defaults.json file specified
+                    require("./propertyLoader")(persistenceService);
+
                     logger.info("Listening on port %d", port);
                 }
                 
