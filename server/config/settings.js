@@ -37,7 +37,7 @@ module.exports = {
     },
 
     getClusterCount: function() {
-        return nconf.get("http:clusterCountOverride");
+        return parseInt(nconf.get("http:clusterCountOverride"), 10);
     },
 
     getPersistType: function() {
