@@ -138,6 +138,8 @@
         grunt.registerTask("templategen", function() {
             var settings = grunt.file.readJSON("server/config/settings.json");
             settings.http.port = "<%= node['conqueso']['http']['port'] %>";
+            settings.http.enableClustering = "<%= node['conqueso']['http']['enableClustering'] %>";
+            settings.http.clusterCountOverride = "<%= node['conqueso']['http']['clusterCountOverride'] %>";
             settings.db.type = "<%= node['conqueso']['db']['type'] %>";
             settings.db.config.host = "<%= node['conqueso']['db']['host'] %>";
             settings.db.config.port = "<%= node['conqueso']['db']['port'] %>";
