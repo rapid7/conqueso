@@ -20,7 +20,6 @@
         "use strict";
 
         var jsFiles   = ["*.js", "client/js/**/*.js", "server/**/*.js"],
-            htmlFiles = ["client/**/*.template", "client/*.html"],
             cssFiles  = ["client/css/*.scss"];
 
         grunt.initConfig({
@@ -31,18 +30,6 @@
                     jshintrc : true
                 },
                 files: jsFiles
-            },
-
-            htmlhint: {
-                options: {
-                    "tag-self-close": true,
-                    "tagname-lowercase": true,
-                    "attr-lowercase": true,
-                    "attr-value-double-quotes": true,
-                    "tag-pair": true,
-                    "id-unique": true
-                },
-                src: htmlFiles
             },
 
             sass: {
@@ -74,10 +61,6 @@
                 css : {
                     files : cssFiles,
                     tasks : ["sass:dist"]
-                },
-                html : {
-                    files : htmlFiles,
-                    tasks : ["htmlhint"]
                 }
             },
 
@@ -116,7 +99,7 @@
 
         /* Tasks */
         grunt.registerTask("test", ["mochaTest"]);
-        grunt.registerTask("lint", ["jshint", "sass:dist", "htmlhint"]);
+        grunt.registerTask("lint", ["jshint", "sass:dist"]);
         grunt.registerTask("default", ["exec:bower", "lint", "test"]);
 
         // Task to create sha256 checksum file

@@ -116,9 +116,8 @@ function connect(config, callback) {
  * 
  * @method createTables
  * @private
- * @param {Function}[done] callback function for when this has finished
  **/
-function createTables(done) {
+function createTables() {
     Property = sequelize.define("property", {
         name : {
             type : Sequelize.STRING,
@@ -179,16 +178,6 @@ function createTables(done) {
 
     Role.hasMany(Property, {as : "Properties"});
     Role.hasMany(Instance, {as : "Instances"});
-
-    sequelize.sync().success(function() {
-        if (process.env.isMaster) {
-            logger.info("Synchronized with database");
-        }
-        done();
-    }).error(function(err) {
-        logger.error(err);
-        throw err;
-    });
 }
 
 /**
@@ -201,7 +190,8 @@ function createTables(done) {
  **/
 var PersistenceServiceMysql = function(configuration, done) {
     connect(configuration, function() {
-        createTables(done);
+        createTables();
+        done();
     });
 };
 
