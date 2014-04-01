@@ -29,7 +29,7 @@
         "lodash" : "~2.4.1",
         "sequelize" : "v2.0.0-dev10",
         "enum" : "~0.2.6",
-        "trycatch" : "~1.4.4",
+        "trycatch" : "~1.5.1",
         "winston" : "~0.7.3"
     }
 }
