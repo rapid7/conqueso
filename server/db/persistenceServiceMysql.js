@@ -415,10 +415,8 @@ function doesPropertyAlreadyExist(roleName, propertyName, callback) {
 /* @Override */
 PersistenceServiceMysql.prototype.getRoles = function(callback) {
     // Sequelize does not support counting associated tables in a subquery -- using raw query
-    sequelize.query("SELECT DISTINCT(role.name), (SELECT COUNT(*) FROM instances " +
-                    "WHERE role.id = instances.roleId AND offline = false) AS instances " +
-                    "FROM roles AS role LEFT JOIN instances AS Instances ON role.id = Instances.roleId " +
-                    "WHERE role.name != ? ORDER BY name ASC",
+    sequelize.query("SELECT role.name, COUNT(*) AS instances FROM roles AS role, instances AS instances " +
+                    "WHERE role.id = instances.roleId AND role.name != ? AND offline = false GROUP BY role.name ORDER BY name ASC",
                     null, {raw : true}, [Globals.GLOBAL_ROLE]).success(function(roles) {
                         callback(roles);
                     });
