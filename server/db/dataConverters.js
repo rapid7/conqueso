@@ -216,28 +216,5 @@ module.exports = {
             });
             return output;
         }, []);
-    },
-
-    /**
-     * Creates role DTOs with instance counts
-     * 
-     * @method getRoleDto
-     * @private
-     * @example
-     *     [{
-              "name": "foo",
-              "instance" : 3
-            }]
-     * @param {Array} roles Array of JSON roles
-     * @returns {Array} DTO of roles with instance counts
-     **/
-    getRoleDto : function(roles) {
-        return _.reduce(roles, function(output, role) {
-            output.push({
-                name : role.name,
-                instances : role.instances.length
-            });
-            return output;
-        }, []);
     }
 };

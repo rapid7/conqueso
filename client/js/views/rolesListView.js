@@ -44,7 +44,12 @@ function($, _, Backbone, Broadcast, Role, RolesCollection, listTemplate) {
         },
 
         renderTemplate: function() {
-            this.$el.html(listTemplate(this.roles.toJSON()));
+            this.$el.html(listTemplate({
+                roles : this.roles.toJSON(),
+                total : _.reduce(this.roles.pluck("instances"), function(sum, num) {
+                    return sum + num;
+                })
+            }));
         },
 
         fetchRolesPoller: function() {

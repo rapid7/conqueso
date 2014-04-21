@@ -349,16 +349,13 @@ function findOrCreateInstance(roleName, ipAddress, metadata, callback) {
  **/
 function getRoles(callback) {
     Role.findAll({ where : ["name != ?", Globals.GLOBAL_ROLE], order : "name ASC",
-                   include : [{model : Instance, as : "Instances"}] }).success(function(roles) {
+                   include : [{model : Instance, where : {"offline" : false}, as : "Instances"}] }).success(function(roles) {
 
-        // Only return instances that are online and sort instances by the created time
+        // Sort instances by the created time
         _.map(roles, function(role) {
-            role.dataValues.instances = _.sortBy(
-                _.filter(role.dataValues.instances, function(instance) {
-                    return instance.offline === false;
-                }),
-                "createdAt");
+            role.dataValues.instances = _.sortBy(role.dataValues.instances, "createdAt");
         });
+
         callback(DataUtils.toJSON(roles));
     });
 }
@@ -417,9 +414,14 @@ function doesPropertyAlreadyExist(roleName, propertyName, callback) {
 
 /* @Override */
 PersistenceServiceMysql.prototype.getRoles = function(callback) {
-    getRoles(function(roles) {
-        callback(DataUtils.getRoleDto(roles));
-    });
+    // Sequelize does not support counting associated tables in a subquery -- using raw query
+    sequelize.query("SELECT DISTINCT(role.name), (SELECT COUNT(*) FROM instances " +
+                    "WHERE role.id = instances.roleId AND offline = false) AS instances " +
+                    "FROM roles AS role LEFT JOIN instances AS Instances ON role.id = Instances.roleId " +
+                    "WHERE role.name != ? ORDER BY name ASC",
+                    null, {raw : true}, [Globals.GLOBAL_ROLE]).success(function(roles) {
+                        callback(roles);
+                    });
 };
 
 /* @Override */
@@ -625,14 +627,6 @@ PersistenceServiceMysql.prototype.markInstancesOffline = function() {
 
             if (instances && instances.length > 0) {
                 Instance.update({offline : true}, { id : ids}, {transaction : t}).success(function() {
-                    _.each(instances, function(instance) {
-                        // Update already occurred logging can happen outside of transaction
-                        instance.getRole().success(function(role) {
-                            logger.warn("Instance has not checked in recently. Marked offline.",
-                                {instance : instance.dataValues.ip, role: role.name });
-                        });
-                    });
-
                     t.commit().success(Function);
                 }).error(function(err) {
                     logger.error(err);
