@@ -20,7 +20,7 @@
 	 			<div class="panel-heading">
 	 				<div>{{ip}} 
 						<div class="pull-right text-muted">
-							{#if isOldest}} <span class="label label-warning">Oldest</span> {{/if}}
+							{{#if isOldest}} <span class="label label-warning">Oldest</span> {{/if}}
 							{{#if isYoungest}} <span class="label label-info">Youngest</span> {{/if}}
 							First seen {{formatDate createdAt}}
 						</div>

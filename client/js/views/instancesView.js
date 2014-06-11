@@ -69,10 +69,12 @@ function($, Backbone, _, Broadcast, InstancesCollection, FilterModel, instancesT
                 youngestInstance = null;
 
             // determine oldest and youngest instance (e.g. first, last)
-            oldestInstance = _.min(this.instances.toJSON(), 
-                                   function(instance) { return new Date(instance.createdAt); });
-            youngestInstance = _.max(this.instances.toJSON(), 
-                                     function(instance) { return new Date(instance.createdAt); });
+            if (this.instances.length > 1) {
+                oldestInstance = _.min(this.instances.toJSON(), 
+                                       function(instance) { return new Date(instance.createdAt); });
+                youngestInstance = _.max(this.instances.toJSON(), 
+                                         function(instance) { return new Date(instance.createdAt); });
+            }
 
             if (_.keys(filtersJson).length > 0) {
                 _.each(this.instances.toJSON(), function(instance) {
@@ -97,8 +99,8 @@ function($, Backbone, _, Broadcast, InstancesCollection, FilterModel, instancesT
             // Handlebars doesn't consider '{}' to be falsy with #if
             _.each(filteredSet, function(instance) {
                 instance.hasMetadata = !_.isEmpty(instance.metadata);
-                instance.isOldest = (instance.ip === oldestInstance.ip);
-                instance.isYoungest = (instance.ip === youngestInstance.ip);
+                instance.isOldest = oldestInstance !== null && (instance.ip === oldestInstance.ip);
+                instance.isYoungest = oldestInstance !== null && (instance.ip === youngestInstance.ip);
             });
 
             data.instances = filteredSet;
@@ -106,6 +108,7 @@ function($, Backbone, _, Broadcast, InstancesCollection, FilterModel, instancesT
             data.showing = filteredSet.length;
             data.total = this.total;
 
+            console.log(data);
             this.$el.html(instancesTemplate(data));
         },
 
