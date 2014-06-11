@@ -1,6 +1,6 @@
 {
     "name": "conqueso",
-    "version": "0.3.8",
+    "version": "0.3.9",
 
     "dependencies" : {
         "jquery"               : "2.1.1",
