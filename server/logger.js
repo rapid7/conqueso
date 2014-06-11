@@ -41,12 +41,14 @@ _logger = new (winston.Logger)({
 		new (winston.transports.Console)({
 			level : loggingLevel,
 			colorize: true,
+			json: false,
 			handleExceptions: true
 		}),
 		new (winston.transports.DailyRotateFile)({
 			level : loggingLevel,
 			maxsize : 10485760, // 10 MB
 			filename: outputDir + "/" + outputFile,
+			json: false,
 			handleExceptions: true
 		})
 	]
