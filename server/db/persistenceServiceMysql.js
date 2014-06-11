@@ -47,6 +47,8 @@ function initSequelize(config) {
         host : config.host,
         port : config.port,
         pool : config.pool,
+        syncOnAssociation: false,
+        define : { syncOnAssociation: false },
         dialect : config.dialect || "mysql",
         logging : logger.debug,
         omitNull: true
