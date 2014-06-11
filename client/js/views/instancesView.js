@@ -64,7 +64,15 @@ function($, Backbone, _, Broadcast, InstancesCollection, FilterModel, instancesT
         renderInstances : function() {
             var data = {},
                 filtersJson = this.filters.toJSON(),
-                filteredSet = [];
+                filteredSet = [],
+                oldestInstance = null,
+                youngestInstance = null;
+
+            // determine oldest and youngest instance (e.g. first, last)
+            oldestInstance = _.min(this.instances.toJSON(), 
+                                   function(instance) { return new Date(instance.createdAt); });
+            youngestInstance = _.max(this.instances.toJSON(), 
+                                     function(instance) { return new Date(instance.createdAt); });
 
             if (_.keys(filtersJson).length > 0) {
                 _.each(this.instances.toJSON(), function(instance) {
@@ -89,6 +97,8 @@ function($, Backbone, _, Broadcast, InstancesCollection, FilterModel, instancesT
             // Handlebars doesn't consider '{}' to be falsy with #if
             _.each(filteredSet, function(instance) {
                 instance.hasMetadata = !_.isEmpty(instance.metadata);
+                instance.isOldest = (instance.ip === oldestInstance.ip);
+                instance.isYoungest = (instance.ip === youngestInstance.ip);
             });
 
             data.instances = filteredSet;
