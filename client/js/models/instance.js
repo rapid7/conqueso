@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-define(["backbone", "underscore"], function(Backbone){
+define(["backbone"], function(Backbone){
     return Backbone.Model.extend({
         urlRoot: function() {
             return "api/roles/" + this.get("role") + "/instances";

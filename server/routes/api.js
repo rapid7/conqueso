@@ -26,6 +26,11 @@ module.exports = function(express, app, persist) {
         return req.headers["x-forwarded-for"] || req.connection.remoteAddress;
     }
 
+    // Get info about conqueso
+    app.get("/api/info", function(req, res) {
+        res.json(require("../../package.json"));
+    });
+
     // Get roles
     app.get("/api/roles", function(req, res) {
         persist.getRoles(function(roles) {

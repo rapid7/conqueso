@@ -1,0 +1,28 @@
+<div class="modal-dialog">
+    <div class="modal-content">
+
+        <div class="modal-header">
+            <h4 class="modal-title">Conqueso v{{version}}
+            <div class="pull-right">
+                <a href="{{repository.url}}">{{repository.url}}</a>
+            </div>
+            </h4>
+        </div>
+      
+        <div class="modal-body">
+            <table class="table">
+            {{#each dependencies}}
+                <tr>
+                    <td>{{@key}}</td>
+                    <td>{{this}}</td>
+                </tr>
+            {{/each}}
+            </table>
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        </div>
+
+    </div>
+</div>
