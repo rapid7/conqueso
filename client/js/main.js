@@ -36,13 +36,31 @@
     });
 }());
 
-require(["jquery", "backbone", "routers/router", "views/rolesListView", "./helpers"],
-         function($, Backbone, Router, RolesListView) {
+require(["jquery", "backbone", "routers/router", "views/rolesListView", 
+         "models/serverInfo", "views/serverInfoView", "./helpers"],
+         function($, Backbone, Router, RolesListView, ServerInfo, ServerInfoView) {
     
     $(document).ready(function(){
+        var self = this;
+
         // Load roles
         this.rolesListView = new RolesListView();
         this.rolesListView.render();
+
+        // Show server info
+        this.serverInfo = new ServerInfo();
+        this.serverInfoView = new ServerInfoView({
+            model : this.serverInfo
+        });
+        this.serverInfo.fetch({
+            success : function(model) {
+                $(".conqueso-version")
+                    .html("v" + model.get("version"))
+                    .click(function() {
+                        self.serverInfoView.render();
+                    });
+            }
+        });
 
         this.router = new Router();
     });

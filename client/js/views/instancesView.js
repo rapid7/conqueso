@@ -103,7 +103,7 @@ function($, Backbone, _, Broadcast, InstancesCollection, FilterModel, instancesT
                 instance.isYoungest = oldestInstance !== null && (instance.ip === youngestInstance.ip);
             });
 
-            data.instances = filteredSet;
+            data.instances = _.sortBy(filteredSet, "createdAt");
             data.role = this.roleName;
             data.showing = filteredSet.length;
             data.total = this.total;

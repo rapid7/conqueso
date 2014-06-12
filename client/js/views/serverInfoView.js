@@ -14,17 +14,19 @@
 * limitations under the License.
 */
 
-define(["backbone"], function(Backbone){
-    return Backbone.Model.extend({
-        urlRoot: "api/roles/",
+define(["jquery", "backbone", "bootstrap",
+        "hbars!templates/serverInfo.template"],
+function($, Backbone, Bootstrap, serverInfoTemplate) {
+    
+    return Backbone.View.extend({
+        el : "#modal",
 
-        idAttribute : "name",
+        initialize: function(options) {
+            this.model = options.model;
+        },
 
-        getProperties : function(callback) {
-            this.fetch({
-                url : this.urlRoot + this.id + "/properties-web",
-                success : callback
-            });
+        render: function() {
+            this.$el.html(serverInfoTemplate(this.model.toJSON())).modal("show");
         }
     });
 });
