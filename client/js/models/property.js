@@ -67,16 +67,16 @@ define(["jquery", "backbone", "underscore"], function($, Backbone, _){
             var defaults = {
                 type: "POST",
                 data: this.toJSON(),
-                url: this.url()+"/globalize"
+                url: this.url() + "/globalize"
             };
             return $.ajax(_.extend(defaults, ajaxParams));
         },
 
         /* jshint maxcomplexity:false */
         validate: function(attributes) {
-            var name        = attributes.name,
-                type        = attributes.type,
-                value       = attributes.value;
+            var name = attributes.name,
+                type = attributes.type,
+                value = attributes.value;
 
             if (!name || !isValidName(name)) {
                 return "Must have a name";
@@ -86,14 +86,14 @@ define(["jquery", "backbone", "underscore"], function($, Backbone, _){
                 return "Must select type";
             }
 
-            if (_.isUndefined(value) || _.isEmpty(value)) {
-                return "Must have a value";
+            // Allow empty values
+            if (_.isEmpty(value)) {
+                return;
             }
 
             switch (type) {
                 case "STRING":
                 case "BOOLEAN":
-                    // Value just has to be not empty
                     break;
                 case "DOUBLE":
                 case "FLOAT":
@@ -109,7 +109,6 @@ define(["jquery", "backbone", "underscore"], function($, Backbone, _){
                     break;
                 case "STRING_LIST":
                 case "STRING_SET":
-                    // Value just has to be not empty
                     return;
                 case "STRING_MAP":
                     if (!isValidMap(value)) {
