@@ -64,7 +64,7 @@ function initSequelize(config) {
  **/
 function createDatabase(config) {
     var connection = require("mysql").createConnection(config);
-    connection.query("CREATE DATABASE IF NOT EXISTS "+config.databaseName+";", function(err) {
+    connection.query("CREATE DATABASE IF NOT EXISTS " + config.databaseName + ";", function(err) {
         if (err) {
             logger.error("Failed to connect to database.", err);
         } else {
@@ -103,7 +103,7 @@ function migrate(done) {
  * @param {Function}[callback] callback function
  **/
 function connect(config, callback) {
-    if (config.databaseName && process.env.isMaster) {
+    if (config.databaseName) {
         createDatabase(config);
         initSequelize(config);
         migrate(callback);
@@ -222,7 +222,7 @@ function findRoleByName(roleName, callback) {
  * @param {Object} callback.role The role object
  **/
 function findOrCreateRole(roleName, callback) {
-    Role.findOrCreate({ name : roleName }).success(callback);
+    Role.findOrCreate({ where: { name : roleName }}).spread(callback);
 }
 
 /**
@@ -544,7 +544,7 @@ PersistenceServiceMysql.prototype.updateProperty = function(roleName, property, 
 /* @Override */
 PersistenceServiceMysql.prototype.createProperties = function(roleName, properties, callback) {
     findOrCreateRole(roleName, function() {
-        sequelize.transaction(function(t) {
+        sequelize.transaction().then(function(t) {
             getGlobalProperties({transaction : t},function(globalProperties) {
                 getPropertiesForRole(roleName, {transaction : t}, function(role, existingProps) {
                     properties = DataUtils.getNewProperties(globalProperties.concat(existingProps), properties);
@@ -584,7 +584,7 @@ PersistenceServiceMysql.prototype.instanceCheckIn = function(roleName, ipAddress
             return;
         }
         
-        sequelize.transaction(function(t) {
+        sequelize.transaction().then(function(t) {
             // Bumps the UpdatedAt column
             instance.updateAttributes(updateObj, {transaction: t}).success(function(instance) {
                 if (instance.options.isNewRecord && metadata) {
@@ -612,30 +612,33 @@ PersistenceServiceMysql.prototype.instanceCheckIn = function(roleName, ipAddress
 PersistenceServiceMysql.prototype.markInstancesOffline = function() {
     logger.debug("Checking for instances that have not checked in recently.");
     
-    sequelize.transaction(function(t) {
-        Instance.findAll({ where : {offline : false}, transaction : t }).success(function(instances) {
-            var ids = [];
+    sequelize.transaction().then(function(t) {
 
-            logger.debug("Found %s online instances.", instances.length);
-            
-            instances = _.filter(instances, function(instance) {
-                var timeSinceUpdate = new Date() - instance.dataValues.updatedAt;
-                return timeSinceUpdate > instance.dataValues.pollInterval * 2;
+        Instance.findAll({ where : {offline : false}, transaction : t })
+            .success(function(instances) {
+                var ids = [];
+
+                logger.debug("Found %s online instances.", instances.length);
+                
+                instances = _.filter(instances, function(instance) {
+                    var timeSinceUpdate = new Date() - instance.dataValues.updatedAt;
+                    return timeSinceUpdate > instance.dataValues.pollInterval * 2;
+                });
+
+                ids = _.pluck(_.pluck(instances, "dataValues"), "id");
+
+                if (instances && instances.length > 0) {
+                    Instance.update({offline : true}, { id : ids}, {transaction : t}).success(function() {
+                        t.commit().success(Function);
+                    }).error(function(err) {
+                        logger.error(err);
+                        t.commit().rollback(Function);
+                    });
+                } else  {
+                    t.commit().success(Function);
+                }
             });
 
-            ids = _.pluck(_.pluck(instances, "dataValues"), "id");
-
-            if (instances && instances.length > 0) {
-                Instance.update({offline : true}, { id : ids}, {transaction : t}).success(function() {
-                    t.commit().success(Function);
-                }).error(function(err) {
-                    logger.error(err);
-                    t.commit().rollback(Function);
-                });
-            } else  {
-                t.commit().success(Function);
-            }
-        });
     });
 };
 

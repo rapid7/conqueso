@@ -14,17 +14,21 @@
 * limitations under the License.
 */
 
-define(["jquery", "underscore", "backbone", "bootstrap", "../broadcast",
-        "../models/property",
-        "hbars!templates/propertyEditor.template",
-        "hbars!templates/propertyTypes.template",
-        "hbars!templates/newProperty.template",
-        "hbars!templates/editProperty.template"],
-function($, _, Backbone, Bootstrap, Broadcast, Property, editorTemplate, propertyTypes,
-         newPropertyTemplate, editPropertyTemplate) {
-    
+define(function(require) {
     var _singleton,
-        PropertyEditor = Backbone.View.extend({
+        PropertyEditor,
+        Backbone = require("backbone"),
+        _ = require("underscore"),
+        Broadcast = require("../broadcast"),
+        Property = require("../models/property"),
+        editorTemplate = require("hbs!templates/propertyEditor"),
+        propertyTypes = require("hbs!templates/propertyTypes"),
+        newPropertyTemplate = require("hbs!templates/newProperty"),
+        editPropertyTemplate = require("hbs!templates/editProperty");
+
+    require("bootstrap");
+
+    PropertyEditor = Backbone.View.extend({
         el : "#modal",
 
         events : {
@@ -70,7 +74,7 @@ function($, _, Backbone, Bootstrap, Broadcast, Property, editorTemplate, propert
         },
 
         modelChange: function(event) {
-            var target = $(event.currentTarget);
+            var target = this.$(event.currentTarget);
             this.property.set(target.attr("name"), target.val());
             this.checkModelValidity();
         },
@@ -89,7 +93,7 @@ function($, _, Backbone, Bootstrap, Broadcast, Property, editorTemplate, propert
         },
 
         typeChange: function(event) {
-            var target = $(event.currentTarget).find("input");
+            var target = this.$(event.currentTarget).find("input");
             this.$(".property-type").hide();
             this.$(".property-type[data-type='"+target.val()+"']").show().change().keyup()
                 .find(":input").change().keyup();

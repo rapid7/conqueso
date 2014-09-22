@@ -14,10 +14,14 @@
 * limitations under the License.
 */
 
-define(["jquery", "underscore", "backbone", "../broadcast", "../models/role", "../collections/roles",
-        "hbars!templates/roleList.template"],
-function($, _, Backbone, Broadcast, Role, RolesCollection, listTemplate) {
-    
+define(function(require) {
+    var Backbone = require("backbone"),
+        _ = require("underscore"),
+        Broadcast = require("../broadcast"),
+        Role = require("../models/role"),
+        RolesCollection = require("../collections/roles"),
+        listTemplate = require("hbs!templates/roleList");
+
     return Backbone.View.extend({
         el : "#role-list",
 
@@ -80,7 +84,7 @@ function($, _, Backbone, Broadcast, Role, RolesCollection, listTemplate) {
         },
 
         roleClick: function(event) {
-            this.roleChangeByElement($(event.currentTarget));
+            this.roleChangeByElement(this.$(event.currentTarget));
         }
     });
 });

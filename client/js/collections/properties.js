@@ -14,7 +14,10 @@
 * limitations under the License.
 */
 
-define(["jquery", "backbone", "../models/property"], function($, Backbone, PropertyModel) {
+define(function(require) {
+    var Backbone = require("backbone"),
+        PropertyModel = require("../models/property");
+
     return Backbone.Collection.extend({
         model: PropertyModel,
 

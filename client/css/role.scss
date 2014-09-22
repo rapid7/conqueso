@@ -24,13 +24,22 @@
     }
 }
 
-.role-item.active {
-    background-color: $main-color-hover;
-}
+.role-item {
+    border-color: #ddd !important;
 
-.role-item:hover {
-    cursor: pointer;
-    background-color: $main-color-hover;
+    a {
+        text-decoration: none;
+        color: #000;
+    }
+
+    &.active {
+        background-color: $main-color-hover !important;
+    }
+
+    &:hover {
+        cursor: pointer;
+        background-color: $main-color-hover;
+    }
 }
 
 .total {

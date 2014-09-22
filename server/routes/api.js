@@ -14,13 +14,22 @@
 * limitations under the License.
 */
 
+/* jshint maxstatements:false */
 module.exports = function(express, app, persist) {
     var trycatch = require("trycatch"),
+        bodyParser = require("body-parser"),
         utils = require("../utils"),
         logger = require("../logger");
 
-    app.use(express.json());
-    app.use(express.urlencoded());
+    app.use(bodyParser.json());
+    app.use(bodyParser.urlencoded({ extended: true }));
+
+    function defaultContentTypeMiddleware(req, res, next) {
+        req.headers["content-type"] = req.headers["content-type"] || "application/json";
+        next();
+    }
+
+    app.use(defaultContentTypeMiddleware);
 
     function getRemoteIp(req) {
         return req.headers["x-forwarded-for"] || req.connection.remoteAddress;
@@ -52,7 +61,7 @@ module.exports = function(express, app, persist) {
                 res.json(propsDto);
             });
         }, function() {
-            res.send(500, "Failed to fetch property");
+            res.status(500).send("Failed to fetch property");
         });
     });
 
@@ -63,7 +72,7 @@ module.exports = function(express, app, persist) {
                 res.json(property);
             });
         }, function() {
-            res.send(500, "Failed to update property");
+            res.status(500).send("Failed to update property");
         });
     });
 
@@ -74,7 +83,7 @@ module.exports = function(express, app, persist) {
                 res.json({});
             });
         }, function(err) {
-            res.send(500, "Failed to make property global");
+            res.status(500).send("Failed to make property global");
             logger.error(err.stack);
         });
     });
@@ -132,7 +141,7 @@ module.exports = function(express, app, persist) {
                 res.json(property);
             });
         }, function(err) {
-            res.send(500, "Failed to create property");
+            res.status(500).send("Failed to create property");
             logger.error(err.stack);
         });
     });
@@ -149,7 +158,7 @@ module.exports = function(express, app, persist) {
                 });
             });
         }, function(err) {
-            res.send(500, "Failed to create properties");
+            res.status(500).send("Failed to create properties");
             logger.error(err.stack);
         });
     });

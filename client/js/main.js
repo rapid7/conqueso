@@ -19,28 +19,34 @@
 
     require.config({
         paths: {
+            "backbone"         : VENDOR_LIB + "backbone/backbone",
             "jquery"           : VENDOR_LIB + "jquery/dist/jquery.min",
             "bootstrap"        : VENDOR_LIB + "bootstrap/dist/js/bootstrap.min",
-            "handlebars"       : VENDOR_LIB + "handlebars/handlebars.min",
-            "text"             : VENDOR_LIB + "requirejs-text/text",
-            "hbars"            : VENDOR_LIB + "requirejs-handlebars/hb",
-            "backbone"         : VENDOR_LIB + "backbone/backbone",
+            "hbs"              : VENDOR_LIB + "require-handlebars-plugin/hbs",
             "underscore"       : VENDOR_LIB + "lodash/dist/lodash.underscore.min",
-            "moment"           : VENDOR_LIB + "moment/min/moment.min"
+            "moment"           : VENDOR_LIB + "moment/min/moment.min",
+
+            "templates" : "../templates"
+        },
+
+        hbs: {
+            templateExtension: "template",
         },
 
         shim: {
-            bootstrap : ["jquery"],
-            handlebars : { exports : "Handlebars" }
+            bootstrap : ["jquery"]
         }
     });
 }());
 
-require(["jquery", "backbone", "routers/router", "views/rolesListView", 
-         "models/serverInfo", "views/serverInfoView", "./helpers"],
-         function($, Backbone, Router, RolesListView, ServerInfo, ServerInfoView) {
-    
-    $(document).ready(function(){
+define(function(require) {
+    var $ = require("jquery"),
+        Router = require("routers/router"),
+        RolesListView = require("views/rolesListView"),
+        ServerInfo = require("models/serverInfo"),
+        ServerInfoView = require("views/serverInfoView");
+
+    $(function() {
         var self = this;
 
         // Load roles
@@ -52,14 +58,13 @@ require(["jquery", "backbone", "routers/router", "views/rolesListView",
         this.serverInfoView = new ServerInfoView({
             model : this.serverInfo
         });
-        this.serverInfo.fetch({
-            success : function(model) {
-                $(".conqueso-version")
-                    .html("v" + model.get("version"))
-                    .click(function() {
-                        self.serverInfoView.render();
-                    });
-            }
+
+        this.serverInfo.fetch().done(function(model) {
+            $(".conqueso-version")
+                .html("v" + model.version)
+                .click(function() {
+                    self.serverInfoView.render();
+                });
         });
 
         this.router = new Router();

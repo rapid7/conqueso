@@ -14,12 +14,17 @@
 * limitations under the License.
 */
 
-define(["jquery", "backbone", "underscore", "../broadcast", "../models/role", "../collections/properties",
-        "./deletePropertyView", "./propertyEditorView", "./makeGlobalView",
-        "hbars!templates/properties.template"],
-function($, Backbone, _, Broadcast, RoleModel, PropertiesCollection,
-         DeletePropertyView, PropertyEditorView, MakeGlobalView, mainTemplate) {
-    
+define(function(require) {
+    var Backbone = require("backbone"),
+        _ = require("underscore"),
+        Broadcast = require("../broadcast"),
+        RoleModel = require("../models/role"),
+        PropertiesCollection = require("../collections/properties"),
+        DeletePropertyView = require("./deletePropertyView"),
+        PropertyEditorView = require("./propertyEditorView"),
+        MakeGlobalView = require("./makeGlobalView"),
+        mainTemplate = require("hbs!templates/properties");
+
     return Backbone.View.extend({
         el : "#main-content",
 
@@ -55,7 +60,7 @@ function($, Backbone, _, Broadcast, RoleModel, PropertiesCollection,
         },
 
         toggleRemove: function(event, showHide) {
-            $(event.currentTarget).find(".controls").toggle(showHide);
+            this.$(event.currentTarget).find(".controls").toggle(showHide);
         },
 
         mouseOutPropertyRow: function(event) {
