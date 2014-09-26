@@ -509,17 +509,18 @@ PersistenceServiceMysql.prototype.createProperty = function(roleName, property, 
             callback(new Error("Property already exists"));
         } else {
             findOrCreateRole(roleName, function(role) {
-                Property.create({
+                var newProp = Property.build({
                     name : property.name,
                     type : PropertyType.get(property.type).key,
                     value : property.value,
                     description : property.description
-                }).success(function(property) {
-                    role.addProperty(property).success(function(property) {
-                        logger.info("Created property.", {property: property.dataValues}, {role: roleName});
-                        callback(null, DataUtils.toJSON(property));
-                    });
                 });
+
+                role.addProperty(newProp).success(function(property) {
+                    logger.info("Created property.", {property: property.dataValues}, {role: roleName});
+                    callback(null, DataUtils.toJSON(property));
+                });
+
             });
         }
     });
@@ -531,9 +532,9 @@ PersistenceServiceMysql.prototype.updateProperty = function(roleName, property, 
         var prop;
         if (properties) {
             prop = properties[0];
-            prop.updateAttributes({ value : property.value, description : property.description }).success(function(property) {
+            prop.updateAttributes({value : property.value, description : property.description}).success(function(updatedProperty) {
                 logger.info("Updated property.", {property: property, role: roleName});
-                callback(DataUtils.toJSON(property));
+                callback(DataUtils.toJSON(updatedProperty));
             });
         } else {
             callback({});
@@ -556,11 +557,12 @@ PersistenceServiceMysql.prototype.createProperties = function(roleName, properti
 
                     Property.bulkCreate(properties, {transaction: t}).success(function(props) {
                         logger.info("Created properties for role.", {role : role.dataValues.name, properties:properties});
-                        t.commit().success(Function);
-                        callback(DataUtils.toJSON(props));
+                        t.commit().success(function() {
+                            callback(DataUtils.toJSON(props));
+                        });
                     }).error(function(err) {
                         logger.error(err);
-                        t.rollback().success(Function);
+                        t.rollback();
                     });
                 });
             });
@@ -591,16 +593,17 @@ PersistenceServiceMysql.prototype.instanceCheckIn = function(roleName, ipAddress
                     InstanceMetadata.bulkCreate(DataUtils.convertMetadata(metadata, instance), {transaction: t}).success(function() {
                         t.commit().success(function() {
                             logger.info("Created metadata for instance.", {instance: ipAddress, metadata: metadata});
+                            callback(instance);
                         });
-                        callback(instance);
                     });
                 } else {
-                    t.commit().success(Function);
-                    logger.debug("Instance checking in.", {instance : ipAddress, role: roleName});
-                    callback(instance);
+                    t.commit().success(function() {
+                        logger.debug("Instance checking in.", {instance : ipAddress, role: roleName});
+                        callback(instance);                        
+                    });
                 }
             }).error(function(err) {
-                t.commit().rollback(function() {
+                t.rollback().success(function() {
                     logger.error(err);
                 });
             });
@@ -628,15 +631,18 @@ PersistenceServiceMysql.prototype.markInstancesOffline = function() {
                 ids = _.pluck(_.pluck(instances, "dataValues"), "id");
 
                 if (instances && instances.length > 0) {
-                    Instance.update({offline : true}, { id : ids}, {transaction : t}).success(function() {
-                        t.commit().success(Function);
+                    Instance.update({offline : true}, {where : {id : ids}, transaction : t}).success(function() {
+                        t.commit();
                     }).error(function(err) {
                         logger.error(err);
-                        t.commit().rollback(Function);
+                        t.rollback();
                     });
                 } else  {
-                    t.commit().success(Function);
+                    t.commit();
                 }
+            })
+            .error(function(err) {
+                logger.error("Failed to mark instances offline. " + err);
             });
 
     });
@@ -648,14 +654,14 @@ PersistenceServiceMysql.prototype.globalizeProperty = function(property, callbac
     
     this.getProperty(property.role, property.name, function(originalProperty) {
         Property.destroy({"name" : property.name}).success(function() {
-            Property.create({
+            var newProp = Property.build({
                 name : originalProperty.name,
                 type : PropertyType.get(originalProperty.type).key,
                 value : originalProperty.value
-            }).success(function(property) {
-                findOrCreateRole(Globals.GLOBAL_ROLE, function(role) {
-                    role.addProperty(property).success(callback);
-                });
+            });
+
+            findOrCreateRole(Globals.GLOBAL_ROLE, function(role) {
+                role.addProperty(newProp).success(callback);
             });
         });
     });

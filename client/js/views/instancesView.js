@@ -109,7 +109,6 @@ define(function(require) {
             data.showing = filteredSet.length;
             data.total = this.total;
 
-            console.log(data);
             this.$el.html(instancesTemplate(data));
         },
 

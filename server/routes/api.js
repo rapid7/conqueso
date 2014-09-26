@@ -97,7 +97,7 @@ module.exports = function(express, app, persist) {
     }
 
     function sendPlainText(res, properties) {
-        res.header("Content-Type", "text/plain charset=UTF-8");
+        res.set("Content-Type", "text/plain; charset=UTF-8");
         res.send(properties);
     }
 
