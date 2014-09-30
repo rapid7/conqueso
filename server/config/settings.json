@@ -1,7 +1,7 @@
 {
     "http": {
         "port": 8080,
-        "enableClustering" : true,
+        "enableClustering" : false,
         "clusterCountOverride" : null
     },
     "db" : {
