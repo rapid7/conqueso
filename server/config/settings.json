@@ -1,12 +1,6 @@
 {
     "http": {
-<<<<<<< HEAD
-        "port": 8080,
-        "enableClustering" : false,
-        "clusterCountOverride" : null
-=======
         "port": 8080
->>>>>>> pr/76
     },
     "db" : {
         "type" : "MYSQL",
