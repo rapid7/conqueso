@@ -31,15 +31,6 @@ module.exports = {
         return nconf.get("http:port");
     },
 
-    isClusteringEnabled: function() {
-        var setting = nconf.get("http:enableClustering");
-        return setting === true || setting === "true";
-    },
-
-    getClusterCount: function() {
-        return parseInt(nconf.get("http:clusterCountOverride"), 10);
-    },
-
     getPersistType: function() {
         return nconf.get("db:type");
     },

@@ -14,14 +14,15 @@
 * limitations under the License.
 */
 
-define(["jquery", "backbone", "underscore", "../broadcast",
-        "../collections/instances",
-        "../models/filter",
-        "hbars!templates/instances.template",
-        "hbars!templates/instanceFiltering.template"],
-function($, Backbone, _, Broadcast, InstancesCollection, FilterModel, instancesTemplate,
-    instanceFilterTemplate) {
-    
+define(function(require) {
+    var Backbone = require("backbone"),
+        _ = require("underscore"),
+        Broadcast = require("../broadcast"),
+        InstancesCollection = require("../collections/instances"),
+        FilterModel = require("../models/filter"),
+        instancesTemplate = require("hbs!templates/instances"),
+        instanceFilterTemplate = require("hbs!templates/instanceFiltering");
+
     return Backbone.View.extend({
         el : "#main-content",
 
@@ -38,7 +39,7 @@ function($, Backbone, _, Broadcast, InstancesCollection, FilterModel, instancesT
         },
 
         filterByMetadata: function(event) {
-            var target = $(event.currentTarget);
+            var target = this.$(event.currentTarget);
             this.filters.set(target.data("key"), target.text());
         },
 
@@ -58,7 +59,7 @@ function($, Backbone, _, Broadcast, InstancesCollection, FilterModel, instancesT
         },
 
         removeFilter: function(event) {
-            this.filters.unset($(event.currentTarget).data("key"));
+            this.filters.unset(this.$(event.currentTarget).data("key"));
         },
 
         renderInstances : function() {
@@ -108,7 +109,6 @@ function($, Backbone, _, Broadcast, InstancesCollection, FilterModel, instancesT
             data.showing = filteredSet.length;
             data.total = this.total;
 
-            console.log(data);
             this.$el.html(instancesTemplate(data));
         },
 

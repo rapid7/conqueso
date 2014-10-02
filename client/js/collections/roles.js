@@ -14,8 +14,11 @@
 * limitations under the License.
 */
 
-define(["jquery", "underscore", "backbone", "../models/role", "../broadcast"],
-        function($, _, Backbone, RoleModel, Broadcast) {
+define(function(require) {
+    var Backbone = require("backbone"),
+        _ = require("underscore"),
+        RoleModel = require("../models/role"),
+        Broadcast = require("../broadcast");
 
     return Backbone.Collection.extend({
         model: RoleModel,

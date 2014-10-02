@@ -14,7 +14,10 @@
 * limitations under the License.
 */
 
-define(["jquery", "backbone", "../models/instance"], function($, Backbone, InstanceModel) {
+define(function(require) {
+    var Backbone = require("backbone"),
+        InstanceModel = require("../models/instance");
+
     return Backbone.Collection.extend({
         model: InstanceModel,
 

@@ -14,10 +14,12 @@
 * limitations under the License.
 */
 
-define(["jquery", "backbone", "bootstrap",
-        "hbars!templates/serverInfo.template"],
-function($, Backbone, Bootstrap, serverInfoTemplate) {
-    
+define(function(require) {
+    var Backbone = require("backbone"),
+        serverInfoTemplate = require("hbs!templates/serverInfo");
+
+    require("bootstrap");
+
     return Backbone.View.extend({
         el : "#modal",
 

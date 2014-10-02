@@ -47,8 +47,6 @@ function initSequelize(config) {
         host : config.host,
         port : config.port,
         pool : config.pool,
-        syncOnAssociation: false,
-        define : { syncOnAssociation: false },
         dialect : config.dialect || "mysql",
         logging : logger.debug,
         omitNull: true
@@ -64,7 +62,7 @@ function initSequelize(config) {
  **/
 function createDatabase(config) {
     var connection = require("mysql").createConnection(config);
-    connection.query("CREATE DATABASE IF NOT EXISTS "+config.databaseName+";", function(err) {
+    connection.query("CREATE DATABASE IF NOT EXISTS " + config.databaseName + ";", function(err) {
         if (err) {
             logger.error("Failed to connect to database.", err);
         } else {
@@ -103,7 +101,7 @@ function migrate(done) {
  * @param {Function}[callback] callback function
  **/
 function connect(config, callback) {
-    if (config.databaseName && process.env.isMaster) {
+    if (config.databaseName) {
         createDatabase(config);
         initSequelize(config);
         migrate(callback);
@@ -222,7 +220,7 @@ function findRoleByName(roleName, callback) {
  * @param {Object} callback.role The role object
  **/
 function findOrCreateRole(roleName, callback) {
-    Role.findOrCreate({ name : roleName }).success(callback);
+    Role.findOrCreate({ where: { name : roleName }}).spread(callback);
 }
 
 /**
@@ -279,11 +277,9 @@ function getPropertiesForRole(role, filter, callback) {
  * @param {Object} callback.instance Newly created instance
  **/
 function createInstanceForRole(role, ipAddress, callback) {
-    Instance.create({
+    role.addInstance(Instance.build({
         ip : ipAddress
-    }).success(function(instance) {
-        role.addInstance(instance).success(callback);
-    });
+    })).success(callback);
 }
 
 /**
@@ -414,6 +410,15 @@ function doesPropertyAlreadyExist(roleName, propertyName, callback) {
     });
 }
 
+function propertyDoesNotExist(role, property) {
+    return {msg : "Property '" + property + "' does not exist for '" + role + "'"};
+}
+
+// Expose sequelize object
+PersistenceServiceMysql.prototype.getSequelize = function() {
+    return sequelize;
+};
+
 /* @Override */
 PersistenceServiceMysql.prototype.getRoles = function(callback) {
     // Sequelize does not support counting associated tables in a subquery -- using raw query
@@ -457,7 +462,7 @@ PersistenceServiceMysql.prototype.getPropertiesForWeb = function(roleName, callb
 /* @Override */
 PersistenceServiceMysql.prototype.getProperty = function(roleName, propertyName, callback) {
     getPropertiesForRole(roleName, {where : {"name" : propertyName}}, function(role, properties) {
-        if (properties) {
+        if (properties && properties.length) {
             logger.debug("Retrieving property for role.", {role:roleName, property:propertyName});
             callback(properties[0].dataValues);
         } else {
@@ -493,10 +498,17 @@ PersistenceServiceMysql.prototype.deleteProperty = function(roleName, propertyNa
         role.getProperties({ where : { name : propertyName }}).success(function(properties) {
             if (properties && properties.length > 0) {
                 var prop = properties[0];
-                prop.destroy().success(function() {
-                    logger.info("Deleted property.", {property : propertyName, role: roleName});
-                    callback(DataUtils.toJSON(prop));
-                });
+                prop.destroy()
+                    .success(function() {
+                        logger.info("Deleted property.", {property : propertyName, role: roleName});
+                        callback(null, DataUtils.toJSON(prop));
+                    })
+                    .fail(function(err) {
+                        logger.error(err);
+                        callback({msg : err}, {});
+                    });
+            } else {
+                callback(propertyDoesNotExist(roleName, propertyName), {});
             }
         });
     });
@@ -508,18 +520,21 @@ PersistenceServiceMysql.prototype.createProperty = function(roleName, property, 
         if (alreadyExist) {
             callback(new Error("Property already exists"));
         } else {
+            console.log(property);
+
             findOrCreateRole(roleName, function(role) {
-                Property.create({
+                var newProp = Property.build({
                     name : property.name,
                     type : PropertyType.get(property.type).key,
                     value : property.value,
                     description : property.description
-                }).success(function(property) {
-                    role.addProperty(property).success(function(property) {
-                        logger.info("Created property.", {property: property.dataValues}, {role: roleName});
-                        callback(null, DataUtils.toJSON(property));
-                    });
                 });
+
+                role.addProperty(newProp).success(function(property) {
+                    logger.info("Created property.", {property: property.dataValues}, {role: roleName});
+                    callback(null, DataUtils.toJSON(property));
+                });
+
             });
         }
     });
@@ -529,14 +544,19 @@ PersistenceServiceMysql.prototype.createProperty = function(roleName, property, 
 PersistenceServiceMysql.prototype.updateProperty = function(roleName, property, callback) {
     getPropertiesForRole(roleName, {where : {"name" : property.name}}, function(role, properties) {
         var prop;
-        if (properties) {
+        if (properties && properties.length) {
             prop = properties[0];
-            prop.updateAttributes({ value : property.value, description : property.description }).success(function(property) {
-                logger.info("Updated property.", {property: property, role: roleName});
-                callback(DataUtils.toJSON(property));
-            });
+            prop.updateAttributes({value : property.value, description : property.description})
+                .success(function(updatedProperty) {
+                    logger.info("Updated property.", {property: property, role: roleName});
+                    callback(null, DataUtils.toJSON(updatedProperty));
+                })
+                .fail(function(err) {
+                    logger.error(err);
+                    callback({msg : err}, {});
+                });
         } else {
-            callback({});
+            callback(propertyDoesNotExist(roleName, property.name), {});
         }
     });
 };
@@ -544,7 +564,7 @@ PersistenceServiceMysql.prototype.updateProperty = function(roleName, property, 
 /* @Override */
 PersistenceServiceMysql.prototype.createProperties = function(roleName, properties, callback) {
     findOrCreateRole(roleName, function() {
-        sequelize.transaction(function(t) {
+        sequelize.transaction().then(function(t) {
             getGlobalProperties({transaction : t},function(globalProperties) {
                 getPropertiesForRole(roleName, {transaction : t}, function(role, existingProps) {
                     properties = DataUtils.getNewProperties(globalProperties.concat(existingProps), properties);
@@ -556,11 +576,12 @@ PersistenceServiceMysql.prototype.createProperties = function(roleName, properti
 
                     Property.bulkCreate(properties, {transaction: t}).success(function(props) {
                         logger.info("Created properties for role.", {role : role.dataValues.name, properties:properties});
-                        t.commit().success(Function);
-                        callback(DataUtils.toJSON(props));
+                        t.commit().success(function() {
+                            callback(DataUtils.toJSON(props));
+                        });
                     }).error(function(err) {
                         logger.error(err);
-                        t.rollback().success(Function);
+                        t.rollback();
                     });
                 });
             });
@@ -584,23 +605,24 @@ PersistenceServiceMysql.prototype.instanceCheckIn = function(roleName, ipAddress
             return;
         }
         
-        sequelize.transaction(function(t) {
+        sequelize.transaction().then(function(t) {
             // Bumps the UpdatedAt column
             instance.updateAttributes(updateObj, {transaction: t}).success(function(instance) {
                 if (instance.options.isNewRecord && metadata) {
                     InstanceMetadata.bulkCreate(DataUtils.convertMetadata(metadata, instance), {transaction: t}).success(function() {
                         t.commit().success(function() {
                             logger.info("Created metadata for instance.", {instance: ipAddress, metadata: metadata});
+                            callback(instance);
                         });
-                        callback(instance);
                     });
                 } else {
-                    t.commit().success(Function);
-                    logger.debug("Instance checking in.", {instance : ipAddress, role: roleName});
-                    callback(instance);
+                    t.commit().success(function() {
+                        logger.debug("Instance checking in.", {instance : ipAddress, role: roleName});
+                        callback(instance);                        
+                    });
                 }
             }).error(function(err) {
-                t.commit().rollback(function() {
+                t.rollback().success(function() {
                     logger.error(err);
                 });
             });
@@ -612,50 +634,65 @@ PersistenceServiceMysql.prototype.instanceCheckIn = function(roleName, ipAddress
 PersistenceServiceMysql.prototype.markInstancesOffline = function() {
     logger.debug("Checking for instances that have not checked in recently.");
     
-    sequelize.transaction(function(t) {
-        Instance.findAll({ where : {offline : false}, transaction : t }).success(function(instances) {
-            var ids = [];
+    sequelize.transaction().then(function(t) {
 
-            logger.debug("Found %s online instances.", instances.length);
-            
-            instances = _.filter(instances, function(instance) {
-                var timeSinceUpdate = new Date() - instance.dataValues.updatedAt;
-                return timeSinceUpdate > instance.dataValues.pollInterval * 2;
+        Instance.findAll({ where : {offline : false}}, {transaction : t })
+            .success(function(instances) {
+                var ids = [];
+
+                logger.debug("Found %s online instances.", instances.length);
+                
+                instances = _.filter(instances, function(instance) {
+                    var timeSinceUpdate = new Date() - instance.dataValues.updatedAt;
+                    return timeSinceUpdate > instance.dataValues.pollInterval * 2;
+                });
+
+                ids = _.pluck(_.pluck(instances, "dataValues"), "id");
+
+                if (instances && instances.length > 0) {
+                    Instance.update({offline : true}, {where : {id : ids}, transaction : t}).success(function() {
+                        t.commit();
+                    }).error(function(err) {
+                        logger.error(err);
+                        t.rollback();
+                    });
+                } else  {
+                    t.commit();
+                }
+            })
+            .error(function(err) {
+                logger.error("Failed to mark instances offline. " + err);
             });
 
-            ids = _.pluck(_.pluck(instances, "dataValues"), "id");
-
-            if (instances && instances.length > 0) {
-                Instance.update({offline : true}, { id : ids}, {transaction : t}).success(function() {
-                    t.commit().success(Function);
-                }).error(function(err) {
-                    logger.error(err);
-                    t.commit().rollback(Function);
-                });
-            } else  {
-                t.commit().success(Function);
-            }
-        });
     });
 };
 
 /* @Override */
-PersistenceServiceMysql.prototype.globalizeProperty = function(property, callback) {
-    logger.info("Making property global.", {property: property});
+PersistenceServiceMysql.prototype.globalizeProperty = function(role, propertyName, callback) {
+    logger.info("Making property global.", {property: propertyName});
     
-    this.getProperty(property.role, property.name, function(originalProperty) {
-        Property.destroy({"name" : property.name}).success(function() {
-            Property.create({
-                name : originalProperty.name,
-                type : PropertyType.get(originalProperty.type).key,
-                value : originalProperty.value
-            }).success(function(property) {
+    this.getProperty(role, propertyName, function(originalProperty) {
+        if (_.isEmpty(originalProperty)) {
+            callback({msg : "Failed to lookup property '" + propertyName + "'. Incorrect role?"});
+            return;
+        }
+
+        Property.destroy({where : {"name" : propertyName}})
+            .success(function() {
+                var newProp = Property.build({
+                    name : originalProperty.name,
+                    type : PropertyType.get(originalProperty.type).key,
+                    value : originalProperty.value
+                });
+
                 findOrCreateRole(Globals.GLOBAL_ROLE, function(role) {
-                    role.addProperty(property).success(callback);
+                    role.addProperty(newProp).success(callback);
                 });
             });
-        });
     });
 };
 
 module.exports = PersistenceServiceMysql;
+module.exports.getSequelize = function() {
+    return sequelize;
+};

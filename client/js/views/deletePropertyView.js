@@ -14,11 +14,14 @@
 * limitations under the License.
 */
 
-define(["jquery", "underscore", "backbone", "bootstrap",
-        "../models/property",
-        "hbars!templates/delete.template"],
-function($, _, Backbone, Bootstrap, Property, deleteTemplate) {
-    
+define(function(require) {
+    var Backbone = require("backbone"),
+        _ = require("underscore"),
+        Property = require("../models/property"),
+        deleteTemplate = require("hbs!templates/delete");
+
+    require("bootstrap");
+
     return Backbone.View.extend({
         el : "#modal",
 

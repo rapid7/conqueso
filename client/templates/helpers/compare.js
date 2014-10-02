@@ -1,8 +1,7 @@
-require(function(require) {
-    var Handlebars = require("hbs/handlebars"),
-        moment = require("moment");
+define(function(require) {
+    var Handlebars = require("hbs/handlebars");
 
-    Handlebars.registerHelper("compare", function(lvalue, rvalue, options) {
+    function compare(lvalue, rvalue, options) {
         var operator;
 
         if (arguments.length < 3) {
@@ -32,9 +31,9 @@ require(function(require) {
         } else {
             return options.inverse(this);
         }
-    });
+    }
 
-    Handlebars.registerHelper("formatDate", function(date) {
-        return moment(date).format("M/D/YY hh:mm:ss A");
-    });
+    Handlebars.registerHelper("compare", compare);
+
+    return compare;
 });

@@ -41,9 +41,9 @@ function loadJsonFile(file) {
     return data;
 }
 
-module.exports = function(persistence) {
+module.exports = function(persistence, defaultsFile) {
     var _ = require("lodash"),
-        loadFile = __dirname + "/config/defaults.json";
+        loadFile = defaultsFile || (__dirname + "/config/defaults.json");
 
     fs.exists(loadFile, function(exists) {
         if (exists) {

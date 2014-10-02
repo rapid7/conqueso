@@ -51,6 +51,7 @@ PersistenceInterface.prototype.createProperty = function(err, role, property, ca
  * @param {Object} property Tuple of property attributes (name, type, value)
  *
  * @param {Function}[callback] callback function
+ * @param {Object} callback.err
  * @param {Object} callback.property Updated property
  **/
 PersistenceInterface.prototype.updateProperty = function(role, property, callback) {};
@@ -75,9 +76,10 @@ PersistenceInterface.prototype.createProperties = function(role, properties, cal
  * @param {String} name Property name
  *
  * @param {Function}[callback] callback function
+ * @param {Object} callback.err
  * @param {Object} callback.property Deleted property
  **/
-PersistenceInterface.prototype.deleteProperty = function(role, name, callback) {};
+PersistenceInterface.prototype.deleteProperty = function(err, role, name, callback) {};
 
 /**
  * Get properties DTO for a role. This will not include global properties
@@ -172,11 +174,12 @@ PersistenceInterface.prototype.markInstsancesOffline = function() {};
  * of this role. If there are other roles with the same property name, they will be removed.
  * 
  * @method globalizeProperty
+ * @param {String} role Role name
  * @param {Object} property Property to globalize
  *
  * @param {Function}[callback] callback function
  * @param {Object} callback.property Newly creted global property
  **/
-PersistenceInterface.prototype.globalizeProperty = function(property, callback) {};
+PersistenceInterface.prototype.globalizeProperty = function(role, property, callback) {};
 
 module.exports = new PersistenceInterface();

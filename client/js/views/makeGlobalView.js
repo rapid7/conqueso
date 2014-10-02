@@ -14,11 +14,14 @@
 * limitations under the License.
 */
 
-define(["jquery", "underscore", "backbone", "bootstrap",
-        "../models/property",
-        "hbars!templates/makeGlobal.template"],
-function($, _, Backbone, Bootstrap, Property, makeGlobalTemplate) {
-    
+define(function(require) {
+    var Backbone = require("backbone"),
+        _ = require("underscore"),
+        Property = require("../models/property"),
+        makeGlobalTemplate = require("hbs!templates/makeGlobal");
+
+    require("bootstrap");
+
     return Backbone.View.extend({
         el : "#modal",
 

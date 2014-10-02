@@ -14,9 +14,13 @@
 * limitations under the License.
 */
 
-define(["backbone", "underscore", "../broadcast",
-        "../views/propertiesView", "../views/instancesView", "../views/propertyEditorView"],
-        function(Backbone, _, Broadcast, PropertiesView, InstancesView, PropertyEditorView) {
+define(function(require) {
+    var Backbone = require("backbone"),
+        _ = require("underscore"),
+        Broadcast = require("../broadcast"),
+        PropertiesView = require("../views/propertiesView"),
+        InstancesView = require("../views/instancesView"),
+        PropertyEditorView = require("../views/propertyEditorView");
 
     return Backbone.Router.extend({
         totalRoutes : 0,

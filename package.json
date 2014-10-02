@@ -1,6 +1,6 @@
 {
     "name" : "conqueso",
-    "version" : "0.3.10",
+    "version" : "0.4.0",
     "description" : "Conqueso is a web server that provides an interface for centrally managing dynamic properties across your services. Simply add a client library to your service then track and manage its configuration in Conqueso.",
     "repository": {
         "type": "git",
@@ -10,26 +10,28 @@
         "start": "node server/app"
     },
     "devDependencies" : {
-        "load-grunt-tasks"          : "0.5.0",
+        "load-grunt-tasks"          : "0.6.0",
         "grunt"                     : "0.4.5",
-        "grunt-exec"                : "0.4.5",
+        "grunt-exec"                : "0.4.6",
         "grunt-contrib-jshint"      : "0.10.0",
         "grunt-contrib-watch"       : "0.6.1",
-        "grunt-sass"                : "0.13.1",
+        "grunt-sass"                : "0.14.2",
         "node-bourbon"              : "1.2.3",
-        "grunt-contrib-compress"    : "0.9.1",
-        "grunt-contrib-clean"       : "0.5.0",
-        "grunt-mocha-test"          : "0.11.0",
-        "sqlite3"                   : "2.2.3"
+        "grunt-contrib-compress"    : "0.12.0",
+        "grunt-contrib-clean"       : "0.6.0",
+        "grunt-mocha-test"          : "0.12.1",
+        "grunt-version-check"       : "0.2.0",
+        "sqlite3"                   : "2.2.7"
     },
     "dependencies" : {
-        "express"       : "3.5.1",
+        "express"       : "4.9.5",
+        "body-parser"   : "1.9.0",
         "nconf"         : "0.6.9",
-        "mysql"         : "2.3.2",
+        "mysql"         : "2.5.1",
         "lodash"        : "2.4.1",
-        "sequelize"     : "v2.0.0-dev11",
+        "sequelize"     : "2.0.0-rc1",
         "enum"          : "0.2.6",
         "trycatch"      : "1.5.11",
-        "winston"       : "0.7.3"
+        "winston"       : "0.8.0"
     }
 }

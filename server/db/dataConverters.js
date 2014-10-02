@@ -209,7 +209,7 @@ module.exports = {
                 pollInterval: instance.pollInterval,
                 createdAt : instance.createdAt,
                 updatedAt : instance.updatedAt,
-                metadata : _.reduce(instance.metadata, function(result, data) {
+                metadata : _.reduce(instance.Metadata, function(result, data) {
                     result[data.attributeKey] = data.attributeValue;
                     return result;
                 }, {})

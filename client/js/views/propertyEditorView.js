@@ -14,17 +14,21 @@
 * limitations under the License.
 */
 
-define(["jquery", "underscore", "backbone", "bootstrap", "../broadcast",
-        "../models/property",
-        "hbars!templates/propertyEditor.template",
-        "hbars!templates/propertyTypes.template",
-        "hbars!templates/newProperty.template",
-        "hbars!templates/editProperty.template"],
-function($, _, Backbone, Bootstrap, Broadcast, Property, editorTemplate, propertyTypes,
-         newPropertyTemplate, editPropertyTemplate) {
-    
+define(function(require) {
     var _singleton,
-        PropertyEditor = Backbone.View.extend({
+        PropertyEditor,
+        Backbone = require("backbone"),
+        _ = require("underscore"),
+        Broadcast = require("../broadcast"),
+        Property = require("../models/property"),
+        editorTemplate = require("hbs!templates/propertyEditor"),
+        propertyTypes = require("hbs!templates/propertyTypes"),
+        newPropertyTemplate = require("hbs!templates/newProperty"),
+        editPropertyTemplate = require("hbs!templates/editProperty");
+
+    require("bootstrap");
+
+    PropertyEditor = Backbone.View.extend({
         el : "#modal",
 
         events : {
@@ -44,11 +48,12 @@ function($, _, Backbone, Bootstrap, Broadcast, Property, editorTemplate, propert
             
             if (this.editing) {
                 this.property = new Property({id : propertyName, name : propertyName, role : role});
-                this.property.fetch({success : _.bind(this.propertyFetchCallback, this)});
+                this.property.idAttribute = "name";
+                this.property.fetch({data : {json: true}, success : _.bind(this.propertyFetchCallback, this)});
             } else {
                 this.$(".modal-body").html(newPropertyTemplate());
                 this.$("#types").html(propertyTypes());
-                this.property = new Property({name : propertyName, role : role});
+                this.property = new Property({role : role});
             }
         },
 
@@ -57,11 +62,11 @@ function($, _, Backbone, Bootstrap, Broadcast, Property, editorTemplate, propert
 
             // Show appropriate input based on type
             this.$(".modal-body").html(editPropertyTemplate(property.toJSON()));
-            elem = this.$(".property-type[data-type='"+property.get("type")+"']").show();
+            elem = this.$(".property-type[data-type='" + property.get("type") + "']").show();
 
             // Boolean is a little bit different...
             if (property.get("type") === "BOOLEAN") {
-                this.$(":input[name='value'][value='"+property.get("value")+"']").click();
+                this.$(":input[name='value'][value='" + property.get("value") + "']").click();
             } else {
                 elem.find(":input").val(property.getExpandedInput());
             }
@@ -70,7 +75,7 @@ function($, _, Backbone, Bootstrap, Broadcast, Property, editorTemplate, propert
         },
 
         modelChange: function(event) {
-            var target = $(event.currentTarget);
+            var target = this.$(event.currentTarget);
             this.property.set(target.attr("name"), target.val());
             this.checkModelValidity();
         },
@@ -89,7 +94,7 @@ function($, _, Backbone, Bootstrap, Broadcast, Property, editorTemplate, propert
         },
 
         typeChange: function(event) {
-            var target = $(event.currentTarget).find("input");
+            var target = this.$(event.currentTarget).find("input");
             this.$(".property-type").hide();
             this.$(".property-type[data-type='"+target.val()+"']").show().change().keyup()
                 .find(":input").change().keyup();
