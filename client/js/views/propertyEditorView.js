@@ -48,6 +48,7 @@ define(function(require) {
             
             if (this.editing) {
                 this.property = new Property({id : propertyName, name : propertyName, role : role});
+                this.property.idAttribute = "name";
                 this.property.fetch({data : {json: true}, success : _.bind(this.propertyFetchCallback, this)});
             } else {
                 this.$(".modal-body").html(newPropertyTemplate());
@@ -61,11 +62,11 @@ define(function(require) {
 
             // Show appropriate input based on type
             this.$(".modal-body").html(editPropertyTemplate(property.toJSON()));
-            elem = this.$(".property-type[data-type='"+property.get("type")+"']").show();
+            elem = this.$(".property-type[data-type='" + property.get("type") + "']").show();
 
             // Boolean is a little bit different...
             if (property.get("type") === "BOOLEAN") {
-                this.$(":input[name='value'][value='"+property.get("value")+"']").click();
+                this.$(":input[name='value'][value='" + property.get("value") + "']").click();
             } else {
                 elem.find(":input").val(property.getExpandedInput());
             }
