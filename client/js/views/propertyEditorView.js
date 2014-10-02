@@ -48,11 +48,11 @@ define(function(require) {
             
             if (this.editing) {
                 this.property = new Property({id : propertyName, name : propertyName, role : role});
-                this.property.fetch({success : _.bind(this.propertyFetchCallback, this)});
+                this.property.fetch({data : {json: true}, success : _.bind(this.propertyFetchCallback, this)});
             } else {
                 this.$(".modal-body").html(newPropertyTemplate());
                 this.$("#types").html(propertyTypes());
-                this.property = new Property({name : propertyName, role : role});
+                this.property = new Property({role : role});
             }
         },
 

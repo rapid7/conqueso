@@ -87,8 +87,71 @@ conqueso.test-framework-server.ips=
 conqueso.web-interface-service.ips=
 ```
 
+###### GET ```/api/roles/:role/properties?json```
+Gets JSON properties for a role. This will not include global properties or special (conqueso.:role.ips) properties.
+```
+{
+    "name": "global",
+    "properties": [
+        {
+            "id": 18,
+            "name": "bourbon",
+            "value": "blantons,four roses,weller",
+            "type": "STRING_SET",
+            "description": "Mhm",
+            "createdAt": "2014-10-02T18:23:33.000Z",
+            "updatedAt": "2014-10-02T18:23:33.000Z",
+            "roleId": 1
+        },
+        {
+            "id": 17,
+            "name": "coffee",
+            "value": "true",
+            "type": "BOOLEAN",
+            "description": "sweet sweet coffee!",
+            "createdAt": "2014-10-02T18:20:38.000Z",
+            "updatedAt": "2014-10-02T20:09:15.000Z",
+            "roleId": 1
+        },
+        {
+            "id": 30,
+            "name": "rye",
+            "value": "false",
+            "type": "BOOLEAN",
+            "description": null,
+            "createdAt": "2014-10-02T18:38:06.000Z",
+            "updatedAt": "2014-10-02T20:09:18.000Z",
+            "roleId": 1
+        }
+    ]
+}
+```
+
 ###### GET ```/api/roles/:role/properties/:property```
-Get a specific property in plain/text.
+Get a specific property value in plain/text.
+
+```
+curl -X GET "http://localhost:8080/api/roles/global/properties/test"
+```
+
+###### GET ```/api/roles/:role/properties/:property?json```
+Get a specific property in JSON.
+
+###### PUT ```/api/roles/:role/properties/:property```
+###### PUT ```/api/roles/:role/properties/```
+Update an existing property
+
+```
+curl -X PUT "http://localhost:8080/api/roles/global/properties/test" -d "value=new_value"
+```
+
+If you use the version of this API without the property in the URL, then you must specify it as a data parameter:
+```
+curl -X PUT "http://localhost:8080/api/roles/global/properties" -d "name=test&value=new_value"
+```
+
+###### DELETE ```/api/roles/:role/properties/test```
+Delete a property.
 
 ###### GET ```/api/roles/:role/instances```
 Get all online instances with metadata for a role.

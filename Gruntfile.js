@@ -91,6 +91,12 @@
             clean: {
                 artifact : ["artifact", "templates"],
                 npm : ["node_modules"]
+            },
+
+            versioncheck : {
+                options : {
+                    bowerLocation : "client/bower.json"
+                }
             }
         });
 

@@ -47,40 +47,35 @@ module.exports = function(express, app, persist) {
         });
     });
 
-    // Get properties (for web interface)
-    app.get("/api/roles/:role/properties-web", function(req, res) {
-        persist.getPropertiesForWeb(req.params.role, function(propsDto) {
-            res.json(propsDto);
-        });
-    });
+    function updatePropertyHelper(req, res) {
+        var propertyObject = req.body;
 
-    // Get a specific property
-    app.get("/api/roles/:role/properties-web/:property", function(req, res) {
-        trycatch(function() {
-            persist.getProperty(req.params.role, req.params.property, function(propsDto) {
-                res.json(propsDto);
-            });
-        }, function() {
-            res.status(500).send("Failed to fetch property");
-        });
-    });
+        if (req.params.property) {
+            propertyObject.name = req.params.property;
+        }
 
-    // Update a specific property
-    app.put("/api/roles/:role/properties-web/:property", function(req, res) {
         trycatch(function() {
-            persist.updateProperty(req.params.role, req.body, function(property) {
+            persist.updateProperty(req.params.role, propertyObject, function(err, property) {
+                if (err) {
+                    res.json(err);
+                    return;
+                }
                 res.json(property);
             });
         }, function() {
             res.status(500).send("Failed to update property");
         });
-    });
+    }
+
+    // Update a specific property
+    app.put("/api/roles/:role/properties", updatePropertyHelper);
+    app.put("/api/roles/:role/properties/:property", updatePropertyHelper);
 
     // Makes a property global
-    app.post("/api/roles/:role/properties-web/:property/globalize", function(req, res) {
+    app.post("/api/roles/:role/properties/:property/globalize", function(req, res) {
         trycatch(function() {
-            persist.globalizeProperty(req.body, function() {
-                res.json({});
+            persist.globalizeProperty(req.params.role, req.params.property, function(result) {
+                res.json(result);
             });
         }, function(err) {
             res.status(500).send("Failed to make property global");
@@ -103,17 +98,38 @@ module.exports = function(express, app, persist) {
 
     // Get properties (for client libraries)
     app.get("/api/roles/:role/properties", function(req, res) {
-        getProperties(req, function(properties) {
-            sendPlainText(res, utils.propertiesToTextPlain(properties));
-        });
+        // JSON for normal people, but without global properties
+        if (req.query.hasOwnProperty("json")) {
+            persist.getPropertiesForWeb(req.params.role, function(propsDto) {
+                res.json(propsDto);
+            });
+        } else {
+            // For Archaius -- as text
+            getProperties(req, function(properties) {
+                sendPlainText(res, utils.propertiesToTextPlain(properties));
+            });
+        }
     });
 
-    // Get specific property
+    // Get a specific property
     app.get("/api/roles/:role/properties/:property", function(req, res) {
-        getProperties(req, function(properties) {
-            var filteredProperties = utils.filterProperties(properties, req.params.property),
-                prop = filteredProperties.length > 0 ? filteredProperties[0].value : "";
-            sendPlainText(res, prop);
+        trycatch(function() {
+
+            // For web client
+            if (req.query.hasOwnProperty("json")) {
+                persist.getProperty(req.params.role, req.params.property, function(propsDto) {
+                    res.json(propsDto);
+                });
+            } else {
+                getProperties(req, function(properties) {
+                    var filteredProperties = utils.filterProperties(properties, req.params.property),
+                        prop = filteredProperties.length > 0 ? filteredProperties[0].value : "";
+                    sendPlainText(res, prop);
+                });
+            }
+
+        }, function() {
+            res.status(500).send("Failed to fetch property");
         });
     });
 
@@ -131,32 +147,34 @@ module.exports = function(express, app, persist) {
         });
     });
 
-    // Create a property (for web interface)
-    app.post("/api/roles/:role/properties-web", function(req, res) {
-        trycatch(function() {
-            persist.createProperty(req.params.role, req.body, function(err, property) {
-                if (err) {
-                    res.json(418, {msg: "Property already exists"});
-                }
-                res.json(property);
-            });
-        }, function(err) {
-            res.status(500).send("Failed to create property");
-            logger.error(err.stack);
+    function createPropertiesFromWeb(req, res) {
+        persist.createProperty(req.params.role, req.body, function(err, property) {
+            if (err) {
+                res.status(418).json({msg: "Property already exists"});
+            }
+            res.json(property);
         });
-    });
+    }
+
+    function createPropertiesFromClient(req, res) {
+        var properties = req.body.properties || req.body,
+            metadata = req.body.instanceMetadata || {};
+
+        persist.instanceCheckIn(req.params.role, getRemoteIp(req), metadata, function() {
+            persist.createProperties(req.params.role, properties, function(properties) {
+                res.json(properties);
+            });
+        });
+    }
 
     // Create properties (from a client library)
     app.post("/api/roles/:role/properties", function(req, res) {
         trycatch(function() {
-            var properties = req.body.properties || req.body,
-                metadata = req.body.instanceMetadata || {};
-
-            persist.instanceCheckIn(req.params.role, getRemoteIp(req), metadata, function() {
-                persist.createProperties(req.params.role, properties, function(properties) {
-                    res.json(properties);
-                });
-            });
+            if (req.body.properties) {
+                createPropertiesFromClient(req, res);
+            } else {
+                createPropertiesFromWeb(req, res);
+            }
         }, function(err) {
             res.status(500).send("Failed to create properties");
             logger.error(err.stack);
@@ -164,8 +182,12 @@ module.exports = function(express, app, persist) {
     });
 
     // Delete a property
-    app.delete("/api/roles/:role/properties-web/:property", function(req, res) {
-        persist.deleteProperty(req.params.role, req.params.property, function(property) {
+    app.delete("/api/roles/:role/properties/:property", function(req, res) {
+        persist.deleteProperty(req.params.role, req.params.property, function(err, property) {
+            if (err) {
+                res.json(err);
+                return;
+            }
             res.json(property);
         });
     });

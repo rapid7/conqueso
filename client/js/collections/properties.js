@@ -29,7 +29,7 @@ define(function(require) {
         },
 
         url: function() {
-            return "api/roles/" + this.name + "/properties-web";
+            return "api/roles/" + this.name + "/properties";
         }
     });
 });

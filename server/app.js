@@ -39,4 +39,5 @@ var PersistenceService = require("./db/persistenceService"),
 
 require("./routes/web")(express, app);
 require("./routes/api")(express, app, persistenceService);
+require("./routes/oldApi")(express, app, persistenceService);
 require("./serviceTracker")(persistenceService);

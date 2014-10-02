@@ -4,7 +4,7 @@
         <div class="modal-header">
             <h4 class="modal-title">Conqueso v{{version}}
             <div class="pull-right">
-                <a href="{{repository.url}}">{{repository.url}}</a>
+                <a href="{{repository.url}}"><i class="fa fa-2x fa-github"></i></a>
             </div>
             </h4>
         </div>

@@ -19,9 +19,9 @@
         "node-bourbon"              : "1.2.3",
         "grunt-contrib-compress"    : "0.12.0",
         "grunt-contrib-clean"       : "0.6.0",
-        "grunt-mocha-test"          : "0.12.0",
-        "grunt-version-check"       : "0.1.1",
-        "sqlite3"                   : "3.0.0"
+        "grunt-mocha-test"          : "0.12.1",
+        "grunt-version-check"       : "0.2.0",
+        "sqlite3"                   : "2.2.7"
     },
     "dependencies" : {
         "express"       : "4.9.5",

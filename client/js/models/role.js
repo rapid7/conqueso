@@ -22,8 +22,9 @@ define(["backbone"], function(Backbone){
 
         getProperties : function(callback) {
             this.fetch({
-                url : this.urlRoot + this.id + "/properties-web",
-                success : callback
+                url : this.urlRoot + this.id + "/properties",
+                success : callback,
+                data : {json : true}
             });
         }
     });
