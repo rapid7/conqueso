@@ -1,6 +1,6 @@
 {
     "name" : "conqueso",
-    "version" : "0.4.0",
+    "version" : "0.4.1",
     "description" : "Conqueso is a web server that provides an interface for centrally managing dynamic properties across your services. Simply add a client library to your service then track and manage its configuration in Conqueso.",
     "repository": {
         "type": "git",

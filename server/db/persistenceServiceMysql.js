@@ -377,7 +377,7 @@ function getInstanceIps(callback) {
             var key = Globals.SPECIAL_PROPERTY_PREFIX + role.name + ".ips";
             results.push({
                 name  : key,
-                value : _.pluck(role.instances, "ip").join(",").replace(/'"/g, "")
+                value : _.pluck(role.Instances, "ip").join(",").replace(/'"/g, "")
             });
         });
 
@@ -520,8 +520,6 @@ PersistenceServiceMysql.prototype.createProperty = function(roleName, property, 
         if (alreadyExist) {
             callback(new Error("Property already exists"));
         } else {
-            console.log(property);
-
             findOrCreateRole(roleName, function(role) {
                 var newProp = Property.build({
                     name : property.name,
