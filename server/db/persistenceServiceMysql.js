@@ -351,7 +351,7 @@ function getRoles(callback) {
 
         // Sort instances by the created time
         _.map(roles, function(role) {
-            role.dataValues.instances = _.sortBy(role.dataValues.instances, "createdAt");
+            role.dataValues.Instances = _.sortBy(role.dataValues.Instances, "createdAt");
         });
 
         callback(DataUtils.toJSON(roles));
