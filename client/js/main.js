@@ -23,7 +23,7 @@
             "jquery"           : VENDOR_LIB + "jquery/dist/jquery.min",
             "bootstrap"        : VENDOR_LIB + "bootstrap/dist/js/bootstrap.min",
             "hbs"              : VENDOR_LIB + "require-handlebars-plugin/hbs",
-            "underscore"       : VENDOR_LIB + "lodash/dist/lodash.underscore.min",
+            "underscore"       : VENDOR_LIB + "lodash/lodash.min",
             "moment"           : VENDOR_LIB + "moment/min/moment.min",
 
             "templates" : "../templates"
