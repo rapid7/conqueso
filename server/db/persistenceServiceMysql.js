@@ -422,9 +422,10 @@ PersistenceServiceMysql.prototype.getSequelize = function() {
 /* @Override */
 PersistenceServiceMysql.prototype.getRoles = function(callback) {
     // Sequelize does not support counting associated tables in a subquery -- using raw query
-    sequelize.query("SELECT role.name, COUNT(*) AS instances FROM roles AS role, instances AS instances " +
-                    "WHERE role.id = instances.roleId AND role.name != ? AND offline = false GROUP BY role.name ORDER BY name ASC",
-                    null, {raw : true}, [Globals.GLOBAL_ROLE]).success(function(roles) {
+    sequelize.query("SELECT role.name, COUNT(instances.id) AS instances FROM roles AS role LEFT JOIN instances " + 
+                    "ON instances.roleId = role.id AND instances.offline = false WHERE role.name != ? " +
+                    "GROUP BY role.name ORDER BY role.name ASC;", null,
+                    { replacements: [Globals.GLOBAL_ROLE], type: sequelize.QueryTypes.SELECT }).success(function(roles) {
                         callback(roles);
                     });
 };
