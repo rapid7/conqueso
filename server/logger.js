@@ -16,7 +16,7 @@
 
 /**
  * Provides console and file logging
- * 
+ *
  * @module logger
  **/
 
@@ -44,9 +44,8 @@ _logger = new (winston.Logger)({
 			json: false,
 			handleExceptions: true
 		}),
-		new (winston.transports.DailyRotateFile)({
+		new (winston.transports.File)({
 			level : loggingLevel,
-			maxsize : 10485760, // 10 MB
 			filename: outputDir + "/" + outputFile,
 			json: false,
 			handleExceptions: true
