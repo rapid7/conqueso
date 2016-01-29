@@ -63,5 +63,9 @@ module.exports = {
 
     getLogOutputFile: function() {
         return nconf.get("logging:file");
+    },
+
+    getLogType: function() {
+      return nconf.get("logging:type");
     }
 };
