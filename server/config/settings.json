@@ -17,6 +17,7 @@
         "pollIntervalSecs" : 15
     },
     "logging" : {
+        "type"   : "file",
         "dir"    : "logs",
         "file"   : "server.log",
         "level"  : "info"

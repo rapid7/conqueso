@@ -34,6 +34,24 @@ fs.exists(outputDir, function(exists) {
 	}
 });
 
+var fileLoggingConfig = {
+	level : loggingLevel,
+	filename: outputDir + "/" + outputFile,
+	json: false,
+	handleExceptions: true
+};
+
+// To maintain backward compatibility users have to specify the new 'file'
+// logging type in settings.js. The default settings include it, but if
+// the user changes it or removes it, Conqueso will fall back to the
+//  DailyRotateFile transport.
+if (config.getLogType() === "file") {
+	var fileTransport = new (winston.transports.File)(fileLoggingConfig);
+} else {
+	fileLoggingConfig.maxsize = 10485760;
+	var fileTransport = new (winston.transports.DailyRotateFile)(fileLoggingConfig);
+}
+
 _logger = new (winston.Logger)({
 	levels : {error: 3, warn: 2, info: 1, debug: 0},
 	colors: winston.config.syslog.colors,
@@ -44,12 +62,7 @@ _logger = new (winston.Logger)({
 			json: false,
 			handleExceptions: true
 		}),
-		new (winston.transports.File)({
-			level : loggingLevel,
-			filename: outputDir + "/" + outputFile,
-			json: false,
-			handleExceptions: true
-		})
+		fileTransport
 	]
 });
 
