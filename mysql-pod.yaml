@@ -1,0 +1,52 @@
+apiVersion: v1
+
+kind: Pod
+
+metadata:
+
+name: "k8s-mysql"
+
+labels:
+
+name: "lbl-k8s-mysql"
+
+spec:
+
+containers:
+
+-
+
+image: mysql:latest
+
+name:  "mysql"
+
+env:
+
+-
+
+name: "MYSQL_ROOT_PASSWORD"
+
+value: "test"
+
+ports:
+
+-
+
+containerPort: 3306
+
+name:  "mysql"
+
+volumeMounts:
+
+-
+
+name: "k8s-mysql-storage"
+
+mountPath: "/var/lib/mysql"
+
+volumes:
+
+- name: "k8s-mysql-storage"
+
+emptyDir: {}
+

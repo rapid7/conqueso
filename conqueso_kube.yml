@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: conqueso-rc
+spec:
+  replicas: 1
+  selector:
+    app: conqueso
+  template:
+    metadata:
+      labels:
+        app: conqueso
+    spec:
+      containers:
+      - name: conqueso
+        image: conqueso:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+

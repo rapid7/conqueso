@@ -1,0 +1,30 @@
+version: '2'
+
+services:
+
+  conqueso:
+    image: conqueso:latest
+    depends_on:
+      - schema
+    networks:
+      - new
+    ports:
+      - "8000:8000"
+    environment:
+      AWS_PROFILE: awsaml-042293964381
+      AWS_DEFAULT_PROFILE: awsaml-042293964381
+
+
+  schema:
+    image: mysql:5.6.40
+    networks:
+      - new
+    environment:
+      MYSQL_USER: root
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3316:3306"
+
+
+networks:
+  new:
