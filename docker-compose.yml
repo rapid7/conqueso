@@ -11,8 +11,8 @@ services:
     ports:
       - "8000:8000"
     environment:
-      AWS_PROFILE: awsaml-042293964381
-      AWS_DEFAULT_PROFILE: awsaml-042293964381
+      AWS_PROFILE: 
+      AWS_DEFAULT_PROFILE: 
 
 
   schema:
