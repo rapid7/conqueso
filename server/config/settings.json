@@ -5,7 +5,7 @@
     "db" : {
         "type" : "MYSQL",
         "config" : {
-            "host"          : "localhost",
+            "host"          : "mysql",
             "port"          : "3306",
             "databaseName"  : "conqueso",
             "user"          : "root",

@@ -20,8 +20,7 @@
         "grunt-contrib-compress"    : "0.13.0",
         "grunt-contrib-clean"       : "0.6.0",
         "grunt-mocha-test"          : "0.12.7",
-        "grunt-version-check"       : "0.2.1",
-        "sqlite3"                   : "2.2.7"
+        "grunt-version-check"       : "0.2.1"
     },
     "dependencies" : {
         "express"       : "4.12.0",
