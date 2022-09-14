@@ -8,7 +8,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
     ports:
-      - 3306:3306
+      - "3306:3306"
 
   mysql_8:
     image: mysql:8.0
@@ -16,11 +16,11 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
     ports:
-      - 3307:3306
+      - "3307:3306"
     command: mysqld --sql_mode=""
 
   conqueso:
     build: .
     restart: always
     ports:
-      - 8080:8080
+      - "8080:8080"
