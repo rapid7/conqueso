@@ -268,28 +268,14 @@ sudo apt-get update
 sudo apt-get install nodejs
 ```
 
-#### Install Grunt and Bower
+#### Migration from Bower to Yarn
+
+Previous iterations used Bower as package manager but it has been discontinued, therefore Yarn has been implemented, using the following instructions.
+https://bower.io/blog/2017/how-to-migrate-away-from-bower/
+
+Go to the root of the directory and run:
 ```
-sudo npm install -g grunt-cli bower
+yarn install
 ```
 
-#### Install NPM dependencies
-```
-npm install
-```
-
-#### Build, pull down Bower dependencies and more
-```
-grunt
-```
-
-#### Package for Chef deployment
-```
-grunt package
-```
-
-This will generate a few things.  First, it will generate a settings.json.erb in a 
-templates directory at the root of the project, then that will be included in an 
-conqueso-server-<version>.zip file generated in the artifact directory. 
-
-To clean up the resulting artifact and templates directory, run "grunt clean".
+The dependencies within package.json with Bower were held under bower_components. By migrating to Yarn, the dependencies are moved to node_modules/@bower_componenets
