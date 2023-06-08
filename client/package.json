@@ -10,6 +10,7 @@
     "@bower_components/requirejs": "jrburke/requirejs-bower#2.1.16",
     "@bower_components/roboto-fontface": "choffmeister/roboto-fontface-bower#0.2.7",
     "@bower_components/underscore": "jashkenas/underscore#>=1.5.0",
+    "cjs": "^0.0.11",
     "express": "^4.18.2"
   },
   "engines": {
