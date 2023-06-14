@@ -1,5 +1,6 @@
 # these node images comes with yarn preinstalled.
-FROM node:20.2.0
+FROM node:20
+ENV NODE_OPTIONS=--openssl-legacy-provider
 COPY . /app
 WORKDIR /app
 RUN yarn install
