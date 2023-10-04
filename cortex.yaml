@@ -1,0 +1,15 @@
+---
+info:
+  title: Conqueso
+  description: Centrally and dynamically change configuration values of your services!
+  x-cortex-git:
+    github:
+      alias: r7org
+      repository: rapid7/conqueso
+  x-cortex-tag: conqueso
+  x-cortex-type: service
+  x-cortex-domain-parents:
+  - tag: platform-delivery
+openapi: 3.0.1
+servers:
+- url: "/"
